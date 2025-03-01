@@ -99,6 +99,8 @@ a:hover {
   display: flex;
   gap: 20px;
   padding: 20px 0px;
+  margin: auto;
+  max-width: 1250px;
 }
 
 .consultant {
@@ -224,10 +226,11 @@ html {
 }
 
 .video-container {
+  margin-top: 20px;
   position: relative;
   height: fit-content;
   width: 100%; /* Matches the container width */
-  padding-top: 36.25%; /* 16:9 Aspect Ratio (Height = Width * 9/16) */
+  padding-top: 600px; /* 16:9 Aspect Ratio (Height = Width * 9/16) */
 }
 
 .video-container iframe {
@@ -235,7 +238,7 @@ html {
   top: 0;
   left: 0;
   width: 100%;
-  height: 60vh;
+  height: 600px;
   border-radius: 20px;
 }
 
@@ -319,4 +322,55 @@ td {
 
 .infor-item th {
   padding: 10px 10px;
+}
+
+.hightlight-btn-img {
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: contain;
+  object-position: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0.5rem;
+  margin-top: 10px;
+}
+
+.hightlight-btn {
+  width: 9.4rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 0.95rem;
+  width: 188px;
+  height: 199px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  border-top-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all;
+  transition-duration: 300ms;
+}
+
+.hightlight-btn:hover {
+  transform: scale(1.08);
+  border: 1px solid #0057a6;
+  font-weight: 600;
+}
+
+.benefits-tab {
+  display: flex;
+  flex-direction: column;
+  width: calc(33.33% - 20px);
+  padding: 20px 20px;
+  border: 1px solid transparent;
+  border-radius: 0.3rem;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(#fff, #fff),
+    linear-gradient(90deg, #f7a14b 0%, #fdca5b 100%);
 }
