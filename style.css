@@ -374,3 +374,120 @@ td {
   background-image: linear-gradient(#fff, #fff),
     linear-gradient(90deg, #f7a14b 0%, #fdca5b 100%);
 }
+
+.popover {
+  /* ... existing styles ... */
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.has-popover:hover .popover {
+  display: block;
+  opacity: 1;
+}
+
+/* Style for the menu item with popover */
+.has-popover {
+  position: relative;
+}
+
+/* Popover styles */
+.popover {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%; /* Position below the menu item */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  z-index: 1000;
+}
+
+/* Submenu styles */
+.submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.submenu li {
+  padding: 8px 15px;
+  white-space: nowrap;
+}
+
+.submenu li:hover {
+  background-color: #f5f5f5;
+}
+
+/* Show popover on hover */
+.has-popover:hover .popover {
+  display: block;
+}
+
+.slider-container {
+  width: 100%;
+  max-width: 1250px; /* Adjust as needed */
+  height: 700px; /* Adjust height as needed */
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+  margin-top: 80px;
+  border-radius: 10px;
+}
+
+.slides {
+  display: flex;
+  width: 300%; /* 100% × number of slides (3 slides here) */
+  height: 100%;
+  animation: slide 18s infinite; /* 3s per slide × 3 slides */
+}
+
+.slide {
+  object-fit: cover;
+  width: 33.33%; /* 100% ÷ number of slides */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  text-align: center;
+}
+
+/* Different background colors for each slide */
+.slide:nth-child(1) {
+  background-color: #3498db;
+}
+.slide:nth-child(2) {
+  background-color: #e74c3c;
+}
+.slide:nth-child(3) {
+  background-color: #2ecc71;
+}
+
+/* Animation keyframes */
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  30% {
+    transform: translateX(0); /* Hold first slide */
+  }
+  33.33% {
+    transform: translateX(-33.33%); /* Transition to second */
+  }
+  63.33% {
+    transform: translateX(-33.33%); /* Hold second slide */
+  }
+  66.66% {
+    transform: translateX(-66.66%); /* Transition to third */
+  }
+  96.66% {
+    transform: translateX(-66.66%); /* Hold third slide */
+  }
+  100% {
+    transform: translateX(0); /* Optional: loop back to start */
+  }
+}
