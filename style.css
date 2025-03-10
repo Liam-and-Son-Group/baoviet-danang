@@ -300,6 +300,14 @@ footer a {
   gap: 20px;
 }
 
+.infor-item {
+  width: 75%;
+  margin: 50px auto;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
 .infor-item table,
 th,
 td {
@@ -429,12 +437,15 @@ td {
 .slider-container {
   width: 100%;
   max-width: 1250px; /* Adjust as needed */
-  height: 700px; /* Adjust height as needed */
   overflow: hidden;
   position: relative;
   margin: 0 auto;
   margin-top: 80px;
   border-radius: 10px;
+}
+
+.slider-container video {
+  width: 100% !important;
 }
 
 .slides {
@@ -489,5 +500,106 @@ td {
   }
   100% {
     transform: translateX(0); /* Optional: loop back to start */
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1024px) {
+  .navigation-items {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    gap: 1.7rem;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: #0060ae;
+    font-weight: 600;
+  }
+
+  .navigation-items {
+    display: none;
+  }
+
+  .consultant-bg {
+    display: none;
+  }
+
+  .card-infor {
+    width: 100%;
+  }
+
+  .slider-container {
+    margin-top: 50px;
+    border-radius: 0;
+  }
+
+  .card {
+    width: calc(50% - 10px);
+  }
+
+  .container-list {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0px;
+    margin: auto;
+    max-width: 1250px;
+    flex-wrap: wrap;
+    padding: 20px 20px;
+  }
+
+  .card-block {
+    border-radius: 10px;
+    width: 100%;
+    margin: 0px auto;
+    margin-top: 20px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  }
+
+  .infor-item {
+    width: 100%;
+    margin: 50px auto;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1400px) {
+  .navigation-items {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    gap: 0.5rem;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #0060ae;
+    font-weight: 600;
+  }
+
+  .logo {
+    width: 197px;
+    height: 23.55px;
+  }
+
+  .contact-title {
+    font-size: 12px;
+  }
+
+  .phone-number {
+    font-size: 16px;
+  }
+
+  .head-wrapper {
+    background-color: white;
+    display: flex;
+    position: fixed;
+    top: 0;
+    z-index: 10;
+    max-width: calc(100vw - 40px);
+    width: 100vw;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   }
 }
