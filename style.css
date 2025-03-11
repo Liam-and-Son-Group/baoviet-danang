@@ -503,7 +503,7 @@ td {
   }
 }
 
-@media (min-width: 600px) and (max-width: 1024px) {
+@media (min-width: 337px) and (max-width: 500px) {
   .navigation-items {
     display: flex;
     flex-direction: row;
@@ -513,6 +513,17 @@ td {
     text-transform: uppercase;
     color: #0060ae;
     font-weight: 600;
+  }
+
+  .head-wrapper {
+    padding: 5px 20px;
+    max-width: 100% !important;
+    height: 64px;
+  }
+
+  .logo {
+    width: 202px;
+    height: 25.55px;
   }
 
   .navigation-items {
@@ -533,7 +544,11 @@ td {
   }
 
   .card {
-    width: calc(50% - 10px);
+    width: 100%;
+  }
+
+  .card-item {
+    width: 100%;
   }
 
   .container-list {
@@ -555,15 +570,75 @@ td {
   }
 
   .infor-item {
-    width: 100%;
-    margin: 50px auto;
+    max-width: 100%;
+    overflow: scroll;
+    width: 100% !important;
+    margin: 20px 10px !important;
     display: flex;
     gap: 20px;
     justify-content: center;
   }
+
+  .contact-wrapper {
+    display: none;
+  }
+
+  .footer-container {
+    flex-direction: column !important;
+    gap: 20px;
+  }
+
+  #hightlight {
+    width: 100%;
+    flex-direction: column;
+    padding: 10px 5px;
+    box-sizing: border-box;
+    align-items: center;
+  }
+
+  #hightlight > .hightlight-btn {
+    width: 90%;
+    min-height: 100px;
+    height: fit-content;
+  }
+
+  #benefit-tabs {
+    width: 100%;
+    flex-direction: column;
+    padding: 10px 5px;
+    box-sizing: border-box;
+    align-items: center;
+  }
+
+  #documentation {
+    flex-direction: column;
+  }
+
+  #documentation > img {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .benefits-tab {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .card-block > .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 30px;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .content > div {
+    width: 100% !important;
+  }
 }
 
-@media (min-width: 1024px) and (max-width: 1400px) {
+@media (min-width: 500px) and (max-width: 1400px) {
   .navigation-items {
     display: flex;
     flex-direction: row;
