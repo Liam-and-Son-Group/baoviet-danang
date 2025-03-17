@@ -350,7 +350,7 @@ td {
   flex-direction: column;
   padding: 1.2rem 0.95rem;
   width: 188px;
-  height: 199px;
+  min-height: 199px;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   border-top-left-radius: 40px;
   border-bottom-right-radius: 40px;
@@ -566,7 +566,7 @@ td {
     width: 100%;
     margin: 0px auto;
     margin-top: 20px;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    box-shadow: rgba(0, 0, 0, 0.24) g0px 3px 8px;
   }
 
   .infor-item {
@@ -575,8 +575,12 @@ td {
     width: 100% !important;
     margin: 20px 10px !important;
     display: flex;
-    gap: 20px;
+    gap: 10px;
     justify-content: center;
+  }
+
+  .infor-item p {
+    line-height: normal;
   }
 
   .contact-wrapper {
@@ -677,4 +681,48 @@ td {
     padding: 5px 20px;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   }
+}
+
+.slider {
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Wrapper for slides */
+.slides {
+  display: flex;
+  width: 300%;
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Each Slide */
+.slide {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Background Colors */
+.slide:nth-child(1) {
+  background: lightcoral;
+}
+.slide:nth-child(2) {
+  background: lightblue;
+}
+.slide:nth-child(3) {
+  background: lightgreen;
+}
+
+/* Buttons */
+.controls {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }

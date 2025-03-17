@@ -14,7 +14,19 @@
     <img class="logo" src="https://baovietonline.com.vn/templates/images/logo2x.png" alt="Logo Bảo Việt Đà Nẵng">
     <ul class="navigation-items">
       <li class="">Trang chủ</li>
-      <li class="">Bảo hiểm nhân thọ</li>
+      <li class="has-popover">Bảo hiểm nhân thọ
+        <div class="popover">
+          <ul class="submenu">
+            <li onclick="window.location.href='/baohiemantamhoachdinh.html'">An Tâm Hoạch Định</li>
+            <li onclick="window.location.href='/baohiemchayno.html'">An Khang Như Ý</li>
+            <li onclick="window.location.href='/index.html'">An Phát Cát Tường</li>
+            <li onclick="window.location.href='/baohiemsuckhoe.html'">An Khang Hạnh Phúc</li>
+            <li onclick="window.location.href='/baohiemintercare.html'">An vui sống khoẻ</li>
+            <li onclick="window.location.href='/baohiemxemay.html'">An tâm học vấn</li>
+            <li onclick="window.location.href='/baohiemtravel.html'">An phát trọn đời</li>
+          </ul>
+        </div>
+      </li>
       <li class="has-popover">Bảo hiểm phi nhân thọ
         <div class="popover">
           <ul class="submenu">
@@ -22,14 +34,14 @@
             <li onclick="window.location.href='/baohiemchayno.html'">Bảo hiểm cháy, nổ bắt buộc</li>
             <li onclick="window.location.href='/index.html'">Bảo hiểm mọi rủi ro tài sản </li>
             <li onclick="window.location.href='/baohiemsuckhoe.html'">Bảo Việt An Gia </li>
-            <li>Bảo hiểm Intercare </li>
-            <li>Bảo hiểm xe máy</li>
+            <li onclick="window.location.href='/baohiemintercare.html'">Bảo hiểm Intercare </li>
+            <li onclick="window.location.href='/baohiemxemay.html'">Bảo hiểm xe máy</li>
             <li onclick="window.location.href='/baohiemtravel.html'">Bảo hiểm du lịch Flexi</li>
           </ul>
         </div>
       </li>
       <li class="">Tuyển dụng</li>
-      <li class="">Tin tức</li>
+
     </ul>
     <div class="contact-wrapper">
       <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon"
@@ -42,13 +54,21 @@
     </div>
   </nav>
 
-  <div class="slider-container">
-    <video style="width: 100%; height: auto; border-radius: 10px;" autoplay muted loop>
-      <source
-        src="https://res.cloudinary.com/dwxtfncax/video/upload/v1741279107/Phim_doanh_nghie%CC%A3%CC%82p_Ba%CC%89o_Hie%CC%82%CC%89m_Ba%CC%89o_Vie%CC%A3%CC%82t_-_BaoViet_Insurance_1080p_h264_1_vdpbc7.mp4"
-        type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
+
+  <div class="slider">
+    <div class="slides">
+      <div class="slide"
+        style="background-image: url(https://media.thuonghieucongluan.vn/uploads/2024/06/24/anh02-1719198723.jpg); background-size: cover; background-position: center; background-repeat: no-repeat;">
+      </div>
+      <div class="slide"
+        style="background-image: url(https://media.thuonghieucongluan.vn/uploads/2024/06/24/anh02-1719198723.jpg); background-size: cover; background-position: center; background-repeat: no-repeat;">
+      </div>
+      <div class="slide"
+        style="background-image: url(https://media.thuonghieucongluan.vn/uploads/2024/06/24/anh02-1719198723.jpg); background-size: cover; background-position: center; background-repeat: no-repeat;">
+      </div>
+    </div>
+  </div>
+
   </div>
   </div>
 
@@ -241,5 +261,28 @@
     </div>
   </footer>
 </body>
+
+<script>
+  let currentIndex = 0;
+  const slides = document.querySelector(".slides");
+  const totalSlides = document.querySelectorAll(".slide").length;
+
+  function updateSlide() {
+    slides.style.transform = `translateX(-${currentIndex * 100}%)`;
+  }
+
+  function nextSlide() {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlide();
+  }
+
+  function prevSlide() {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateSlide();
+  }
+
+  // Auto slide every 3 seconds
+  setInterval(nextSlide, 3000);
+</script>
 
 </html>
