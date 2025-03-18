@@ -11,8 +11,13 @@
 <body>
   <nav class="head-wrapper">
     <img class="logo" src="https://baovietonline.com.vn/templates/images/logo2x.png" alt="Logo Bảo Việt Đà Nẵng">
-    <ul class="navigation-items">
-      <li class="" onclick="window.location.href='/'">Trang chủ</a></li>
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <ul class="navigation-items" id="menu">
+      <li onclick="window.location.href='/index.html'">Trang chủ</li>
       <li class="has-popover">Bảo hiểm nhân thọ
         <div class="popover">
           <ul class="submenu">
@@ -22,7 +27,7 @@
             <li onclick="window.location.href='/baohiemankhanghanhphuc.html'">An Khang Hạnh Phúc</li>
             <li onclick="window.location.href='/baohiemanvuisongkhoe.html'">An vui sống khoẻ</li>
             <li onclick="window.location.href='/baohiemantamhocvan.html'">An tâm học vấn</li>
-            <li onclick="window.location.href='/index.html'">An phát trọn đời</li>
+            <li onclick="window.location.href='/baohiemanphattrondoi.html'">An phát trọn đời</li>
           </ul>
         </div>
       </li>
@@ -39,20 +44,18 @@
           </ul>
         </div>
       </li>
-      <li class="">Tuyển dụng</li>
-
+      <li>Tuyển dụng</li>
     </ul>
     <div class="contact-wrapper">
-      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon"
-        srcset="">
+      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon">
       <div class="contact-detail">
         <p class="contact-title">Tư vấn miễn phí</p>
-        <p class="phone-number">0905.499.496</p>
+        <p class="phone-number">0905.499.496 <span style="color: black; font-weight: 600;">/</span>
+          0931.909.697
+        </p>
       </div>
     </div>
-    </div>
   </nav>
-
   <div class="container">
 
     <div class="card-block">
@@ -76,7 +79,11 @@
         <div style="display: flex; gap: 10px; align-items: center;">
           <img style="height: 25px; width: 25px;" class="nav_icon mr-lg-2"
             src="https://seeklogo.com/images/Z/zalo-logo-BB6C937412-seeklogo.com.png" alt="">
-          <a style="font-size: 14px; margin: 0; cursor: pointer;" href="https://zalo.me/84931909697">0905.499.496</a>
+          <a style="font-size: 14px; margin: 0; cursor: pointer; width:fit-content;"
+            href="tel:+84905499496">0905.499.496</a>
+          <span>/</span>
+          <a style="font-size: 14px; margin: 0; cursor: pointer; width:fit-content;"
+            href="https://zalo.me/84931909697">0931.909.697</a>
         </div>
       </div>
     </div>
@@ -111,7 +118,7 @@
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         Đối tượng</p>
       <div>
         <ul style="list-style:disc">
@@ -123,7 +130,7 @@
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         Quyền lợi chính</p>
       <div style="max-width: 100%; overflow-x: scroll;">
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%" class="table table-bordered">
@@ -145,211 +152,211 @@
             <tr>
               <td>1. Tổng hạn mức quyền lợi bảo hiểm chính</td>
               <td>
-                <p>93.800.000đ/người/năm</p>
+                <p style="margin-top:0;">93.800.000đ/người/năm</p>
               </td>
               <td>
-                <p>137.600.000đ/người/năm</p>
+                <p style="margin-top:0;">137.600.000đ/người/năm</p>
               </td>
               <td>
-                <p>230.000.000đ/người/năm</p>
+                <p style="margin-top:0;">230.000.000đ/người/năm</p>
               </td>
               <td>
-                <p>342.000.000đ/người/năm</p>
+                <p style="margin-top:0;">342.000.000đ/người/năm</p>
               </td>
               <td>
-                <p>454.000.000đ/người/năm</p>
+                <p style="margin-top:0;">454.000.000đ/người/năm</p>
               </td>
             </tr>
             <tr>
               <td>2. Phạm vi lãnh thổ</td>
               <td>
-                <p>Việt Nam</p>
+                <p style="margin-top:0;">Việt Nam</p>
               </td>
               <td>
-                <p>Việt Nam</p>
+                <p style="margin-top:0;">Việt Nam</p>
               </td>
               <td>
-                <p>Việt Nam</p>
+                <p style="margin-top:0;">Việt Nam</p>
               </td>
               <td>
-                <p>Việt Nam</p>
+                <p style="margin-top:0;">Việt Nam</p>
               </td>
               <td>
-                <p>Việt Nam</p>
+                <p style="margin-top:0;">Việt Nam</p>
               </td>
             </tr>
             <tr>
               <td style="height:25px; width:150px">3. Chi phí nằm viện</td>
               <td style="height:25px; width:150px">
-                <p>2.000.000đ/ngày</p>
+                <p style="margin-top:0;">2.000.000đ/ngày</p>
 
-                <p>Tối đa&nbsp;40.000.000đ/năm</p>
+                <p style="margin-top:0;">Tối đa&nbsp;40.000.000đ/năm</p>
 
-                <p>Không quá 60 ngày/năm</p>
+                <p style="margin-top:0;">Không quá 60 ngày/năm</p>
               </td>
               <td style="height:25px; width:150px">
-                <p>3.000.000đ/ngày</p>
+                <p style="margin-top:0;">3.000.000đ/ngày</p>
 
-                <p>Tối đa&nbsp;60.000.000/năm</p>
+                <p style="margin-top:0;">Tối đa&nbsp;60.000.000/năm</p>
 
-                <p>Không quá 60 ngày/năm</p>
+                <p style="margin-top:0;">Không quá 60 ngày/năm</p>
               </td>
               <td style="height:25px; width:150px">
-                <p>5.000.000đ/ngày</p>
+                <p style="margin-top:0;">5.000.000đ/ngày</p>
 
-                <p>Tối đa&nbsp;100.000.000đ/năm</p>
+                <p style="margin-top:0;">Tối đa&nbsp;100.000.000đ/năm</p>
 
-                <p>Không quá 60 ngày/năm</p>
+                <p style="margin-top:0;">Không quá 60 ngày/năm</p>
               </td>
               <td style="height:25px; width:150px">
-                <p>7.500.000đ/ngày</p>
+                <p style="margin-top:0;">7.500.000đ/ngày</p>
 
-                <p>Tối đa&nbsp;150.000.000đ/năm</p>
+                <p style="margin-top:0;">Tối đa&nbsp;150.000.000đ/năm</p>
 
-                <p>Không quá 60 ngày/năm</p>
+                <p style="margin-top:0;">Không quá 60 ngày/năm</p>
               </td>
               <td style="height:25px; width:150px">
-                <p>10.000.000đ/ngày</p>
+                <p style="margin-top:0;">10.000.000đ/ngày</p>
 
-                <p>Tối đa&nbsp;200.000.000đ/năm</p>
+                <p style="margin-top:0;">Tối đa&nbsp;200.000.000đ/năm</p>
 
-                <p>Không quá 60 ngày/năm</p>
+                <p style="margin-top:0;">Không quá 60 ngày/năm</p>
               </td>
             </tr>
             <tr>
               <td>4. Chi phí khám và điều trị</td>
               <td>
-                <p>2.000.000đ/năm</p>
+                <p style="margin-top:0;">2.000.000đ/năm</p>
               </td>
               <td>
-                <p>3.000.000đ/năm</p>
+                <p style="margin-top:0;">3.000.000đ/năm</p>
               </td>
               <td>
-                <p>5.000.000đ/năm</p>
+                <p style="margin-top:0;">5.000.000đ/năm</p>
               </td>
               <td>
-                <p>7.500.000đ/năm</p>
+                <p style="margin-top:0;">7.500.000đ/năm</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
               </td>
             </tr>
             <tr>
               <td>5. Chi phí tái khám và điều trị</td>
               <td>
-                <p>2.000.000đ/năm</p>
+                <p style="margin-top:0;">2.000.000đ/năm</p>
               </td>
               <td>
-                <p>3.000.000đ/năm</p>
+                <p style="margin-top:0;">3.000.000đ/năm</p>
               </td>
               <td>
-                <p>5.000.000đ/năm</p>
+                <p style="margin-top:0;">5.000.000đ/năm</p>
               </td>
               <td>
-                <p>7.500.000đ/năm</p>
+                <p style="margin-top:0;">7.500.000đ/năm</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
               </td>
             </tr>
             <tr>
               <td>6. Dịch vụ xe cứu thương bằng đường bộ</td>
               <td>
-                <p>5.000.000đ/năm</p>
+                <p style="margin-top:0;">5.000.000đ/năm</p>
               </td>
               <td>
-                <p>5.000.000đ/năm</p>
+                <p style="margin-top:0;">5.000.000đ/năm</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
               </td>
             </tr>
             <tr>
               <td>7. Chi phí Phẫu thuật</td>
               <td>
-                <p>40.000.000đ/năm</p>
+                <p style="margin-top:0;">40.000.000đ/năm</p>
               </td>
               <td>
-                <p>60.000.000đ/năm</p>
+                <p style="margin-top:0;">60.000.000đ/năm</p>
               </td>
               <td>
-                <p>100.000.000đ/năm</p>
+                <p style="margin-top:0;">100.000.000đ/năm</p>
               </td>
               <td>
-                <p>150.000.000đ/năm</p>
+                <p style="margin-top:0;">150.000.000đ/năm</p>
               </td>
               <td>
-                <p>200.000.000đ/năm</p>
+                <p style="margin-top:0;">200.000.000đ/năm</p>
               </td>
             </tr>
             <tr>
               <td>8. Phục hồi chức năng</td>
               <td>
-                <p>4.000.000đ/năm</p>
+                <p style="margin-top:0;">4.000.000đ/năm</p>
               </td>
               <td>
-                <p>6.000.000đ/năm</p>
+                <p style="margin-top:0;">6.000.000đ/năm</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
               </td>
               <td>
-                <p>15.000.000đ/năm</p>
+                <p style="margin-top:0;">15.000.000đ/năm</p>
               </td>
               <td>
-                <p>20.000.000đ/năm</p>
+                <p style="margin-top:0;">20.000.000đ/năm</p>
               </td>
             </tr>
             <tr>
               <td>9. Trợ cấp bệnh viện công</td>
               <td>
-                <p>80.000đ/ ngày</p>
+                <p style="margin-top:0;">80.000đ/ ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
               <td>
-                <p>120.000đ/ngày</p>
+                <p style="margin-top:0;">120.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
               <td>
-                <p>200.000đ/ngày</p>
+                <p style="margin-top:0;">200.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
               <td>
-                <p>300.000đ/ngày</p>
+                <p style="margin-top:0;">300.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
               <td>
-                <p>400.000đ/ngày</p>
+                <p style="margin-top:0;">400.000đ/ngày</p>
 
-                <p>Không quá 60 ngày/năm</p>
+                <p style="margin-top:0;">Không quá 60 ngày/năm</p>
               </td>
             </tr>
             <tr>
               <td>10. Trợ cấp mai táng phí trong trường hợp tử vong tại bênh viện</td>
               <td>
-                <p>500.000đ/vụ</p>
+                <p style="margin-top:0;">500.000đ/vụ</p>
               </td>
               <td>
-                <p>500.000đ/vụ</p>
+                <p style="margin-top:0;">500.000đ/vụ</p>
               </td>
               <td>
-                <p>500.000đ/vụ</p>
+                <p style="margin-top:0;">500.000đ/vụ</p>
               </td>
               <td>
-                <p>500.000đ/vụ</p>
+                <p style="margin-top:0;">500.000đ/vụ</p>
               </td>
               <td>
-                <p>500.000đ/vụ</p>
+                <p style="margin-top:0;">500.000đ/vụ</p>
               </td>
             </tr>
             <tr>
@@ -358,157 +365,157 @@
             <tr>
               <td>1. Điều trị ngoại trú do ốm bệnh, tai nạn</td>
               <td>
-                <p>6.000.000đ/năm</p>
+                <p style="margin-top:0;">6.000.000đ/năm</p>
               </td>
               <td>
-                <p>6.000.000đ/năm</p>
+                <p style="margin-top:0;">6.000.000đ/năm</p>
               </td>
               <td>
-                <p>6.000.000đ/năm</p>
+                <p style="margin-top:0;">6.000.000đ/năm</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
               </td>
               <td>
-                <p>15.000.000đ/năm</p>
+                <p style="margin-top:0;">15.000.000đ/năm</p>
               </td>
             </tr>
             <tr>
               <td>- Giới hạn /lần khám</td>
               <td>
-                <p>1.200.000đ/lần</p>
+                <p style="margin-top:0;">1.200.000đ/lần</p>
 
-                <p>Không quá&nbsp;10&nbsp;lần/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;10&nbsp;lần/năm</p>
               </td>
               <td>
-                <p>1.200.000đ/lần</p>
+                <p style="margin-top:0;">1.200.000đ/lần</p>
 
-                <p>Không quá&nbsp;10&nbsp;lần/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;10&nbsp;lần/năm</p>
               </td>
               <td>
-                <p>1.200.000đ/lần</p>
+                <p style="margin-top:0;">1.200.000đ/lần</p>
 
-                <p>Không quá&nbsp;10&nbsp;lần/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;10&nbsp;lần/năm</p>
               </td>
               <td>
-                <p>2.000.000đ/lần</p>
+                <p style="margin-top:0;">2.000.000đ/lần</p>
 
-                <p>Không quá&nbsp;10&nbsp;lần/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;10&nbsp;lần/năm</p>
               </td>
               <td>
-                <p>3.000.000đ/lần</p>
+                <p style="margin-top:0;">3.000.000đ/lần</p>
 
-                <p>Không quá&nbsp;10&nbsp;lần/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;10&nbsp;lần/năm</p>
               </td>
             </tr>
             <tr>
               <td>- Điều trị vật lý trị liệu</td>
               <td>
-                <p>50.000đ/ngày</p>
+                <p style="margin-top:0;">50.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60 ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60 ngày/năm</p>
               </td>
               <td>
-                <p>50.000đ/ngày</p>
+                <p style="margin-top:0;">50.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
               <td>
-                <p>50.000đ/ngày</p>
+                <p style="margin-top:0;">50.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
               <td>
-                <p>100.000đ/ngày</p>
+                <p style="margin-top:0;">100.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
               <td>
-                <p>150.000đ/ngày</p>
+                <p style="margin-top:0;">150.000đ/ngày</p>
 
-                <p>Không quá&nbsp;60&nbsp;ngày/năm</p>
+                <p style="margin-top:0;">Không quá&nbsp;60&nbsp;ngày/năm</p>
               </td>
             </tr>
             <tr>
               <td>2. BH Tai nạn cá nhân (TNCN)</td>
               <td>
-                <p>Tối đa&nbsp;1.000.000.000đ</p>
+                <p style="margin-top:0;">Tối đa&nbsp;1.000.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa&nbsp;1.000.000.000đ</p>
+                <p style="margin-top:0;">Tối đa&nbsp;1.000.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa&nbsp;1.000.000.000đ</p>
+                <p style="margin-top:0;">Tối đa&nbsp;1.000.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa&nbsp;1.000.000.000đ</p>
+                <p style="margin-top:0;">Tối đa&nbsp;1.000.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa&nbsp;1.000.000.000đ</p>
+                <p style="margin-top:0;">Tối đa&nbsp;1.000.000.000đ</p>
               </td>
             </tr>
             <tr>
               <td>3. BH Sinh mạng cá nhân (SMCN)</td>
               <td>
-                <p>Tối đa 300.000.000đ</p>
+                <p style="margin-top:0;">Tối đa 300.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa 300.000.000đ</p>
+                <p style="margin-top:0;">Tối đa 300.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa 300.000.000đ</p>
+                <p style="margin-top:0;">Tối đa 300.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa 300.000.000đ</p>
+                <p style="margin-top:0;">Tối đa 300.000.000đ</p>
               </td>
               <td>
-                <p>Tối đa 300.000.000đ</p>
+                <p style="margin-top:0;">Tối đa 300.000.000đ</p>
               </td>
             </tr>
             <tr>
               <td>4. BH Nha khoa</td>
               <td>
-                <p>2.000.000đ/năm&nbsp;</p>
+                <p style="margin-top:0;">2.000.000đ/năm&nbsp;</p>
 
-                <p>1.000.000đ/lần khám</p>
+                <p style="margin-top:0;">1.000.000đ/lần khám</p>
               </td>
               <td>
-                <p>2.000.000đ/năm</p>
+                <p style="margin-top:0;">2.000.000đ/năm</p>
 
-                <p>1.000.000đ/lần khám</p>
+                <p style="margin-top:0;">1.000.000đ/lần khám</p>
               </td>
               <td>
-                <p>5.000.000đ/năm</p>
+                <p style="margin-top:0;">5.000.000đ/năm</p>
 
-                <p>2.500.000đ/lần khám</p>
+                <p style="margin-top:0;">2.500.000đ/lần khám</p>
               </td>
               <td>
-                <p>10.000.000đ/năm</p>
+                <p style="margin-top:0;">10.000.000đ/năm</p>
 
-                <p>5.000.000đ/lần khám</p>
+                <p style="margin-top:0;">5.000.000đ/lần khám</p>
               </td>
               <td>
-                <p>15.000.000đ/năm</p>
+                <p style="margin-top:0;">15.000.000đ/năm</p>
 
-                <p>7.500.000đ/lần khám</p>
+                <p style="margin-top:0;">7.500.000đ/lần khám</p>
               </td>
             </tr>
             <tr>
               <td>5. BH Thai sản</td>
               <td>
-                <p>Không</p>
+                <p style="margin-top:0;">Không</p>
               </td>
               <td>
-                <p>21.000.000đ/năm</p>
+                <p style="margin-top:0;">21.000.000đ/năm</p>
               </td>
               <td>
-                <p>21.000.000đ/năm</p>
+                <p style="margin-top:0;">21.000.000đ/năm</p>
               </td>
               <td>
-                <p>21.000.000đ/năm</p>
+                <p style="margin-top:0;">21.000.000đ/năm</p>
               </td>
               <td>
-                <p>31.500.000đ/năm</p>
+                <p style="margin-top:0;">31.500.000đ/năm</p>
               </td>
             </tr>
           </tbody>
@@ -518,7 +525,7 @@
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         Biểu phí bảo hiểm</p>
       <div style="max-width: 100%; overflow-x: scroll;">
         <table style="width: 100%;">
@@ -737,7 +744,7 @@
       <div class="infor-col">
         <p class="title">Thông tin liên hệ</p>
         <ul>
-          <li>Số điện thoại: 0905.499.496</li>
+          <li>Số điện thoại: 0905.499.496 / 0931.909.697</li>
           <li>Gmail: <a href="mailto:vanthangnguyen1802@gmail.com">
               vanthangnguyen1802@gmail.com
             </a></li>
@@ -756,7 +763,7 @@
       </div>
       <div class="infor-col">
         <p class="title">Giải thưởng danh giá</p>
-        <p>Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
+        <p style="margin-top:0;">Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
         <div style="display: flex; gap: 12px">
           <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/e3753335c1f0f2538ee6fc0f07e4b2b0.png"
             alt="">
@@ -771,5 +778,10 @@
     </div>
   </footer>
 </body>
+<script>
+  function toggleMenu() {
+    document.getElementById("menu").classList.toggle("active");
+  }
+</script>
 
 </html>

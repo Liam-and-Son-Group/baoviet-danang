@@ -11,8 +11,13 @@
 <body>
   <nav class="head-wrapper">
     <img class="logo" src="https://baovietonline.com.vn/templates/images/logo2x.png" alt="Logo Bảo Việt Đà Nẵng">
-    <ul class="navigation-items">
-      <li class="" onclick="window.location.href='/'">Trang chủ</a></li>
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <ul class="navigation-items" id="menu">
+      <li onclick="window.location.href='/index.html'">Trang chủ</li>
       <li class="has-popover">Bảo hiểm nhân thọ
         <div class="popover">
           <ul class="submenu">
@@ -22,7 +27,7 @@
             <li onclick="window.location.href='/baohiemankhanghanhphuc.html'">An Khang Hạnh Phúc</li>
             <li onclick="window.location.href='/baohiemanvuisongkhoe.html'">An vui sống khoẻ</li>
             <li onclick="window.location.href='/baohiemantamhocvan.html'">An tâm học vấn</li>
-            <li onclick="window.location.href='/index.html'">An phát trọn đời</li>
+            <li onclick="window.location.href='/baohiemanphattrondoi.html'">An phát trọn đời</li>
           </ul>
         </div>
       </li>
@@ -39,20 +44,18 @@
           </ul>
         </div>
       </li>
-      <li class="">Tuyển dụng</li>
-
+      <li>Tuyển dụng</li>
     </ul>
     <div class="contact-wrapper">
-      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon"
-        srcset="">
+      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon">
       <div class="contact-detail">
         <p class="contact-title">Tư vấn miễn phí</p>
-        <p class="phone-number">0905.499.496</p>
+        <p class="phone-number">0905.499.496 <span style="color: black; font-weight: 600;">/</span>
+          0931.909.697
+        </p>
       </div>
     </div>
-    </div>
   </nav>
-
   <div class="container">
 
     <div class="card-block">
@@ -74,14 +77,18 @@
         <div style="display: flex; gap: 10px; align-items: center;">
           <img style="height: 25px; width: 25px;" class="nav_icon mr-lg-2"
             src="https://seeklogo.com/images/Z/zalo-logo-BB6C937412-seeklogo.com.png" alt="">
-          <a style="font-size: 14px; margin: 0; cursor: pointer;" href="https://zalo.me/84931909697">0905.499.496</a>
+          <a style="font-size: 14px; margin: 0; cursor: pointer; width:fit-content;"
+            href="tel:+84905499496">0905.499.496</a>
+          <span>/</span>
+          <a style="font-size: 14px; margin: 0; cursor: pointer; width:fit-content;"
+            href="https://zalo.me/84931909697">0931.909.697</a>
         </div>
       </div>
     </div>
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         QUYỀN LỢI ĐIỀU TRỊ NỘI TRÚ</p>
       <div>
         <img src="https://www.baovietnhantho.com.vn/storage/9c426a3c-d400-4574-97d5-1d4f688d69c7/quyen-loi-noi-tru.jpg"
@@ -91,7 +98,7 @@
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         QUYỀN LỢI ĐIỀU TRỊ NỘI TRÚ - CHI TRẢ ĐIỀU TRỊ UNG THƯ, CẤY GHÉP NỘI TẠNG</p>
       <div>
         <img src="https://www.baovietnhantho.com.vn/storage/9c426a62-7ebb-4a86-9898-200bb2e0d6d8/dieu-tri-ung-thu.jpg"
@@ -101,7 +108,7 @@
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="text-transform: uppercase; font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="text-transform: uppercase; font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         QUYỀN LỢI THAI SẢN VÀ ĐIỀU TRỊ NGOẠI TRÚ ĐẶC BIỆT</p>
       <div>
         <img src="https://www.baovietnhantho.com.vn/storage/9c426a7b-b630-4cd1-a25e-d1dbb30ce434/ngoai-tru-dac-biet.jpg"
@@ -111,7 +118,7 @@
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="text-transform: uppercase; font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="text-transform: uppercase; font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         QUYỀN LỢI ĐIỀU TRỊ NGOẠI TRÚ VÀ ĐIỀU TRỊ NHA KHOA</p>
       <div>
         <img
@@ -122,11 +129,12 @@
 
     <div class="infor-item" style="display: flex; flex-direction: column; width: 75%; margin: 50px auto;">
       <p
-        style="text-transform: uppercase; font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="text-transform: uppercase; font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         GIA TĂNG BẢO VỆ Gia đình</p>
       <div>
-        <ul style="list-style:number">
-          <p style="margin-top: 0;">Khách hàng được tham gia thêm đa dạng các Sản phẩm bán kèm cho cả bản thân và người
+        <ul style="list-style:number; line-height: 150%;">
+          <p style="margin-top: 0; line-height:150%">Khách hàng được tham gia thêm đa dạng các Sản phẩm bán kèm cho cả
+            bản thân và người
             thân trong gia đình:
             <br />
             • Nhóm sản phẩm chăm sóc sức khỏe.
@@ -151,7 +159,7 @@
       <div class="infor-col">
         <p class="title">Thông tin liên hệ</p>
         <ul>
-          <li>Số điện thoại: 0905.499.496</li>
+          <li>Số điện thoại: 0905.499.496 / 0931.909.697</li>
           <li>Gmail: <a href="mailto:vanthangnguyen1802@gmail.com">
               vanthangnguyen1802@gmail.com
             </a></li>
@@ -170,7 +178,7 @@
       </div>
       <div class="infor-col">
         <p class="title">Giải thưởng danh giá</p>
-        <p>Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
+        <p style="margin-top:0;">Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
         <div style="display: flex; gap: 12px">
           <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/e3753335c1f0f2538ee6fc0f07e4b2b0.png"
             alt="">
@@ -185,5 +193,10 @@
     </div>
   </footer>
 </body>
+<script>
+  function toggleMenu() {
+    document.getElementById("menu").classList.toggle("active");
+  }
+</script>
 
 </html>

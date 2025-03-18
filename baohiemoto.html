@@ -11,8 +11,13 @@
 <body>
   <nav class="head-wrapper">
     <img class="logo" src="https://baovietonline.com.vn/templates/images/logo2x.png" alt="Logo Bảo Việt Đà Nẵng">
-    <ul class="navigation-items">
-      <li class="" onclick="window.location.href='/'">Trang chủ</a></li>
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <ul class="navigation-items" id="menu">
+      <li onclick="window.location.href='/index.html'">Trang chủ</li>
       <li class="has-popover">Bảo hiểm nhân thọ
         <div class="popover">
           <ul class="submenu">
@@ -22,7 +27,7 @@
             <li onclick="window.location.href='/baohiemankhanghanhphuc.html'">An Khang Hạnh Phúc</li>
             <li onclick="window.location.href='/baohiemanvuisongkhoe.html'">An vui sống khoẻ</li>
             <li onclick="window.location.href='/baohiemantamhocvan.html'">An tâm học vấn</li>
-            <li onclick="window.location.href='/index.html'">An phát trọn đời</li>
+            <li onclick="window.location.href='/baohiemanphattrondoi.html'">An phát trọn đời</li>
           </ul>
         </div>
       </li>
@@ -39,20 +44,18 @@
           </ul>
         </div>
       </li>
-      <li class="">Tuyển dụng</li>
-
+      <li>Tuyển dụng</li>
     </ul>
     <div class="contact-wrapper">
-      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon"
-        srcset="">
+      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon">
       <div class="contact-detail">
         <p class="contact-title">Tư vấn miễn phí</p>
-        <p class="phone-number">0905.499.496</p>
+        <p class="phone-number">0905.499.496 <span style="color: black; font-weight: 600;">/</span>
+          0931.909.697
+        </p>
       </div>
     </div>
-    </div>
   </nav>
-
   <div class="container">
 
     <div class="card-block">
@@ -73,7 +76,11 @@
         <div style="display: flex; gap: 10px; align-items: center;">
           <img style="height: 25px; width: 25px;" class="nav_icon mr-lg-2"
             src="https://seeklogo.com/images/Z/zalo-logo-BB6C937412-seeklogo.com.png" alt="">
-          <a style="font-size: 14px; margin: 0; cursor: pointer;" href="https://zalo.me/84931909697">0905.499.496</a>
+          <a style="font-size: 14px; margin: 0; cursor: pointer; width:fit-content;"
+            href="tel:+84905499496">0905.499.496</a>
+          <span>/</span>
+          <a style="font-size: 14px; margin: 0; cursor: pointer; width:fit-content;"
+            href="https://zalo.me/84931909697">0931.909.697</a>
         </div>
       </div>
     </div>
@@ -103,7 +110,7 @@
 
     <div class="infor-item" style="margin: 50px auto; flex-direction: column;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         Đối tượng</p>
       <div>
         <ul style="list-style:disc">
@@ -114,7 +121,7 @@
 
     <div class="infor-item" style="margin: 50px auto; flex-direction: column;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         Quyền lợi chính</p>
       <div style="display: flex; justify-content: center; gap: 20px" id="benefit-tabs">
         <div class="benefits-tab">
@@ -146,7 +153,7 @@
 
     <div class="infor-item" style="margin: 50px auto; display: flex; flex-direction: column;">
       <p
-        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274);">
+        style="font-size: 24px; font-weight: 600; color: #0060ae; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.274); margin-bottom: 0;">
         Tài liệu biểu mẫu</p>
       <div id="documentation" style="display: flex; gap: 20px; width: 100%; align-items: start;">
         <img
@@ -159,7 +166,7 @@
             <div style="display: flex; gap: 10px; align-items: center;">
               <img style="width: 17px; height: 19px;"
                 src="https://baovietonline.com.vn/templates/images/icon_tai_lieu_bieu_mau.png" alt="" srcset="">
-              <p>Danh sách Garage liên kết với BHBV</p>
+              <p style="margin-top:0;">Danh sách Garage liên kết với BHBV</p>
             </div>
             <a style="display: flex; gap:10px; align-items: center; width: fit-content; cursor: pointer;"
               href="https://baovietonline.com.vn/uploads/attachment/danh-sach-garage-lien-ket-voi-bhbv-bao-hiem-vat-chat-xe-o-to-vi.xlsx">
@@ -173,7 +180,7 @@
             <div style="display: flex; gap: 10px; align-items: center;">
               <img style="width: 17px; height: 19px;"
                 src="https://baovietonline.com.vn/templates/images/icon_tai_lieu_bieu_mau.png" alt="" srcset="">
-              <p>Quy tắc bảo hiểm vật chất Ô Tô</p>
+              <p style="margin-top:0;">Quy tắc bảo hiểm vật chất Ô Tô</p>
             </div>
             <a style="display: flex; gap:10px; align-items: center; width: fit-content; cursor: pointer;"
               href="https://baovietonline.com.vn/uploads/attachment/quy-tac-bao-hiem-vat-chat-o-to-bao-hiem-vat-chat-xe-vi-1710993149.pdf">
@@ -201,7 +208,7 @@
       <div class="infor-col">
         <p class="title">Thông tin liên hệ</p>
         <ul>
-          <li>Số điện thoại: 0905.499.496</li>
+          <li>Số điện thoại: 0905.499.496 / 0931.909.697</li>
           <li>Gmail: <a href="mailto:vanthangnguyen1802@gmail.com">
               vanthangnguyen1802@gmail.com
             </a></li>
@@ -220,7 +227,7 @@
       </div>
       <div class="infor-col">
         <p class="title">Giải thưởng danh giá</p>
-        <p>Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
+        <p style="margin-top:0;">Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
         <div style="display: flex; gap: 12px">
           <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/e3753335c1f0f2538ee6fc0f07e4b2b0.png"
             alt="">
@@ -235,5 +242,10 @@
     </div>
   </footer>
 </body>
+<script>
+  function toggleMenu() {
+    document.getElementById("menu").classList.toggle("active");
+  }
+</script>
 
 </html>

@@ -12,18 +12,23 @@
 <body>
   <nav class="head-wrapper">
     <img class="logo" src="https://baovietonline.com.vn/templates/images/logo2x.png" alt="Logo Bảo Việt Đà Nẵng">
-    <ul class="navigation-items">
-      <li class="">Trang chủ</li>
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <ul class="navigation-items" id="menu">
+      <li onclick="window.location.href='/index.html'">Trang chủ</li>
       <li class="has-popover">Bảo hiểm nhân thọ
         <div class="popover">
           <ul class="submenu">
             <li onclick="window.location.href='/baohiemantamhoachdinh.html'">An Tâm Hoạch Định</li>
-            <li onclick="window.location.href='/baohiemchayno.html'">An Khang Như Ý</li>
-            <li onclick="window.location.href='/index.html'">An Phát Cát Tường</li>
-            <li onclick="window.location.href='/baohiemsuckhoe.html'">An Khang Hạnh Phúc</li>
-            <li onclick="window.location.href='/baohiemintercare.html'">An vui sống khoẻ</li>
-            <li onclick="window.location.href='/baohiemxemay.html'">An tâm học vấn</li>
-            <li onclick="window.location.href='/baohiemtravel.html'">An phát trọn đời</li>
+            <li onclick="window.location.href='/baohiemankhangnhuy.html'">An Khang Như Ý</li>
+            <li onclick="window.location.href='/baohiemanphatcattuong.html'">An Phát Cát Tường</li>
+            <li onclick="window.location.href='/baohiemankhanghanhphuc.html'">An Khang Hạnh Phúc</li>
+            <li onclick="window.location.href='/baohiemanvuisongkhoe.html'">An vui sống khoẻ</li>
+            <li onclick="window.location.href='/baohiemantamhocvan.html'">An tâm học vấn</li>
+            <li onclick="window.location.href='/baohiemanphattrondoi.html'">An phát trọn đời</li>
           </ul>
         </div>
       </li>
@@ -40,17 +45,16 @@
           </ul>
         </div>
       </li>
-      <li class="">Tuyển dụng</li>
-
+      <li>Tuyển dụng</li>
     </ul>
     <div class="contact-wrapper">
-      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon"
-        srcset="">
+      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon">
       <div class="contact-detail">
         <p class="contact-title">Tư vấn miễn phí</p>
-        <p class="phone-number">0905.499.496</p>
+        <p class="phone-number">0905.499.496 <span style="color: black; font-weight: 600;">/</span>
+          0931.909.697
+        </p>
       </div>
-    </div>
     </div>
   </nav>
 
@@ -75,6 +79,17 @@
   <p
     style="font-size: 25px; text-transform: uppercase; font-weight: 600; color: #0060ae; text-align: center; margin: 0; margin-top: 50px;">
     Về sản phẩm</p>
+  <div class="title-block" style="display: flex; max-width: 1250px; margin: auto;">
+    <div style="display: flex; width: 30%;"></div>
+    <div style="display: flex; width: 70%; gap:20px">
+      <p style="width: 66.66%; text-align: center; font-weight: 600; text-decoration: underline; color:#c49f56">Bảo hiểm
+        phi nhân thọ
+      </p>
+      <p
+        style="width: 33.33%; text-align: center; text-align: center; font-weight: 600; text-decoration: underline; color:#c49f56">
+        Bảo hiểm nhân thọ</p>
+    </div>
+  </div>
   <section class="container-list">
     <div class="consultant-bg"
       style="position: relative; width: 30%; overflow: hidden; border-radius: 10px; padding-top: 20px;">
@@ -88,7 +103,7 @@
               <a href="tel:+84905499496"> 0905.499.496 (Mrs. Hương)</a>
             </li>
             <li>
-              <a href="tel:+84931909697">0931.909.697</a>
+              <a tyle="font-size: 14px; margin: 0; cursor: pointer;" href="https://zalo.me/84931909697">0931.909.697</a>
             </li>
           </ul>
         </div>
@@ -96,7 +111,7 @@
           <p class="consultant-title">
             Liên hệ qua Zalo
           </p>
-          <a href="https://zalo.me/84931909697">
+          <a href="tel:+84905499496">
             Mrs.Hương's Zalo
           </a>
         </div>
@@ -104,7 +119,7 @@
           <p class="consultant-title">
             Theo dõi thêm tin tức tại
           </p>
-          <p>
+          <p style="margin-top:0;">
             facebook.com
           </p>
         </div>
@@ -121,12 +136,14 @@
         alt="Bảo hiểm sức khoẻ" srcset="">
       <img onclick="window.location.href='/baohiemoto.html'" class="card-item" src="assets/san-pham/1.png"
         alt="Bảo hiểm ô tô" srcset="">
+      <img onclick="window.location.href='/baohiemantamhoachdinh.html'" class="card-item" src="assets/san-pham/4.png"
+        alt="Bảo hiểm hoạch định" srcset="">
       <img onclick="window.location.href='/baohiemchayno.html'" class="card-item" src="assets/san-pham/2.png"
         alt="Bảo hiểm cháy nổ" srcset="">
       <img onclick="window.location.href='/baohiemtravel.html'" class="card-item" src="assets/san-pham/6.png"
         alt="Bảo hiểm du lịch" srcset="">
-      <img class="card-item" src="assets/san-pham/4.png" alt="Bảo hiểm hoạch định" srcset="">
-      <img class="card-item" src="assets/san-pham/5.png" alt="Bảo hiểm an khang" srcset="">
+      <img onclick="window.location.href='/baohiemankhangnhuy.html'" class="card-item" src="assets/san-pham/5.png"
+        alt="Bảo hiểm an khang" srcset="">
     </div>
   </section>
 
@@ -141,35 +158,35 @@
           <br />
           Chăm sóc Y tế cao cấp
         </h3>
-        <p></p>
+        <p style="margin-top:0;"></p>
       </div>
     </div>
     <div class="card" onclick="window.location.href='/baohiemoto.html'">
       <img src="assets/2.png" alt="Gói bảo vệ tài sản" style="height: 240px; object-fit: cover;">
       <div class="card-content">
         <h3>Bảo hiểm Xe cơ giới</h3>
-        <p></p>
+        <p style="margin-top:0;"></p>
       </div>
     </div>
     <div class="card" onclick="window.location.href='/baohiemchayno.html'">
       <img src="assets/3.png" alt="Gói đầu tư thông minh" style="height: 240px; object-fit: cover;">
       <div class="card-content">
         <h3>Bảo hiểm Cháy, nổ bắt buộc</h3>
-        <p></p>
+        <p style="margin-top:0;"></p>
       </div>
     </div>
     <div class="card">
       <img src="assets/4.jpg" alt="Bảo vệ vượt trội" style="height: 240px; object-fit: cover;">
       <div class="card-content">
         <h3>Bảo vệ vượt trội</h3>
-        <p></p>
+        <p style="margin-top:0;"></p>
       </div>
     </div>
     <div class="card">
       <img src="assets/5.jpg" alt="Tích lũy ưu việt" style="height: 240px; object-fit: cover;">
       <div class="card-content">
         <h3>Tích lũy ưu việt</h3>
-        <p></p>
+        <p style="margin-top:0;"></p>
       </div>
     </div>
   </section>
@@ -178,39 +195,34 @@
     style="font-size: 25px; text-transform: uppercase; font-weight: 600; color: #0060ae; text-align: center; margin: 0; margin-top: 50px;">
     Tin tức</p>
   <section class="container-list" style="justify-content: center;">
-    <div class="card" onclick="window.location.href='/baohiemoto.html'">
-      <img src="https://baovietonline.com.vn/uploads/content/9b9bf22e3dace082cbd365fac8076584.jpg"
+    <div class="card"
+      onclick="window.location.href='/bao-viet-nhan-tho-ra-mat-sieu-pham-bao-ve-len-toi-1-trieu-do-la-my.html'">
+      <img
+        src="https://www.baoviet.com.vn/sites/default/files/2025-02/S%E1%BA%A3n%20ph%E1%BA%A9m%20An%20T%C3%A2m%20ho%E1%BA%A1ch%20%C4%91%E1%BB%8Bch%20t%C6%B0%C6%A1ng%20lai%20ch%E1%BB%A7%20%C4%91%E1%BB%99ng%20an%20nh%C3%A0n%20tu%E1%BB%95i%20h%C6%B0u.jpg"
         alt="Gói bảo vệ tài sản" style="height: 240px; object-fit: cover;">
       <div style="background-color: transparent; color: #0060ae;" class="card-content">
-        <h3 style="font-size: 14px; text-align: left;">Môi trường, bệnh tật và bài toán bảo vệ tài chính: Đâu là lựa
-          chọn thông minh?</h3>
+        <h3 style="font-size: 14px; text-align: left;">Bảo Việt Nhân thọ ra mắt siêu phẩm bảo vệ lên tới 1 triệu đô la
+          Mỹ</h3>
+        <p style="text-align: left;">24.02.2025</p>
+      </div>
+    </div>
+    <div class="card"
+      onclick="window.location.href='/baoviet-group-bvh-only-insurance-company-vietnam-first-time-been-ranked-fortune-southeast-asia-500.html'">
+      <img
+        src="https://www.baoviet.com.vn/sites/default/files/2024-06/448565785_841190724570335_6055597788066863283_n.png"
+        alt="Gói bảo vệ tài sản" style="height: 240px; object-fit: cover;">
+      <div style="background-color: transparent; color: #0060ae;" class="card-content">
+        <h3 style="font-size: 14px; text-align: left;">Baoviet Group (BVH) - the only insurance company in Vietnam for
+          the first time been ranked in the Fortune Southeast Asia 500</h3>
         <p style="text-align: left;">07/03/2025</p>
       </div>
     </div>
-    <div class="card" onclick="window.location.href='/baohiemoto.html'">
-      <img src="https://baovietonline.com.vn/uploads/content/f3476ca39988c0baccfcbeb17fa84497.jpg"
+    <div class="card" onclick="window.location.href='/bao-viet-tu-hao-hanh-trinh-60-nam-giu-tron-niem-tin.html'">
+      <img
+        src="https://www.baoviet.com.vn/sites/default/files/2025-01/472236242_2264251187309381_77408168636105403_n.jpg"
         alt="Gói bảo vệ tài sản" style="height: 240px; object-fit: cover;">
       <div style="background-color: transparent; color: #0060ae;" class="card-content">
-        <h3 style="font-size: 14px; text-align: left;">Bảo Việt Sơn La tạm ứng 700 triệu đồng trong vụ tai nạn giao
-          thông nghiêm trọng tại Yên Châu (Sơn La)</h3>
-        <p style="text-align: left;">07/03/2025</p>
-      </div>
-    </div>
-    <div class="card" onclick="window.location.href='/baohiemoto.html'">
-      <img src="https://baovietonline.com.vn/uploads/content/3c6450c341c3c01f40b3deb94e8a13ed.jpg"
-        alt="Gói bảo vệ tài sản" style="height: 240px; object-fit: cover;">
-      <div style="background-color: transparent; color: #0060ae;" class="card-content">
-        <h3 style="font-size: 14px; text-align: left;">Bảo hiểm Bảo Việt hợp tác cùng Eximbank triển khai chương trình
-          hoàn tiền 10% phí bảo hiểm</h3>
-        <p style="text-align: left;">07/03/2025</p>
-      </div>
-    </div>
-    <div class="card" onclick="window.location.href='/baohiemoto.html'">
-      <img src="https://baovietonline.com.vn/uploads/content/ac97835d1c32a00e30a1905cdf8e1d6c.jpg"
-        alt="Gói bảo vệ tài sản" style="height: 240px; object-fit: cover;">
-      <div style="background-color: transparent; color: #0060ae;" class="card-content">
-        <h3 style="font-size: 14px; text-align: left;">Bảo hiểm Bảo Việt và Mitsubishi hợp tác triển khai chương trình
-          ưu đãi đặc quyền dành cho khách hàng mua xe Triton</h3>
+        <h3 style="font-size: 14px; text-align: left;">Bảo Việt tự hào Hành trình 60 năm Giữ trọn niềm tin</h3>
         <p style="text-align: left;">07/03/2025</p>
       </div>
     </div>
@@ -227,7 +239,7 @@
       <div class="infor-col">
         <p class="title">Thông tin liên hệ</p>
         <ul>
-          <li>Số điện thoại: 0905.499.496</li>
+          <li>Số điện thoại: 0905.499.496 / 0931.909.697</li>
           <li>Gmail: <a href="mailto:vanthangnguyen1802@gmail.com">
               vanthangnguyen1802@gmail.com
             </a></li>
@@ -246,7 +258,7 @@
       </div>
       <div class="infor-col">
         <p class="title">Giải thưởng danh giá</p>
-        <p>Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
+        <p style="margin-top:0;">Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
         <div style="display: flex; gap: 12px">
           <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/e3753335c1f0f2538ee6fc0f07e4b2b0.png"
             alt="">
@@ -283,6 +295,12 @@
 
   // Auto slide every 3 seconds
   setInterval(nextSlide, 3000);
+</script>
+
+<script>
+  function toggleMenu() {
+    document.getElementById("menu").classList.toggle("active");
+  }
 </script>
 
 </html>

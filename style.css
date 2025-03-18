@@ -25,6 +25,7 @@
 }
 
 .navigation-items > li {
+  user-select: none;
   cursor: pointer;
   padding: 10px;
   transition: all;
@@ -455,6 +456,19 @@ td {
   animation: slide 18s infinite; /* 3s per slide × 3 slides */
 }
 
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.hamburger div {
+  width: 25px;
+  height: 3px;
+  background-color: black;
+  margin: 5px;
+}
+
 .slide {
   object-fit: cover;
   width: 33.33%; /* 100% ÷ number of slides */
@@ -503,6 +517,46 @@ td {
   }
 }
 
+.item-entry p {
+  line-height: 150% !important;
+}
+
+.breadcrumb {
+  font-size: 14px;
+  color: #718096;
+}
+.breadcrumb a {
+  text-decoration: none;
+  color: #718096;
+}
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+.title-new {
+  font-size: 36px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #1a202c;
+}
+.meta-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.category {
+  background-color: #cbd5e0;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #2d3748;
+}
+.date {
+  font-size: 14px;
+  color: #4a5568;
+}
+
 @media (min-width: 337px) and (max-width: 500px) {
   .navigation-items {
     display: flex;
@@ -515,10 +569,62 @@ td {
     font-weight: 600;
   }
 
+  .hamburger {
+    display: flex;
+  }
+
+  .title-block {
+    display: none !important;
+  }
+
+  .popover {
+    position: unset;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    transition: all;
+    transition-duration: 200ms;
+  }
+
+  .hamburger div {
+    width: 25px;
+    height: 3px;
+    background-color: black;
+    margin: 3px;
+  }
+
   .head-wrapper {
     padding: 5px 20px;
     max-width: 100% !important;
     height: 64px;
+    box-sizing: border-box;
+  }
+
+  .navigation-items li {
+    text-align: center;
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .navigation-items {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border-top: 1px solid #ccc;
+  }
+  .navigation-items.active {
+    display: flex;
+    box-sizing: border-box;
+    padding: 0;
+  }
+
+  .navigation-items li {
+    text-align: center;
+    padding: 15px;
+    border-radius: 0;
   }
 
   .logo {
