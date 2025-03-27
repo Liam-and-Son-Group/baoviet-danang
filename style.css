@@ -482,17 +482,6 @@ td {
   text-align: center;
 }
 
-/* Different background colors for each slide */
-.slide:nth-child(1) {
-  background-color: #3498db;
-}
-.slide:nth-child(2) {
-  background-color: #e74c3c;
-}
-.slide:nth-child(3) {
-  background-color: #2ecc71;
-}
-
 /* Animation keyframes */
 @keyframes slide {
   0% {
@@ -829,9 +818,10 @@ td {
 
 .slider {
   width: 100%;
-  height: 600px;
+  height: fit-content;
   overflow: hidden;
   position: relative;
+  margin-top: 55px;
 }
 
 /* Wrapper for slides */
@@ -852,15 +842,8 @@ td {
   font-weight: bold;
 }
 
-/* Background Colors */
-.slide:nth-child(1) {
-  background: lightcoral;
-}
-.slide:nth-child(2) {
-  background: lightblue;
-}
-.slide:nth-child(3) {
-  background: lightgreen;
+.slide > img {
+  border-radius: 10px;
 }
 
 /* Buttons */
