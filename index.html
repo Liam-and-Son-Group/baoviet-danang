@@ -246,6 +246,38 @@
       </div>
     </div>
   </section>
+
+  <p
+    style="font-size: 25px; text-transform: uppercase; font-weight: 600; color: #0060ae; text-align: center; margin: 0; margin-top: 50px;">
+    Yêu cầu tư vấn</p>
+  <div class="container" style="background-color: #0060ae;">
+    <form id="contact-form" style="display: flex; flex-direction: column; gap: 10px; max-width: 500px; margin: auto;">
+      <div style="width: 100%; display: flex; gap: 10px; flex-direction: column;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <label style="color: white; font-weight: 600;">Tên quý khách:</label>
+          <input style="width: 100%; padding: 10px 10px; box-sizing: border-box; font-size: 14px;" type="text" id="name"
+            placeholder="Nguyễn Văn A" required>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <label style="color: white; font-weight: 600;">Email quý khách:</label>
+          <input style="width: 100%; padding: 10px  10px; box-sizing: border-box; font-size: 14px" type="email"
+            id="email" placeholder="email@gmail.com" required>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label style="color: white; font-weight: 600;">Lời nhắn:</label>
+        <textarea style="width: 100%; padding: 10px  10px; box-sizing: border-box; min-height: 300px; font-size: 14px"
+          id="message" placeholder="Lời nhắn" required></textarea>
+      </div>
+
+      <button
+        style="width: 100%; padding: 10px  10px; box-sizing: border-box; font-size: 14px; font-weight: 600; text-transform: uppercase; color: #0060ae;"
+        type="submit">Gửi yêu
+        cầu</button>
+    </form>
+
+    <p id="status-message"></p>
+  </div>
   </div>
 
   <footer style="margin-top: 50px;">
@@ -321,5 +353,8 @@
     document.getElementById("menu").classList.toggle("active");
   }
 </script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script src="scripts/mail.js"></script>
 
 </html>
