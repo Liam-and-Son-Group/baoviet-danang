@@ -1,0 +1,8 @@
+User-agent: *
+
+# Cho phép các bot index trang quan trọng
+Allow: /scripts/
+Allow: /
+
+# Khai báo sitemap để Google index nhanh hơn
+Sitemap: https://baohiembaovietdanang.vn/sitemap.xml
