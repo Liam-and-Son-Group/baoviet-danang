@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  emailjs.init("tdnoam3chIIX9izFA"); // Nhớ thay bằng Public Key của bạn
+  emailjs.init("tdnoam3chIIX9izFA");
 
   document
     .getElementById("contact-form")
@@ -11,11 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const templateParams = {
         name: document.getElementById("name").value,
-        from_email: document.getElementById("email").value,
+        from_email: document.getElementById("phone").value,
         title: "Một người liên lạc cho bạn từ trang web Bảo Việt Đà Nẵng",
         message: `${
           document.getElementById("message").value
-        }. Liên hệ cho tôi qua mail ${document.getElementById("email").value}`,
+        }. Liên hệ cho tôi qua số điện thoại ${
+          document.getElementById("phone").value
+        }`,
       };
 
       emailjs.send(serviceID, templateID, templateParams).then(
