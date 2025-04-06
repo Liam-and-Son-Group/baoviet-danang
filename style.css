@@ -683,6 +683,10 @@ td {
     width: 100%;
   }
 
+  .card-item:nth-child(3) {
+    order: 6;
+  }
+
   .container-list {
     display: flex;
     gap: 20px;
