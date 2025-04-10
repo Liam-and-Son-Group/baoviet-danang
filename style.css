@@ -588,7 +588,7 @@ td {
     display: flex;
     flex-direction: row;
     list-style: none;
-    gap: 1.7rem;
+    gap: 0rem;
     font-size: 16px;
     text-transform: uppercase;
     color: #0060ae;
