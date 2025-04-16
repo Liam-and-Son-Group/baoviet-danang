@@ -3,5 +3,5 @@
   "paymentDueDate": "2027-04-16",
   "bannerActive": true,
   "ribbonMessage": "Pre-release",
-  "showRibbon": true
+  "showRibbon": false
 }
