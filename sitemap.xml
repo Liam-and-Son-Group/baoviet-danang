@@ -17,9 +17,18 @@
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://baohiembaovietdanang.vn/bao-viet-tu-hao-hanh-trinh-60-nam-giu-tr.html</loc>
+        <loc>https://baohiembaovietdanang.vn/bao-viet-tu-hao-hanh-trinh-60-nam-giu-tron-niem-tin.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
+    <url>
+        <loc>https://baohiembaovietdanang.vn/tin-tuc.html</loc>
+        <changefreq>monthly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://baohiembaovietdanang.vn/bao-hiem-bao-viet-danang-giai-phap-toan-dien.html</loc>
+        <changefreq>monthly</changefreq>
+        <priority>1</priority>
     </url>
     <url>
         <loc>https://baohiembaovietdanang.vn/baohiemankhanghanhphuc.html</loc>
