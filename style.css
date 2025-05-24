@@ -13,7 +13,20 @@
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
+li a {
+  color: #0056b3;
+}
+
+em span {
+  font-size: 14px;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .navigation-items {
+  padding: 0px;
   display: flex;
   flex-direction: row;
   list-style: none;
