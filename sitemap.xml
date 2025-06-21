@@ -106,4 +106,9 @@
         <changefreq>weekly</changefreq>
         <priority>1</priority>
     </url>
+    <url>
+        <loc>https://baohiembaovietdanang.vn/nghi-dinh-chinh-phu-chay-no.html</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
 </urlset>
