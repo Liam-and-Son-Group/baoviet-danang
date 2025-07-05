@@ -8,6 +8,40 @@
   <link rel="icon" type="image/png" href="https://baohiembaovietdanang.vn/assets/logo.png" sizes="32x32" />
   <link rel="shortcut icon" href="https://baovietonline.com.vn/favicon.ico">
   <link rel="stylesheet" href="/style.css" />
+
+  <!-- Custom CSS for News Cards -->
+  <style>
+    .news-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .news-item a:hover {
+      color: #0056b3 !important;
+    }
+
+    .news-item img {
+      transition: transform 0.3s ease;
+    }
+
+    .news-item:hover img {
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+      .news-item {
+        padding: 15px !important;
+      }
+
+      .news-item img {
+        height: 200px !important;
+      }
+
+      .news-item h3 {
+        font-size: 16px !important;
+      }
+    }
+  </style>
   <meta property="og:title" content="Bảo Việt Đà Nẵng được vinh danh trong Fortune Đông Nam Á 500">
   <meta property="og:description"
     content="Tập đoàn Bảo Việt là doanh nghiệp bảo hiểm duy nhất tại Việt Nam được xếp hạng trong Fortune Southeast Asia 500. Tìm hiểu chi tiết!">
@@ -98,42 +132,112 @@
 
     <div style="max-width: 900px; margin: auto; margin-top: 20px;">
       <div class="news-list" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Featured Article - Community Responsibility -->
         <div class="news-item"
-          style="border: 1px solid gray; padding: 10px; border-radius: 10px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-          <img style="width: 100%; height: 400px; object-fit: cover;"
-            src="assets/tin-tuc/giai-phap-toan-dien/baovietdanang5.jpg" alt="Tin tức 1" />
-          <h3>Bảo Việt Đà Nẵng: Giải pháp bảo hiểm toàn diện cho mọi nhà</h3>
-          <p>Bảo Hiểm Bảo Việt Đà Nẵng là một trong những đơn vị tiên phong cung cấp các sản phẩm bảo hiểm toàn diện,
+          style="border: 1px solid #e0e6ed; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+          <img style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;"
+            src="assets/tin-tuc/trachnhiemcongdong/image2.jpg" alt="Bảo Việt và trách nhiệm cộng đồng" />
+          <h3 style="color: #064278; font-weight: bold; margin: 0 0 12px 0; font-size: 18px; line-height: 1.4;">Chung
+            tay vì cộng đồng: Bảo Việt Đà Nẵng và hành trình nhân ái trên mọi nẻo đường</h3>
+          <p style="color: #666; line-height: 1.6; margin: 0 0 15px 0;">Khám phá hành trình trách nhiệm cộng đồng của
+            Bảo Việt Đà Nẵng với các chương trình thiện nguyện, giáo dục,
+            chăm sóc sức khỏe và cứu trợ thiên tai. Chung tay vì cộng đồng, lan tỏa yêu thương...</p>
+          <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+            <span
+              style="background: #064278; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">HOẠT
+              ĐỘNG TẬP ĐOÀN</span>
+            <span style="color: #999; font-size: 14px;">28.05.2025</span>
+          </div>
+          <a href="./bao-viet-trach-nhiem-cong-dong.html"
+            style="color: #064278; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-size: 15px;">
+            Xem chi tiết
+            <span style="font-size: 16px;">→</span>
+          </a>
+        </div>
+        <div class="news-item"
+          style="border: 1px solid #e0e6ed; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); background: white; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+          <img style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;"
+            src="assets/tin-tuc/giai-phap-toan-dien/baovietdanang5.jpg" alt="Bảo Việt Đà Nẵng giải pháp toàn diện" />
+          <h3 style="color: #064278; font-weight: bold; margin: 0 0 12px 0; font-size: 18px; line-height: 1.4;">Bảo Việt
+            Đà Nẵng: Giải pháp bảo hiểm toàn diện cho mọi nhà</h3>
+          <p style="color: #666; line-height: 1.6; margin: 0 0 15px 0;">Bảo Hiểm Bảo Việt Đà Nẵng là một trong những đơn
+            vị tiên phong cung cấp các sản phẩm bảo hiểm toàn diện,
             đáp ứng mọi nhu cầu của gia đình Việt...</p>
-          <a href="./bao-hiem-bao-viet-danang-giai-phap-toan-dien.html">Xem chi tiết →</a>
+          <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+            <span
+              style="background: #f0f8ff; color: #064278; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">SẢN
+              PHẨM - DỊCH VỤ</span>
+            <span style="color: #999; font-size: 14px;">24.02.2025</span>
+          </div>
+          <a href="./bao-hiem-bao-viet-danang-giai-phap-toan-dien.html"
+            style="color: #064278; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-size: 15px;">
+            Xem chi tiết
+            <span style="font-size: 16px;">→</span>
+          </a>
         </div>
         <div class="news-item"
-          style="border: 1px solid gray; padding: 10px; border-radius: 10px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-          <img style="width: 100%; height: 400px; object-fit: cover;"
-            src="assets/tin-tuc/co-nen-mua-bang-gia-2025/image4.jpg" alt="Tin tức 2" />
-          <h3>Có nên mua Bảo hiểm sức khỏe Bảo Việt? Chi tiết quyền lợi & bảng giá 2025</h3>
-          <p>Bảo hiểm sức khỏe Bảo Việt có tốt không? Cập nhật quyền lợi, bảng giá và đánh giá ưu nhược điểm mới nhất
+          style="border: 1px solid #e0e6ed; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); background: white; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+          <img style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;"
+            src="assets/tin-tuc/co-nen-mua-bang-gia-2025/image4.jpg" alt="Bảo hiểm sức khỏe Bảo Việt 2025" />
+          <h3 style="color: #064278; font-weight: bold; margin: 0 0 12px 0; font-size: 18px; line-height: 1.4;">Có nên
+            mua Bảo hiểm sức khỏe Bảo Việt? Chi tiết quyền lợi & bảng giá 2025</h3>
+          <p style="color: #666; line-height: 1.6; margin: 0 0 15px 0;">Bảo hiểm sức khỏe Bảo Việt có tốt không? Cập
+            nhật quyền lợi, bảng giá và đánh giá ưu nhược điểm mới nhất
             năm 2025...</p>
-          <a href="./bao-hiem-suc-khoe-bao-viet-co-nen-mua-bang-gia-2025.html">Xem chi tiết →</a>
+          <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+            <span
+              style="background: #fff5f5; color: #e53e3e; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">SỨC
+              KHỎE</span>
+            <span style="color: #999; font-size: 14px;">15.01.2025</span>
+          </div>
+          <a href="./bao-hiem-suc-khoe-bao-viet-co-nen-mua-bang-gia-2025.html"
+            style="color: #064278; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-size: 15px;">
+            Xem chi tiết
+            <span style="font-size: 16px;">→</span>
+          </a>
         </div>
         <div class="news-item"
-          style="border: 1px solid gray; padding: 10px; border-radius: 10px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-          <img style="width: 100%; height: 400px; object-fit: cover;" src="assets/tin-tuc/an-tam-hoach-dinh/image3.jpg"
-            alt="Tin tức 2" />
-          <h3>Bảo hiểm An Tâm Hoạch Định: Đồng hành cùng tương lai con bạn</h3>
-          <p>An Tâm Hoạch Định của Bảo hiểm Bảo Việt giúp bảo vệ cha mẹ, tích lũy học vấn và đảm bảo tương lai con vững
+          style="border: 1px solid #e0e6ed; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); background: white; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+          <img style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;"
+            src="assets/tin-tuc/an-tam-hoach-dinh/image3.jpg" alt="Bảo hiểm An Tâm Hoạch Định" />
+          <h3 style="color: #064278; font-weight: bold; margin: 0 0 12px 0; font-size: 18px; line-height: 1.4;">Bảo hiểm
+            An Tâm Hoạch Định: Đồng hành cùng tương lai con bạn</h3>
+          <p style="color: #666; line-height: 1.6; margin: 0 0 15px 0;">An Tâm Hoạch Định của Bảo hiểm Bảo Việt giúp bảo
+            vệ cha mẹ, tích lũy học vấn và đảm bảo tương lai con vững
             vàng...</p>
-          <a href="./bao-hiem-an-tam-hoach-dinh.html">Xem chi tiết →</a>
+          <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+            <span
+              style="background: #f0fff4; color: #38a169; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">GIÁO
+              DỤC</span>
+            <span style="color: #999; font-size: 14px;">10.12.2024</span>
+          </div>
+          <a href="./bao-hiem-an-tam-hoach-dinh.html"
+            style="color: #064278; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-size: 15px;">
+            Xem chi tiết
+            <span style="font-size: 16px;">→</span>
+          </a>
         </div>
         <div class="news-item"
-          style="border: 1px solid gray; padding: 10px; border-radius: 10px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-          <img style="width: 100%; height: 400px; object-fit: cover;"
+          style="border: 1px solid #e0e6ed; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); background: white; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+          <img style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;"
             src="assets/tin-tuc/bao-hiem-chay-no/images/image6.jpg"
             alt="Nghị định chính phủ về bảo hiểm cháy nổ 2025" />
-          <h3>Nghị định Chính phủ: 44 cơ sở bắt buộc mua bảo hiểm cháy nổ từ 1/7/2025</h3>
-          <p>Tìm hiểu chi tiết danh mục 44 loại hình cơ sở phải mua bảo hiểm cháy nổ theo Nghị định 105/2025/NĐ-CP,
+          <h3 style="color: #064278; font-weight: bold; margin: 0 0 12px 0; font-size: 18px; line-height: 1.4;">Nghị
+            định Chính phủ: 44 cơ sở bắt buộc mua bảo hiểm cháy nổ từ 1/7/2025</h3>
+          <p style="color: #666; line-height: 1.6; margin: 0 0 15px 0;">Tìm hiểu chi tiết danh mục 44 loại hình cơ sở
+            phải mua bảo hiểm cháy nổ theo Nghị định 105/2025/NĐ-CP,
             quyền lợi và hướng dẫn mua bảo hiểm uy tín tại Đà Nẵng.</p>
-          <a href="./nghi-dinh-chinh-phu-chay-no.html">Xem chi tiết →</a>
+          <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+            <span
+              style="background: #fef5e7; color: #d69e2e; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">PHÁP
+              LUẬT</span>
+            <span style="color: #999; font-size: 14px;">01.07.2025</span>
+          </div>
+          <a href="./nghi-dinh-chinh-phu-chay-no.html"
+            style="color: #064278; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-size: 15px;">
+            Xem chi tiết
+            <span style="font-size: 16px;">→</span>
+          </a>
         </div>
         <!-- Thêm các mục tin tức tương tự -->
       </div>
