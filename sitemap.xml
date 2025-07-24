@@ -135,4 +135,11 @@
         <changefreq>monthly</changefreq>
         <priority>1.0</priority>
     </url>
+</url>
+    <url>
+        <loc>https://baohiembaovietdanang.vn/tonghopdanhsachbenhvienkhonghuongbaohiem.html</loc>
+        <lastmod>2025-07-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
 </urlset>
