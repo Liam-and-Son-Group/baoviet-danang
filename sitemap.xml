@@ -172,4 +172,10 @@
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
+    <url>
+        <loc>https://baohiembaovietdanang.vn/dang-ky-tu-van-bao-hiem.html</loc>
+        <lastmod>2025-10-15</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
 </urlset>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Đăng Ký Tư Vấn Bảo Hiểm | Bảo Hiểm Bảo Việt Đà Nẵng</title>
+  <meta name="description"
+    content="Form đăng ký tư vấn bảo hiểm: Họ tên, Số điện thoại, Loại bảo hiểm quan tâm (Ô tô, Sức khoẻ, Cháy nổ bắt buộc, Nhân thọ). Gửi thông tin, chúng tôi sẽ liên hệ ngay." />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+  <link rel="canonical" href="https://baohiembaovietdanang.vn/dang-ky-tu-van-bao-hiem.html" />
+
+  <meta name="geo.region" content="VN-DN" />
+  <meta name="geo.placename" content="Đà Nẵng, Việt Nam" />
+  <meta name="geo.position" content="16.0544;108.2022" />
+  <meta name="ICBM" content="16.0544, 108.2022" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://baohiembaovietdanang.vn/dang-ky-tu-van-bao-hiem.html" />
+  <meta property="og:site_name" content="Bảo Hiểm Bảo Việt Đà Nẵng" />
+  <meta property="og:title" content="Đăng Ký Tư Vấn Bảo Hiểm" />
+  <meta property="og:description"
+    content="Đăng ký tư vấn nhanh: Họ tên, Số điện thoại, Loại bảo hiểm quan tâm. Chúng tôi sẽ liên hệ trong thời gian sớm nhất." />
+  <meta property="og:image" content="https://baohiembaovietdanang.vn/assets/healthcare.png" />
+  <meta property="og:locale" content="vi_VN" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Đăng Ký Tư Vấn Bảo Hiểm" />
+  <meta name="twitter:description"
+    content="Đăng ký tư vấn nhanh: Họ tên, Số điện thoại, Loại bảo hiểm quan tâm. Chúng tôi sẽ liên hệ trong thời gian sớm nhất." />
+  <meta name="twitter:image" content="https://baohiembaovietdanang.vn/assets/healthcare.png" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="https://baohiembaovietdanang.vn/assets/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="https://baohiembaovietdanang.vn/assets/favicon-16x16.png" sizes="16x16" />
+  <link rel="apple-touch-icon" sizes="180x180" href="https://baohiembaovietdanang.vn/assets/apple-touch-icon.png" />
+
+  <!-- Preload + Styles -->
+  <link rel="preload" href="/style.css" as="style" />
+  <link rel="stylesheet" href="/style.css" />
+
+  <style>
+    /* Page-specific light styling complementing existing site styles */
+    .page-wrap {
+      min-height: 100vh;
+      display: grid;
+      align-items: start;
+
+    }
+
+    .form-container {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card {
+      padding: 20px;
+      min-width: 400px;
+      background-color: white;
+    }
+
+    .card-div {
+      height: 100px;
+    }
+
+    .img-card {
+      width: 500px;
+    }
+
+    .card h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+    }
+
+    .card p.subtitle {
+      color: #6b7280;
+      margin: 0 0 16px;
+      font-size: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    .input,
+    .select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fff;
+    }
+
+    .input:focus,
+    .select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .error-text {
+      color: #d93025;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #111827;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+
+    .btn:hover {
+      background: #f9fafb;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .left-float {}
+
+    body {
+      background-image: url('https://baohiemnguoiviet.vn/bao-viet-an-gia/templates/images/bg_banner.png');
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-size: 100% 100%;
+    }
+
+    .success-msg {
+      display: none;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 560px) {
+      .form-container {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px
+      }
+
+      .card {
+        padding: 16px;
+        box-sizing: border-box;
+        min-width: 0;
+      }
+
+      .img-card {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="float-container">
+    <button onclick="window.location.href='tel:+8490549949'" id="floatBtn" class="floating-btn">
+      <img src="assets/phone-icon.png" style="width: 30px; height: 30px;" alt="Gọi ngay" />
+    </button>
+    <button onclick="window.location.href='https://zalo.me/84931909697'" id="floatBtn" class="floating-btn">
+      <img src="https://haiauint.vn/wp-content/uploads/2024/02/zalo-icon.png" style="width: 100%; height: 100%;"
+        alt="Chat Zalo" />
+    </button>
+    <a href="/dang-ky-tu-van-bao-hiem.html">
+      <button class="registry-button">
+        Đăng ký ngay
+      </button>
+    </a>
+  </div>
+
+
+  <nav class="head-wrapper">
+    <img onclick="window.location.href='/index.html'" class="logo"
+      src="https://baovietonline.com.vn/templates/images/logo2x.png" alt="Logo Bảo Việt Đà Nẵng" />
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <ul class="navigation-items" id="menu">
+      <li onclick="window.location.href='/index.html'">Trang chủ</li>
+      <li class="has-popover">Bảo hiểm nhân thọ
+        <div class="popover">
+          <ul class="submenu">
+            <li onclick="window.location.href='/baohiemantamhoachdinh.html'">An Tâm Hoạch Định</li>
+            <li onclick="window.location.href='/baohiemankhangnhuy.html'">An Khang Như Ý</li>
+            <li onclick="window.location.href='/baohiemanphatcattuong.html'">An Phát Cát Tường</li>
+            <li onclick="window.location.href='/baohiemankhanghanhphuc.html'">An Khang Hạnh Phúc</li>
+            <li onclick="window.location.href='/baohiemanvuisongkhoe.html'">An vui sống khoẻ</li>
+            <li onclick="window.location.href='/baohiemantamhocvan.html'">An tâm học vấn</li>
+            <li onclick="window.location.href='/baohiemanphattrondoi.html'">An phát trọn đời</li>
+          </ul>
+        </div>
+      </li>
+      <li class="has-popover">Bảo hiểm phi nhân thọ
+        <div class="popover">
+          <ul class="submenu">
+            <li onclick="window.location.href='/baohiemoto.html'">Bảo hiểm vật chất xe ô tô</li>
+            <li onclick="window.location.href='/baohiemchayno.html'">Bảo hiểm cháy, nổ bắt buộc</li>
+            <li onclick="window.location.href='/baohiemruirotaisan.html'">Bảo hiểm mọi rủi ro tài sản</li>
+            <li onclick="window.location.href='/baohiemsuckhoe.html'">Bảo Việt An Gia</li>
+            <li onclick="window.location.href='/baohiemintercare.html'">Bảo hiểm Intercare</li>
+            <li onclick="window.location.href='/baohiemxemay.html'">Bảo hiểm xe máy</li>
+            <li onclick="window.location.href='/baohiemtravel.html'">Bảo hiểm du lịch Flexi</li>
+          </ul>
+        </div>
+      </li>
+      <li onclick="window.location.href='/tuyen-dung.html'">Tuyển dụng</li>
+      <li onclick="window.location.href='/tin-tuc.html'">Tin tức</li>
+    </ul>
+    <div class="contact-wrapper">
+      <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon" />
+      <div class="contact-detail">
+        <p class="contact-title">Tư vấn miễn phí</p>
+        <p class="phone-number">0905.499.496 <span style="color: black; font-weight: 600;">/</span> 0931.909.697</p>
+      </div>
+    </div>
+  </nav>
+
+  <div style="max-width: 1250px; margin: auto; padding: 15px;">
+    <div class="breadcrumb" style="margin-top: 100px; color: white;">
+      <a href="/index.html" style="color: white;">TRANG CHỦ</a> • <a style="color: white;" href="#">ĐĂNG KÝ</a>
+    </div>
+
+    <div class="form-container" style="margin-bottom: 100px;">
+
+      <img class="img-card"
+        src="https://baohiemnguoiviet.vn/bao-viet-an-gia/uploads/content/6ae4bfec8009f66c7a4409c8a80f7c79.png" alt="">
+      <div class="card" role="region" aria-label="Đăng ký tư vấn bảo hiểm">
+        <h1>Đăng ký tư vấn bảo hiểm</h1>
+        <p class="subtitle">Điền thông tin bên dưới, chúng tôi sẽ liên hệ sớm nhất.</p>
+
+        <div id="success" class="success-msg" aria-live="polite">Gửi đăng ký thành công! Chúng tôi sẽ liên hệ sớm.</div>
+
+        <form id="adviceForm" novalidate>
+          <div class="stack">
+            <div class="field">
+              <label for="fullName">Họ và tên</label>
+              <input id="fullName" name="fullName" class="input" type="text" placeholder="Nguyễn Văn A" required
+                minlength="2" />
+              <div class="error-text" data-error="fullName"></div>
+            </div>
+
+            <div class="field">
+              <label for="phone">Số điện thoại</label>
+              <input id="phone" name="phone" class="input" type="tel" inputmode="tel" placeholder="0905 499 496"
+                required />
+              <div class="error-text" data-error="phone"></div>
+            </div>
+
+            <div class="field">
+              <label for="insuranceType">Loại bảo hiểm quan tâm</label>
+              <select id="insuranceType" name="insuranceType" class="select" required>
+                <option value="" disabled selected>Chọn loại bảo hiểm</option>
+                <option value="Bảo hiểm ô tô">Bảo hiểm ô tô</option>
+                <option value="Bảo hiểm sức khoẻ">Bảo hiểm sức khoẻ</option>
+                <option value="Bảo hiểm cháy nổ bắt buộc">Bảo hiểm cháy nổ bắt buộc</option>
+                <option value="Bảo hiểm nhân thọ">Bảo hiểm nhân thọ</option>
+              </select>
+              <div class="error-text" data-error="insuranceType"></div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="btn" id="resetBtn">Làm mới</button>
+              <button type="submit" class="btn btn-primary">Gửi đăng ký</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div
+      style="display: flex; justify-content: space-between; padding: 20px 5%; background: linear-gradient(274deg, rgba(6, 66, 120, 0.8) 5.2%, rgba(5, 120, 185, 0.8) 97.96%);">
+      <img style="width: 160px; height: 30px;" src="https://www.baoviet.com.vn/themes/md_baoviet/img/logo.png" alt="" />
+    </div>
+    <div class="footer-container">
+      <div class="infor-col">
+        <p class="title">Thông tin liên hệ</p>
+        <ul>
+          <li>Số điện thoại: 0905.499.496 / 0931.909.697</li>
+          <li>Gmail: <a href="mailto:vanthangnguyen1802@gmail.com">vanthangnguyen1802@gmail.com</a></li>
+          <li>Fan Page: facebook.com</li>
+        </ul>
+      </div>
+      <div class="infor-col">
+        <p class="title">Các sản phẩm mới</p>
+        <ul>
+          <li>Bảo lãnh viện phí - Chăm sóc Y tế cao cấp</li>
+          <li>Bảo hiểm Xe cơ giới</li>
+          <li>Bảo hiểm Cháy, nổ bắt buộc</li>
+          <li>Bảo vệ vượt trội</li>
+          <li>Tích lũy ưu việt</li>
+        </ul>
+      </div>
+      <div class="infor-col">
+        <p class="title">Giải thưởng danh giá</p>
+        <p style="margin:0;">Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
+        <div style="display: flex; gap: 12px">
+          <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/e3753335c1f0f2538ee6fc0f07e4b2b0.png"
+            alt="" />
+          <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/fbbf198a4c26dc8b27158d49c7a22984.png"
+            alt="" />
+          <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/9c28c0d2654e022cff9c689ee87f6c7f.png"
+            alt="" />
+          <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/7f3415b56cf02a9f78dba149c0edef97.png"
+            alt="" />
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- EmailJS Browser SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('active');
+    }
+
+    (function () {
+      const form = document.getElementById('adviceForm');
+      const successEl = document.getElementById('success');
+      const resetBtn = document.getElementById('resetBtn');
+      const submitBtn = document.querySelector('#adviceForm button[type="submit"]');
+
+      const phoneRegex = /^(0|\+?\d{1,3})?[\d\s\-]{8,15}$/;
+
+      function setError(name, msg) {
+        const el = document.querySelector(`[data-error="${name}"]`);
+        if (el) el.textContent = msg || '';
+      }
+
+      function clearErrors() {
+        ['fullName', 'phone', 'insuranceType'].forEach(n => setError(n, ''));
+      }
+
+      resetBtn.addEventListener('click', function () {
+        form.reset();
+        clearErrors();
+        successEl.style.display = 'none';
+      });
+
+      // Initialize EmailJS if available (loaded via CDN below)
+      let emailReady = false;
+      try {
+        if (typeof emailjs !== 'undefined') {
+          // EmailJS v4 init format
+          emailjs.init({ publicKey: 'tdnoam3chIIX9izFA' });
+          emailReady = true;
+        }
+      } catch (err) {
+        console.warn('EmailJS init failed or not available:', err);
+      }
+
+      const SERVICE_ID = 'service_8yvyqcj';
+      const TEMPLATE_ID = 'template_jycweoi';
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearErrors();
+
+        const fullNameInput = document.getElementById('fullName');
+        const phoneInput = document.getElementById('phone');
+        const insuranceTypeSelect = document.getElementById('insuranceType');
+
+        const data = {
+          fullName: fullNameInput && 'value' in fullNameInput ? fullNameInput.value.trim() : '',
+          phone: phoneInput && 'value' in phoneInput ? phoneInput.value.trim() : '',
+          insuranceType: insuranceTypeSelect && 'value' in insuranceTypeSelect ? insuranceTypeSelect.value : '',
+        };
+
+        let valid = true;
+        if (!data.fullName || data.fullName.length < 2) {
+          setError('fullName', 'Vui lòng nhập họ và tên (tối thiểu 2 ký tự)');
+          valid = false;
+        }
+        if (!data.phone || !phoneRegex.test(data.phone)) {
+          setError('phone', 'Số điện thoại không hợp lệ');
+          valid = false;
+        }
+        if (!data.insuranceType) {
+          setError('insuranceType', 'Vui lòng chọn loại bảo hiểm');
+          valid = false;
+        }
+
+        if (!valid) return;
+
+        // Log data to console as requested
+        console.log('Form submitted:', data);
+
+        // Prepare UI for sending
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Đang gửi...';
+        }
+
+        // Send via EmailJS if available; otherwise just show success
+        if (emailReady) {
+          const templateParams = {
+            name: data.fullName,
+            from_email: data.phone,
+            title: 'Khách hàng đăng ký tư vấn từ baohiembaovietdanang.vn',
+            message: `Khách hàng đăng ký tư vấn\nHọ tên: ${data.fullName}\nSĐT: ${data.phone}\nLoại BH: ${data.insuranceType}`,
+          };
+
+          emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+            .then(() => {
+              successEl.textContent = 'Gửi đăng ký thành công! Chúng tôi sẽ liên hệ sớm.';
+              successEl.style.display = 'block';
+              successEl.style.background = '#ecfdf5';
+              successEl.style.color = '#065f46';
+              form.reset();
+            })
+            .catch((error) => {
+              console.error('Email send failed:', error);
+              successEl.textContent = 'Gửi đăng ký thất bại. Vui lòng thử lại hoặc liên hệ trực tiếp.';
+              successEl.style.display = 'block';
+              successEl.style.background = '#fef2f2';
+              successEl.style.color = '#991b1b';
+            })
+            .finally(() => {
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Gửi đăng ký';
+              }
+            });
+        } else {
+          // Fallback: show success (no email available)
+          successEl.textContent = 'Đã ghi nhận thông tin (email chưa được gửi).';
+          successEl.style.display = 'block';
+          successEl.style.background = '#fff7ed';
+          successEl.style.color = '#9a3412';
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Gửi đăng ký';
+          }
+        }
+      });
+    })();
+  </script>
+
+  <script src="scripts/onshow-tap.js"></script>
+  <script src="scripts/notification.js"></script>
+</body>
+
+</html>
