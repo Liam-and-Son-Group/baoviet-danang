@@ -1,21 +1,25 @@
 # 🔐 Setup GitHub Secrets cho Auto-Deploy
 
 ## 🎯 Mục Tiêu
+
 Script sẽ lấy Supabase credentials từ GitHub Secrets thay vì file .env local.
 
 ## 📋 GitHub Secrets Cần Thiết
 
 ### 1️⃣ SUPABASE_URL
+
 - **Value**: https://your-project-ref.supabase.co
 - **Cách lấy**: Supabase Dashboard → Settings → API → Project URL
 
-### 2️⃣ SUPABASE_ANON_KEY  
+### 2️⃣ SUPABASE_ANON_KEY
+
 - **Value**: your-anon-public-key
 - **Cách lấy**: Supabase Dashboard → Settings → API → anon public key
 
 ## 🔧 Cách Setup GitHub Secrets
 
 ### Bước 1: Vào Repository Settings
+
 ```
 1. Vào repository: https://github.com/Liam-and-Son-Group/baoviet-danang
 2. Click "Settings" tab
@@ -23,12 +27,13 @@ Script sẽ lấy Supabase credentials từ GitHub Secrets thay vì file .env lo
 ```
 
 ### Bước 2: Thêm Repository Secrets
+
 ```
 1. Click "New repository secret"
 2. Name: SUPABASE_URL
    Value: [paste Supabase Project URL]
-   
-3. Click "New repository secret"  
+
+3. Click "New repository secret"
 4. Name: SUPABASE_ANON_KEY
    Value: [paste Supabase anon key]
 ```
@@ -36,6 +41,7 @@ Script sẽ lấy Supabase credentials từ GitHub Secrets thay vì file .env lo
 ## 🧪 Test Setup
 
 ### Test Local (với .env file)
+
 ```bash
 # Tạo/edit .env file cho local testing
 ./test-env.sh
@@ -45,6 +51,7 @@ node .github/scripts/generate-article.js "test-id" "test.html"
 ```
 
 ### Test GitHub Actions (với GitHub Secrets)
+
 ```bash
 # Trigger manual workflow
 gh workflow run deploy-new-article.yml \
@@ -87,15 +94,15 @@ Script sẽ hiển thị environment check:
 
 Script support cả hai mode:
 
-| Environment | Credentials Source | Use Case |
-|-------------|-------------------|----------|
-| **Local** | `.env` file | Development & testing |
-| **GitHub Actions** | GitHub Secrets | Production auto-deploy |
+| Environment        | Credentials Source | Use Case               |
+| ------------------ | ------------------ | ---------------------- |
+| **Local**          | `.env` file        | Development & testing  |
+| **GitHub Actions** | GitHub Secrets     | Production auto-deploy |
 
 ## 📝 Next Steps
 
 1. ✅ Setup GitHub Secrets (SUPABASE_URL, SUPABASE_ANON_KEY)
-2. ✅ Test workflow manually  
+2. ✅ Test workflow manually
 3. ✅ Test via Edge Function trigger
 4. ✅ Monitor deployment logs
 
