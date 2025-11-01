@@ -164,6 +164,84 @@
       border-top: 1px solid #e2e8f0;
     }
 
+    /* Status Indicator Styles */
+    .status-indicator {
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .status-indicator.draft {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+
+    .status-indicator.published {
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
+    /* Action Button Styles */
+    .save-draft-btn {
+      background: #6b7280;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .save-draft-btn:hover {
+      background: #4b5563;
+    }
+
+    .save-publish-btn {
+      background: #059669;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .save-publish-btn:hover {
+      background: #047857;
+    }
+
+    .auto-deploy-btn {
+      background: #dc2626;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .auto-deploy-btn:hover {
+      background: #b91c1c;
+    }
+
     .btn {
       padding: 0.75rem 1.5rem;
       border: none;
@@ -390,6 +468,18 @@
             </label>
           </div>
 
+          <div class="form-group">
+            <label for="status">Trạng thái bài viết</label>
+            <select id="status" name="status" class="form-input" onchange="updateStatusIndicator()">
+              <option value="draft">📝 Nháp</option>
+              <option value="published">✅ Đã xuất bản</option>
+            </select>
+            <div id="statusIndicator" class="status-indicator"
+              style="margin-top: 8px; padding: 6px 12px; border-radius: 4px; font-size: 14px; display: none;">
+              <span id="statusText"></span>
+            </div>
+          </div>
+
           <div class="form-group full-width">
             <label for="filename">Tên file (tự động tạo từ tiêu đề)</label>
             <input type="text" id="filename" name="filename" class="form-input" readonly
@@ -434,24 +524,28 @@
         <button type="button" class="btn btn-primary" onclick="previewTemplateHTML()">
           👁️ Preview HTML
         </button>
-        <button type="button" class="btn btn-success" onclick="exportTemplateHTML()">
-          📄 Xuất HTML
+        <button type="button" class="btn btn-info" onclick="saveDraft()">
+          📑 Lưu nháp
         </button>
-        <button type="button" class="btn btn-success" onclick="saveToSupabase()">
-          ☁️ Lưu vào DB + Auto Deploy
+        <button type="button" class="btn btn-success" onclick="saveAndPublish()">
+          🚀 Lưu và Xuất bản
         </button>
-        <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
+        <!-- <button type="button" class="btn btn-warning" onclick="saveAndDeploy()" style="background: #ff8c00;">
+          🚀 Lưu và Deploy Tự Động
+        </button> -->
+        <!-- <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
           🚀 Deploy GitHub Pages
         </button>
         <button type="button" class="btn btn-info" onclick="checkDeployStatus()" style="background: #17a2b8;">
           📊 Kiểm tra Deploy Status
-        </button>
+        </button> -->
       </div>
     </form>
 
     <!-- Preview Container -->
     <div id="previewContainer" class="preview-container">
-      <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1rem;">
+      <div
+        style="display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h3>👁️ Xem Trước Bài Viết</h3>
         <button type="button" class="btn btn-secondary" onclick="closePreview()">✕ Đóng</button>
       </div>
@@ -1206,7 +1300,8 @@
         tags: document.getElementById('tags').value,
         featured: document.getElementById('featured').checked,
         filename: document.getElementById('filename').value,
-        content: getTinyMCEContent()
+        content: getTinyMCEContent(),
+        status: document.getElementById('status').value || 'draft'
       };
     }
 
@@ -1220,8 +1315,77 @@
       }
     }
 
+    // Draft/Publish Status Functions
+    function updateStatusIndicator() {
+      const statusSelect = document.getElementById('status');
+      const statusIndicator = document.getElementById('statusIndicator');
+      const statusText = document.getElementById('statusText');
+
+      const status = statusSelect.value;
+
+      if (status === 'draft') {
+        statusIndicator.className = 'status-indicator draft';
+        statusIndicator.style.display = 'block';
+        statusText.textContent = '📝 Bài viết đang ở trạng thái nháp';
+      } else if (status === 'published') {
+        statusIndicator.className = 'status-indicator published';
+        statusIndicator.style.display = 'block';
+        statusText.textContent = '✅ Bài viết đã được xuất bản';
+      } else {
+        statusIndicator.style.display = 'none';
+      }
+    }
+
+    async function saveDraft() {
+      // Set status to draft
+      document.getElementById('status').value = 'draft';
+      updateStatusIndicator();
+
+      showStatus('💾 Đang lưu nháp...', 'info');
+
+      try {
+        await saveToSupabaseWithStatus('draft', false); // draft, no deploy
+        showStatus('✅ Đã lưu nháp thành công!', 'success');
+      } catch (error) {
+        console.error('Save draft error:', error);
+        showStatus('❌ Lỗi khi lưu nháp: ' + error.message, 'error');
+      }
+    }
+
+    async function saveAndPublish() {
+      // Set status to published
+      document.getElementById('status').value = 'published';
+      updateStatusIndicator();
+
+      showStatus('📝 Đang lưu và xuất bản...', 'info');
+
+      try {
+        await saveToSupabaseWithStatus('published', true); // published, auto-deploy
+        showStatus('✅ Đã lưu và xuất bản thành công!', 'success');
+      } catch (error) {
+        console.error('Save and publish error:', error);
+        showStatus('❌ Lỗi khi lưu và xuất bản: ' + error.message, 'error');
+      }
+    }
+
+    async function saveAndDeploy() {
+      // Set status to published
+      document.getElementById('status').value = 'published';
+      updateStatusIndicator();
+
+      showStatus('🚀 Đang lưu và deploy tự động...', 'info');
+
+      try {
+        await saveToSupabaseWithStatus('published', true); // published, with auto-deploy
+        showStatus('✅ Đã lưu, xuất bản và deploy thành công!', 'success');
+      } catch (error) {
+        console.error('Save and deploy error:', error);
+        showStatus('❌ Lỗi khi lưu và deploy: ' + error.message, 'error');
+      }
+    }
+
     // Supabase Functions
-    async function saveToSupabase() {
+    async function saveToSupabaseWithStatus(status = 'draft', shouldDeploy = false) {
       // Initialize Supabase if not already done
       const client = await initializeSupabase();
 
@@ -1238,8 +1402,6 @@
       }
 
       try {
-        showStatus('⏳ Đang lưu bài viết...', 'info');
-
         // Generate rendered HTML template
         let renderedHTML = null;
         try {
@@ -1252,7 +1414,7 @@
           showStatus('⚠️ Lưu không có template HTML - chỉ lưu dữ liệu thô', 'warning');
         }
 
-        // Prepare article data for Supabase (chỉ dùng cột đã có)
+        // Prepare article data for Supabase with status
         const articleData = {
           title: formData.title,
           description: formData.description,
@@ -1261,12 +1423,11 @@
           keywords: formData.keywords,
           filename: formData.filename,
           published_date: formData.publishDate || new Date().toISOString().split('T')[0],
-          is_published: false
+          is_published: status === 'published',
+          status: status // Add status field
         };
 
         // Thêm các cột mới nếu tồn tại trong database
-        // Bạn có thể uncomment những dòng này sau khi đã tạo cột trong Supabase
-
         // if (formData.tags) {
         //   articleData.tags = formData.tags;
         // }
@@ -1307,29 +1468,22 @@
           showStatus('✅ Đã liên kết ' + supabaseImages.length + ' ảnh với bài viết', 'success');
         }
 
-        // Success message with template info
-        const templateStatus = renderedHTML ?
-          ' (bao gồm HTML template hoàn chỉnh)' :
-          ' (chỉ dữ liệu thô - không có template)';
+        console.log('Article saved with status:', status, savedArticle);
 
-        showStatus('✅ Đã lưu bài viết vào database thành công!' + templateStatus, 'success');
-        console.log('Article saved:', savedArticle);
-
-        if (renderedHTML) {
-          console.log('📄 Rendered HTML template saved to database');
+        // Deploy logic - only deploy if requested and status is published
+        if (shouldDeploy && status === 'published') {
+          try {
+            showStatus('🚀 Đang khởi động xuất bản GitHub Pages...', 'info');
+            await triggerGitHubDeploy(savedArticle);
+            showStatus('✅ Xuất bản thành công!', 'success');
+          } catch (deployError) {
+            console.warn('⚠️ Auto-deploy failed:', deployError);
+            showStatus('⚠️ Lưu thành công nhưng tự động xuất bản thất bại. Có thể xuất bản thủ công sau.', 'warning');
+          }
         }
 
-        // 🚀 AUTO-TRIGGER GITHUB DEPLOY
-        try {
-          showStatus('🚀 Đang khởi động auto-deploy GitHub Pages...', 'info');
-          await triggerGitHubDeploy(savedArticle);
-        } catch (deployError) {
-          console.warn('⚠️ Auto-deploy failed:', deployError);
-          showStatus('⚠️ Lưu thành công nhưng auto-deploy thất bại. Có thể deploy thủ công sau.', 'warning');
-        }
-
-        // Optional: Also create HTML file
-        if (renderedHTML && confirm('Bạn có muốn tải file HTML hoàn chỉnh không?')) {
+        // Optional: Also create HTML file for published articles
+        if (renderedHTML && status === 'published' && confirm('Bạn có muốn tải file HTML hoàn chỉnh không?')) {
           // Create download with rendered HTML
           const blob = new Blob([renderedHTML], { type: 'text/html;charset=utf-8' });
           const url = URL.createObjectURL(blob);
@@ -1347,7 +1501,18 @@
       } catch (error) {
         console.error('Supabase save error:', error);
         showStatus('❌ Lỗi lưu vào database: ' + error.message, 'error');
+        throw error; // Re-throw to be caught by calling function
       }
+    }
+
+    // Legacy function for backward compatibility
+    async function saveToSupabase() {
+      // Get current status from form or default to draft
+      const statusSelect = document.getElementById('status');
+      const currentStatus = statusSelect ? statusSelect.value : 'draft';
+
+      // Call the new function with current status and auto-deploy (legacy behavior)
+      await saveToSupabaseWithStatus(currentStatus, true);
     }
 
     async function loadArticlesList() {
@@ -1598,6 +1763,10 @@
 
         // Set default publish date to today
         const today = new Date().toISOString().split('T')[0];
+        document.getElementById('publishDate').value = today;
+
+        // Initialize status indicator
+        updateStatusIndicator();
         document.getElementById('publishDate').value = today;
 
         console.log('✅ Admin editor initialized successfully');

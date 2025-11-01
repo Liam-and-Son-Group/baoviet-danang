@@ -30,7 +30,7 @@ async function updateSitemap(newFilename) {
     }
 
     // Tạo URL entry mới
-    const baseUrl = "https://baoviet-dn.com";
+    const baseUrl = "https://baohiembaovietdanang.com";
     const today = new Date().toISOString().split("T")[0];
 
     const newUrlEntry = `  <url>
