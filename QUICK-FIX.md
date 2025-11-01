@@ -1,6 +1,7 @@
 # 🔧 Quick Fix Guide - Environment Variables
 
 ## ❌ Lỗi Hiện Tại
+
 ```
 ❌ Missing Supabase credentials in environment variables
 Error: Process completed with exit code 1.
@@ -11,17 +12,19 @@ Error: Process completed with exit code 1.
 ### 🎯 Option 1: GitHub Secrets (Recommended for Production)
 
 #### 1️⃣ Setup GitHub Repository Secrets
+
 ```
 1. Vào: https://github.com/Liam-and-Son-Group/baoviet-danang/settings/secrets/actions
 2. Click "New repository secret"
 3. Thêm secrets:
    - Name: SUPABASE_URL
      Value: https://your-project-ref.supabase.co
-   - Name: SUPABASE_ANON_KEY  
+   - Name: SUPABASE_ANON_KEY
      Value: your-anon-public-key
 ```
 
 #### 2️⃣ Lấy Supabase Credentials
+
 ```
 1. Vào: https://supabase.com/dashboard
 2. Chọn project: baoviet-danang
@@ -31,6 +34,7 @@ Error: Process completed with exit code 1.
 ```
 
 #### 3️⃣ Test GitHub Actions
+
 ```bash
 # Trigger manual workflow
 gh workflow run deploy-new-article.yml \
@@ -41,6 +45,7 @@ gh workflow run deploy-new-article.yml \
 ### 🏠 Option 2: Local .env File (cho Development)
 
 #### 1️⃣ Config File .env
+
 ```bash
 # File .env đã được tạo, bạn cần chỉnh sửa:
 nano .env
@@ -53,6 +58,7 @@ SUPABASE_ANON_KEY=your-anon-key
 ```
 
 #### 2️⃣ Test Local
+
 ```bash
 # Test environment variables
 ./test-env.sh
@@ -65,30 +71,34 @@ node .github/scripts/generate-article.js "85bf05a9-edaa-40b3-96a6-12d27cff3c77" 
 
 Script tự động detect environment:
 
-| Environment | Credentials Source | Use Case |
-|-------------|-------------------|----------|
-| **Local** | `.env` file | Development & testing |
-| **GitHub Actions** | GitHub Secrets | Production auto-deploy |
+| Environment        | Credentials Source | Use Case               |
+| ------------------ | ------------------ | ---------------------- |
+| **Local**          | `.env` file        | Development & testing  |
+| **GitHub Actions** | GitHub Secrets     | Production auto-deploy |
 
 ## 🧪 Test Cả Hai Mode
+
 ```bash
 ./test-dual-mode.sh
 ```
 
 ## 🔍 Files Đã Tạo
+
 - ✅ `.env` - Environment variables file (local)
 - ✅ `GITHUB-SECRETS-SETUP.md` - Hướng dẫn setup GitHub Secrets
 - ✅ `test-dual-mode.sh` - Test cả hai mode
 - ✅ `.gitignore` - Để không commit secrets
 
 ## 🚨 Lưu Ý Quan Trọng
+
 - **GitHub Secrets**: Secure, encrypted, chỉ available trong GitHub Actions
 - **Local .env**: Chỉ cho development, KHÔNG commit vào git
 - **Auto-detection**: Script tự biết environment nào đang chạy
 
 ## 📋 Checklist Production Setup
+
 - [ ] Setup SUPABASE_URL trong GitHub Secrets
-- [ ] Setup SUPABASE_ANON_KEY trong GitHub Secrets  
+- [ ] Setup SUPABASE_ANON_KEY trong GitHub Secrets
 - [ ] Test workflow manually
 - [ ] Verify auto-deploy từ Edge Function
 

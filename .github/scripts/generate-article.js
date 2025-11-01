@@ -5,7 +5,7 @@
  * 1. Lấy dữ liệu bài viết từ Supabase
  * 2. Render HTML bằng template engine
  * 3. Tạo file HTML mới trong repository
- * 
+ *
  * Environment Variables:
  * - SUPABASE_URL: Từ GitHub Secrets hoặc .env file
  * - SUPABASE_ANON_KEY: Từ GitHub Secrets hoặc .env file
@@ -13,7 +13,7 @@
 
 // Load environment variables từ .env file (chỉ cho local development)
 // GitHub Actions sẽ override với GitHub Secrets
-require('dotenv').config();
+require("dotenv").config();
 
 const { createClient } = require("@supabase/supabase-js");
 const fs = require("fs").promises;
@@ -25,13 +25,17 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
 console.log("🔍 Environment check:");
-console.log(`  - Running in: ${process.env.GITHUB_ACTIONS ? 'GitHub Actions' : 'Local'}`);
-console.log(`  - SUPABASE_URL: ${supabaseUrl ? '✅ Set' : '❌ Missing'}`);
-console.log(`  - SUPABASE_ANON_KEY: ${supabaseKey ? '✅ Set' : '❌ Missing'}`);
+console.log(
+  `  - Running in: ${process.env.GITHUB_ACTIONS ? "GitHub Actions" : "Local"}`
+);
+console.log(`  - SUPABASE_URL: ${supabaseUrl ? "✅ Set" : "❌ Missing"}`);
+console.log(`  - SUPABASE_ANON_KEY: ${supabaseKey ? "✅ Set" : "❌ Missing"}`);
 
 if (!supabaseUrl || !supabaseKey) {
   console.error("❌ Missing Supabase credentials in environment variables");
-  console.error("💡 For GitHub Actions: Set SUPABASE_URL and SUPABASE_ANON_KEY in repository secrets");
+  console.error(
+    "💡 For GitHub Actions: Set SUPABASE_URL and SUPABASE_ANON_KEY in repository secrets"
+  );
   console.error("💡 For local development: Create .env file with credentials");
   process.exit(1);
 }
