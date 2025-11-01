@@ -1,0 +1,31 @@
+{
+  "name": "baoviet-danang-deploy",
+  "version": "1.0.0",
+  "description": "Auto-deploy scripts for Baoviet Danang website",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node .github/scripts/generate-article.js",
+    "sitemap": "node .github/scripts/update-sitemap.js",
+    "deploy": "npm run generate && npm run sitemap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Liam-and-Son-Group/baoviet-danang.git"
+  },
+  "keywords": [
+    "baoviet",
+    "insurance",
+    "danang",
+    "auto-deploy"
+  ],
+  "author": "Liam-and-Son-Group",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "node-fetch": "^2.7.0",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
