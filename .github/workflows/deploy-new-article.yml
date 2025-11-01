@@ -33,9 +33,7 @@ jobs:
           cache: "npm"
 
       - name: 📦 Install Dependencies
-        run: |
-          npm init -y
-          npm install @supabase/supabase-js node-fetch cheerio
+        run: npm install
 
       - name: 🏗️ Generate Article HTML
         env:
