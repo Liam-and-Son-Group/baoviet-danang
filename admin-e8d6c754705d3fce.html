@@ -1615,6 +1615,12 @@
       try {
         showStatus('🚀 Đang khởi động deploy GitHub Pages...', 'info');
 
+        // Get Supabase client
+        const client = await initializeSupabase();
+        if (!client) {
+          throw new Error('Supabase client not initialized');
+        }
+
         // Call Supabase Edge Function để trigger GitHub deploy
         const { data, error } = await client.functions.invoke('deploy-article', {
           body: {
@@ -1662,6 +1668,12 @@
 
         showStatus('🔍 Đang tìm bài viết để deploy...', 'info');
 
+        // Get Supabase client
+        const client = await initializeSupabase();
+        if (!client) {
+          throw new Error('Supabase client not initialized');
+        }
+
         // Tìm bài viết theo filename
         const { data: articles, error } = await client
           .from('articles')
@@ -1686,6 +1698,12 @@
     async function checkDeployStatus() {
       try {
         showStatus('📊 Đang kiểm tra deploy logs...', 'info');
+
+        // Get Supabase client
+        const client = await initializeSupabase();
+        if (!client) {
+          throw new Error('Supabase client not initialized');
+        }
 
         const { data, error } = await client
           .from('webhook_logs')
