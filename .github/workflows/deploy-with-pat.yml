@@ -1,8 +1,8 @@
-name: 🚀 Deploy New Article to GitHub Pages
+name: 🚀 Deploy New Article (with PAT) - Alternative
+
+# Alternative workflow sử dụng Personal Access Token nếu GITHUB_TOKEN không work
 
 on:
-  repository_dispatch:
-    types: [new-article-created]
   workflow_dispatch:
     inputs:
       article_id:
@@ -17,9 +17,9 @@ on:
 jobs:
   deploy-article:
     runs-on: ubuntu-latest
-    name: 📝 Generate & Deploy Article
+    name: 📝 Generate & Deploy Article (PAT Version)
     
-    # 🔑 Grant permissions để GitHub Actions có thể push
+    # 🔑 Permissions for Personal Access Token usage
     permissions:
       contents: write
       pages: write
@@ -29,7 +29,7 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Sử dụng PAT thay vì GITHUB_TOKEN
           fetch-depth: 0
 
       - name: 🔧 Setup Node.js
@@ -46,15 +46,15 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          node .github/scripts/generate-article.js "${{ github.event.client_payload.article_id || github.event.inputs.article_id }}" "${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+          node .github/scripts/generate-article.js "${{ github.event.inputs.article_id }}" "${{ github.event.inputs.article_filename }}"
 
       - name: 📊 Update Sitemap
         run: |
-          node .github/scripts/update-sitemap.js "${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+          node .github/scripts/update-sitemap.js "${{ github.event.inputs.article_filename }}"
 
       - name: 🔄 Commit & Push Changes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -62,18 +62,18 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "🚀 Auto-deploy: Add new article ${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+            git commit -m "🚀 Auto-deploy: Add new article ${{ github.event.inputs.article_filename }}"
             git push origin HEAD
           fi
 
       - name: 🎯 Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          personal_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Sử dụng PAT
           publish_dir: ./
           exclude_assets: ".github,node_modules,package*.json,temp"
 
       - name: ✅ Notify Success
         run: |
-          echo "🎉 Successfully deployed article: ${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
-          echo "🌐 Available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+          echo "🎉 Successfully deployed article: ${{ github.event.inputs.article_filename }}"
+          echo "🌐 Available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.event.inputs.article_filename }}"
