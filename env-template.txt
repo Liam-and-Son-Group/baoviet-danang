@@ -1,0 +1,16 @@
+# ⚠️ QUAN TRỌNG: TẠO FILE .env VỚI THÔNG TIN THẬT
+# Copy nội dung này vào file .env (không có .example)
+
+# 🔑 Supabase credentials (THAY ĐỔI THÀNH THÔNG TIN THẬT)
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+
+# 📋 Cách lấy thông tin Supabase:
+# 1. Đăng nhập vào https://supabase.com/dashboard
+# 2. Chọn project baoviet-danang
+# 3. Vào Settings → API
+# 4. Copy "Project URL" vào SUPABASE_URL
+# 5. Copy "anon public" key vào SUPABASE_ANON_KEY
+
+# 🔒 GitHub token (cho GitHub Actions)
+GITHUB_TOKEN=your_github_personal_access_token
