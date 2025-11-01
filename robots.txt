@@ -4,5 +4,9 @@ User-agent: *
 Allow: /scripts/
 Allow: /
 
+# Block admin files
+Disallow: /admin-*
+Disallow: /config/
+
 # Khai báo sitemap để Google index nhanh hơn
 Sitemap: https://baohiembaovietdanang.vn/sitemap.xml
