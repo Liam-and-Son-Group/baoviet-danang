@@ -1,6 +1,11 @@
 -- ================================================================
--- 🚀 SUPABASE FUNCTIONS FOR GITHUB AUTO-DEPLOY (SIMPLIFIED)
+-- 🚀 CLEAN SUPABASE FUNCTIONS (NO VAULT ACCESS)
 -- ================================================================
+
+-- CLEAN UP: Xóa các functions và triggers cũ nếu tồn tại
+DROP TRIGGER IF EXISTS auto_deploy_article_trigger ON articles;
+DROP FUNCTION IF EXISTS trigger_github_deploy();
+DROP FUNCTION IF EXISTS manual_deploy_article(UUID);
 
 -- 1️⃣ CREATE TABLE FOR WEBHOOK LOGS (Optional - for debugging)
 CREATE TABLE IF NOT EXISTS webhook_logs (
@@ -15,7 +20,7 @@ CREATE TABLE IF NOT EXISTS webhook_logs (
 -- Enable RLS
 ALTER TABLE webhook_logs ENABLE ROW LEVEL SECURITY;
 
--- 2️⃣ CREATE FUNCTION TO LOG DEPLOY ATTEMPTS (Simplified)
+-- 2️⃣ CREATE FUNCTION TO LOG DEPLOY ATTEMPTS (NO EXTERNAL CALLS)
 CREATE OR REPLACE FUNCTION log_deploy_attempt(
     article_uuid UUID,
     deploy_status TEXT DEFAULT 'initiated',
@@ -37,7 +42,7 @@ BEGIN
         );
     END IF;
     
-    -- Tạo payload
+    -- Tạo log entry (CHỈ LOGGING, KHÔNG GỌI EXTERNAL APIs)
     INSERT INTO webhook_logs (event_type, payload, status, error_message) 
     VALUES (
         'deploy_attempt',
@@ -76,8 +81,7 @@ BEGIN
     UPDATE webhook_logs 
     SET 
         status = new_status,
-        error_message = error_msg,
-        updated_at = NOW()
+        error_message = error_msg
     WHERE id = log_uuid;
     
     RETURN FOUND;
@@ -91,8 +95,34 @@ GRANT EXECUTE ON FUNCTION log_deploy_attempt(UUID, TEXT, TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION update_deploy_status(UUID, TEXT, TEXT) TO authenticated;
 
 -- 5️⃣ CREATE RLS POLICIES
+DROP POLICY IF EXISTS "Users can view webhook logs" ON webhook_logs;
 CREATE POLICY "Users can view webhook logs" ON webhook_logs
     FOR SELECT USING (true);
+
+-- ================================================================
+-- 📝 HƯỚNG DẪN SỬ DỤNG (EDGE FUNCTION APPROACH):
+-- ================================================================
+
+/*
+APPROACH MỚI: 100% Edge Functions, Database chỉ logging
+
+1. LOG DEPLOY ATTEMPT:
+   SELECT log_deploy_attempt('article-uuid-here', 'initiated');
+
+2. UPDATE STATUS AFTER DEPLOY:
+   SELECT update_deploy_status('log-uuid', 'success');
+
+3. CHECK LOGS:
+   SELECT * FROM webhook_logs ORDER BY created_at DESC LIMIT 10;
+
+4. DEPLOY WORKFLOW:
+   Admin Interface → Edge Function → GitHub API → GitHub Actions
+
+5. NO MORE VAULT ACCESS:
+   - Không có vault.get_secret()
+   - Không có HTTP calls trong database
+   - Token được manage trong Edge Function environment
+*/
 
 -- ================================================================
 -- 📝 HƯỚNG DẪN SỬ DỤNG (CLIENT-SIDE APPROACH):

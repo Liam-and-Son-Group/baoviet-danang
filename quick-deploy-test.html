@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>🧪 Quick Deploy Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .log {
+      background: #f8f9fa;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #dee2e6;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🧪 Quick Deploy Test</h1>
+
+    <div class="section">
+      <h3>⚙️ Setup</h3>
+      <input type="text" id="supabaseUrl" placeholder="Supabase URL (https://xxx.supabase.co)" />
+      <input type="text" id="supabaseKey" placeholder="Supabase Anon Key" />
+      <button onclick="initializeTest()">Initialize</button>
+    </div>
+
+    <div class="section">
+      <h3>🧪 Tests</h3>
+      <button onclick="testEdgeFunction()">Test Edge Function</button>
+      <button onclick="testWithArticleId()">Test with Article ID</button>
+      <button onclick="checkLogs()">Check Logs</button>
+    </div>
+
+    <div class="section">
+      <h3>📝 Manual Test</h3>
+      <input type="text" id="articleId" placeholder="Article UUID to test" />
+      <button onclick="testSpecificArticle()">Test Specific Article</button>
+    </div>
+
+    <div id="status"></div>
+    <div id="logs" class="log"></div>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    let client = null;
+
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logDiv = document.getElementById('logs');
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+
+      const statusDiv = document.getElementById('status');
+      const statusClass = type;
+      statusDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+
+      console.log(message);
+    }
+
+    function initializeTest() {
+      try {
+        const url = document.getElementById('supabaseUrl').value;
+        const key = document.getElementById('supabaseKey').value;
+
+        if (!url || !key) {
+          log('❌ Please enter Supabase URL and key', 'error');
+          return;
+        }
+
+        client = supabase.createClient(url, key);
+        log('✅ Supabase client initialized', 'success');
+
+        // Save for future use
+        localStorage.setItem('test_supabase_url', url);
+        localStorage.setItem('test_supabase_key', key);
+
+      } catch (error) {
+        log(`❌ Initialization failed: ${error.message}`, 'error');
+      }
+    }
+
+    async function testEdgeFunction() {
+      if (!client) {
+        log('❌ Initialize Supabase client first', 'error');
+        return;
+      }
+
+      try {
+        log('🔍 Testing Edge Function...', 'info');
+
+        const { data, error } = await client.functions.invoke('deploy-article', {
+          body: {
+            article_id: 'test-id',
+            trigger_source: 'quick_test'
+          }
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        log(`✅ Edge Function response: ${JSON.stringify(data)}`, 'success');
+
+      } catch (error) {
+        if (error.message.includes('not found') || error.message.includes('404')) {
+          log('❌ Edge Function not deployed. Run: supabase functions deploy deploy-article', 'error');
+        } else {
+          log(`❌ Edge Function error: ${error.message}`, 'error');
+        }
+      }
+    }
+
+    async function testWithArticleId() {
+      if (!client) {
+        log('❌ Initialize Supabase client first', 'error');
+        return;
+      }
+
+      try {
+        log('🔍 Getting first article from database...', 'info');
+
+        const { data: articles, error } = await client
+          .from('articles')
+          .select('id, filename, title')
+          .limit(1);
+
+        if (error) throw error;
+
+        if (!articles || articles.length === 0) {
+          log('❌ No articles found in database', 'error');
+          return;
+        }
+
+        const article = articles[0];
+        log(`📄 Found article: ${article.filename} (${article.id})`, 'info');
+
+        // Test Edge Function with real article
+        const { data, error: deployError } = await client.functions.invoke('deploy-article', {
+          body: {
+            article_id: article.id,
+            trigger_source: 'article_test'
+          }
+        });
+
+        if (deployError) throw deployError;
+
+        log(`✅ Deploy test successful: ${JSON.stringify(data)}`, 'success');
+        log('📊 Check GitHub Actions: https://github.com/Liam-and-Son-Group/baoviet-danang/actions', 'info');
+
+      } catch (error) {
+        log(`❌ Test failed: ${error.message}`, 'error');
+      }
+    }
+
+    async function testSpecificArticle() {
+      const articleId = document.getElementById('articleId').value;
+      if (!articleId) {
+        log('❌ Please enter article ID', 'error');
+        return;
+      }
+
+      if (!client) {
+        log('❌ Initialize Supabase client first', 'error');
+        return;
+      }
+
+      try {
+        log(`🔍 Testing with article ID: ${articleId}`, 'info');
+
+        const { data, error } = await client.functions.invoke('deploy-article', {
+          body: {
+            article_id: articleId,
+            trigger_source: 'manual_test'
+          }
+        });
+
+        if (error) throw error;
+
+        log(`✅ Deploy successful: ${JSON.stringify(data)}`, 'success');
+
+      } catch (error) {
+        log(`❌ Deploy failed: ${error.message}`, 'error');
+      }
+    }
+
+    async function checkLogs() {
+      if (!client) {
+        log('❌ Initialize Supabase client first', 'error');
+        return;
+      }
+
+      try {
+        log('📊 Checking webhook logs...', 'info');
+
+        const { data, error } = await client
+          .from('webhook_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        if (data.length === 0) {
+          log('⚠️ No webhook logs found', 'warning');
+        } else {
+          log(`📊 Found ${data.length} logs:`, 'info');
+          data.forEach(entry => {
+            const time = new Date(entry.created_at).toLocaleString();
+            const filename = entry.payload?.article_filename || 'unknown';
+            log(`  [${time}] ${entry.event_type} - ${filename} - ${entry.status}`, 'info');
+          });
+        }
+
+      } catch (error) {
+        log(`❌ Failed to check logs: ${error.message}`, 'error');
+      }
+    }
+
+    // Auto-load saved credentials
+    window.onload = function () {
+      const savedUrl = localStorage.getItem('test_supabase_url');
+      const savedKey = localStorage.getItem('test_supabase_key');
+
+      if (savedUrl) document.getElementById('supabaseUrl').value = savedUrl;
+      if (savedKey) document.getElementById('supabaseKey').value = savedKey;
+
+      if (savedUrl && savedKey) {
+        initializeTest();
+      }
+    };
+  </script>
+</body>
+
+</html>
