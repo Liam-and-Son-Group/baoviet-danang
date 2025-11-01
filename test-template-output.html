@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Primary SEO Meta Tags -->
-  <title>10 Ngày Vàng Lái Xe An Toàn– Nhận Ưu Đãi Ngập Tràn (10/10 – 20/10){{#if site.name}} | {{site.name}}{{/if}}</title>
+  <title>{{title}}{{#if site.name}} | {{site.name}}{{/if}}</title>
   <meta name="description" content="{{meta.description}}">
   <meta name="keywords" content="{{meta.keywords}}">
   <meta name="author" content="{{default meta.author " Bảo Hiểm Bảo Việt Đà Nẵng"}}">
@@ -26,7 +26,7 @@
   <meta property="og:type" content="article">
   <meta property="og:url" content="{{canonical filename}}">
   <meta property="og:site_name" content="{{default site.name " Bảo Hiểm Bảo Việt Đà Nẵng"}}">
-  <meta property="og:title" content="10 Ngày Vàng Lái Xe An Toàn– Nhận Ưu Đãi Ngập Tràn (10/10 – 20/10)">
+  <meta property="og:title" content="{{title}}">
   <meta property="og:description" content="{{meta.description}}">
   {{#if meta.image}}
   <meta property="og:image" content="{{meta.image}}">
@@ -35,15 +35,17 @@
   <meta property="og:image:alt" content="{{meta.imageAlt}}">
   {{/if}}
   <meta property="og:locale" content="vi_VN">
-  
-  <meta property="article:published_time" content="1 tháng 11, 2025">
-  
-  
+  {{#if publishDate}}
+  <meta property="article:published_time" content="{{publishDate}}">
+  {{/if}}
+  {{#if modifiedDate}}
+  <meta property="article:modified_time" content="{{modifiedDate}}">
+  {{/if}}
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="{{canonical filename}}">
-  <meta name="twitter:title" content="10 Ngày Vàng Lái Xe An Toàn– Nhận Ưu Đãi Ngập Tràn (10/10 – 20/10)">
+  <meta name="twitter:title" content="{{title}}">
   <meta name="twitter:description" content="{{truncate meta.description 200}}">
   {{#if meta.image}}
   <meta name="twitter:image" content="{{meta.image}}">
@@ -64,7 +66,7 @@
   {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "10 Ngày Vàng Lái Xe An Toàn– Nhận Ưu Đãi Ngập Tràn (10/10 – 20/10)",
+    "headline": "{{title}}",
     "description": "{{meta.description}}",
     {{#if meta.image}}
     "image": "{{meta.image}}",
@@ -81,10 +83,14 @@
         "url": "https://baohiembaovietdanang.vn/assets/logo.png"
       }
     },
-    
-    "datePublished": "1 tháng 11, 2025",
-    
-    
+    {{#if publishDate}}
+    "datePublished": "{{publishDate}}",
+    {{/if}}
+    {{#if modifiedDate}}
+    "dateModified": "{{modifiedDate}}",
+    {{else}}
+    "dateModified": "{{publishDate}}",
+    {{/if}}
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": "{{canonical filename}}"
@@ -106,10 +112,69 @@
 
 <body>
   <!-- Floating Action Buttons -->
-  {{include "partials/floating-buttons.html"}}
+  <div class="float-container">
+  <button onclick="window.location.href='tel:+8490549949'" id="floatBtn" class="floating-btn">
+    <img src="/assets/phone-icon.png" style="width: 30px; height: 30px;" alt="Gọi điện" srcset="">
+  </button>
+  <button onclick="window.location.href='https://zalo.me/84931909697'" id="floatBtn" class="floating-btn">
+    <img src="https://haiauint.vn/wp-content/uploads/2024/02/zalo-icon.png" style="width: 100%; height: 100%;"
+      alt="Zalo" srcset="">
+  </button>
+  <a href="/dang-ky-tu-van-bao-hiem.html">
+    <button class="registry-button">
+      Đăng ký ngay
+    </button>
+  </a>
+</div>
 
   <!-- Navigation Header -->
-  {{include "partials/header.html"}}
+  <nav class="head-wrapper">
+  <img onclick="window.location.href='/index.html'" class="logo"
+    src="https://baovietonline.com.vn/templates/images/logo2x.png" alt="Logo Bảo Việt Đà Nẵng">
+  <div class="hamburger" onclick="toggleMenu()">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <ul class="navigation-items" id="menu">
+    <li onclick="window.location.href='/index.html'">Trang chủ</li>
+    <li class="has-popover">Bảo hiểm nhân thọ
+      <div class="popover">
+        <ul class="submenu">
+          <li onclick="window.location.href='/baohiemantamhoachdinh.html'">An Tâm Hoạch Định</li>
+          <li onclick="window.location.href='/baohiemankhangnhuy.html'">An Khang Như Ý</li>
+          <li onclick="window.location.href='/baohiemanphatcattuong.html'">An Phát Cát Tường</li>
+          <li onclick="window.location.href='/baohiemankhanghanhphuc.html'">An Khang Hạnh Phúc</li>
+          <li onclick="window.location.href='/baohiemanvuisongkhoe.html'">An vui sống khoẻ</li>
+          <li onclick="window.location.href='/baohiemantamhocvan.html'">An tâm học vấn</li>
+          <li onclick="window.location.href='/baohiemanphattrondoi.html'">An phát trọn đời</li>
+        </ul>
+      </div>
+    </li>
+    <li class="has-popover">Bảo hiểm phi nhân thọ
+      <div class="popover">
+        <ul class="submenu">
+          <li onclick="window.location.href='/baohiemoto.html'">Bảo hiểm vật chất xe ô tô</li>
+          <li onclick="window.location.href='/baohiemchayno.html'">Bảo hiểm cháy, nổ bắt buộc</li>
+          <li onclick="window.location.href='/baohiemruirotaisan.html'">Bảo hiểm mọi rủi ro tài sản</li>
+          <li onclick="window.location.href='/baohiemsuckhoe.html'">Bảo Việt An Gia</li>
+          <li onclick="window.location.href='/baohiemintercare.html'">Bảo hiểm Intercare</li>
+          <li onclick="window.location.href='/baohiemxemay.html'">Bảo hiểm xe máy</li>
+          <li onclick="window.location.href='/baohiemtravel.html'">Bảo hiểm du lịch Flexi</li>
+        </ul>
+      </div>
+    </li>
+    <li onclick="window.location.href='/tuyen-dung.html'">Tuyển dụng</li>
+    <li onclick="window.location.href='/tin-tuc.html'">Tin tức</li>
+  </ul>
+  <div class="contact-wrapper">
+    <img class="phone-logo" src="https://img.icons8.com/ios_filled/512/FAB005/apple-phone.png" alt="Phone icon">
+    <div class="contact-detail">
+      <p class="contact-title">Tư vấn miễn phí</p>
+      <p class="phone-number">0905.499.496 <span style="color: black; font-weight: 600;">/</span> 0931.909.697</p>
+    </div>
+  </div>
+</nav>
 
   <!-- Main Content -->
   <div style="max-width: 1250px; margin: auto; padding: 15px;">
@@ -123,35 +188,34 @@
     <!-- Article Header -->
     <article class="news-article">
       <header class="article-header">
-        <h1 class="title-new">10 Ngày Vàng Lái Xe An Toàn– Nhận Ưu Đãi Ngập Tràn (10/10 – 20/10)</h1>
-
-        {{#if meta.featured}}
-        <div class="featured-badge">
-          ⭐ Bài viết nổi bật
-        </div>
-        {{/if}}
-
+        <h1 class="title-new">{{title}}</h1>
         <!-- Article Meta Info -->
         <div class="meta-info" style="border-bottom: 1px solid rgba(0, 0, 0, 0.219); padding-bottom: 20px;">
-          <span class="category">TIN TỨC</span>
+          <span class="category">{{category}}</span>
           <span class="date">{{formatDate publishDate}}</span>
-          
+          {{#if readTime}}
+          <span class="read-time">📖 {{readTime}} phút đọc</span>
+          {{/if}}
         </div>
       </header>
 
       <!-- Article Content -->
       <div style="max-width: 900px; margin: auto;">
         <div class="item-entry" style="margin-top: 20px;">
-          <div class="new_content_txt f14px">
-<p>Kh&ocirc;ng kh&iacute; lễ hội cuối năm đang đến gần &ndash; đ&acirc;y ch&iacute;nh l&agrave; thời điểm l&yacute; tưởng để l&agrave;m mới h&agrave;nh tr&igrave;nh, bảo vệ chiếc xe y&ecirc;u qu&yacute; v&agrave; tận hưởng những chuyến đi trọn vẹn an t&acirc;m c&ugrave;ng Bảo hiểm Bảo Việt.<br>Nhằm mang đến những gi&aacute; trị thiết thực v&agrave; tri &acirc;n kh&aacute;ch h&agrave;ng, Bảo hiểm Bảo Việt triển khai chương tr&igrave;nh &ldquo;10 NG&Agrave;Y V&Agrave;NG &ndash; L&aacute;i xe an to&agrave;n, nhận ưu đ&atilde;i ngập tr&agrave;n&rdquo;, nằm trong khu&ocirc;n khổ khuyến m&atilde;i &ldquo;Tiết kiệm hơn &ndash; Bảo vệ nhiều hơn&rdquo; (01/10 &ndash; 25/11/2025).<br>Trong thời gian duy nhất từ 10/10 đến 20/10/2025, kh&aacute;ch h&agrave;ng mua Bảo hiểm Vật chất &ocirc; t&ocirc; sẽ được giảm ngay 20% ph&iacute; bảo hiểm &ndash; cơ hội v&agrave;ng để tiết kiệm chi ph&iacute;, gia tăng bảo vệ v&agrave; an t&acirc;m vi vu tr&ecirc;n mọi cung đường.<br>ƯU Đ&Atilde;I ĐẶC BIỆT D&Agrave;NH CHO KH&Aacute;CH H&Agrave;NG:<br>-Tiết kiệm ph&iacute; bảo hiểm đ&aacute;ng kể &ndash; chủ động t&agrave;i ch&iacute;nh dịp cuối năm.<br>-Bảo vệ to&agrave;n diện trước mọi rủi ro trong h&agrave;nh tr&igrave;nh.<br>-365 ng&agrave;y an t&acirc;m khi c&oacute; Bảo hiểm Bảo Việt đồng h&agrave;nh.<br>Thời gian c&oacute; hạn &ndash; nhanh tay đăng k&yacute; ngay h&ocirc;m nay để kh&ocirc;ng bỏ lỡ ưu đ&atilde;i đặc biệt!<br>Xem chi tiết chương tr&igrave;nh &ldquo;Tiết kiệm hơn &ndash; Bảo vệ nhiều hơn&rdquo; (01/10 &ndash; 25/11/2025) tại:&nbsp;<a href="https://baovietonline.com.vn/vi/uu-dai/chi-tiet/397/tiet-kiem-hon-bao-ve-nhieu-hon.html">https://baovietonline.com.vn/vi/uu-dai/chi-tiet/397/tiet-kiem-hon-bao-ve-nhieu-hon.html</a></p>
-</div>
-<div class="d-flex align-items-center new_content_dt_btn mt-4">
-<div class="ht_social ml-auto">&nbsp;</div>
-</div>
+          {{content}}
         </div>
 
         <!-- Article Tags -->
-        
+        {{#if tags}}
+        <div class="article-tags" style="margin: 30px 0; padding: 20px 0; border-top: 1px solid #eee;">
+          <h4>🏷️ Từ khóa liên quan:</h4>
+          <div style="margin-top: 10px;">
+            {{#each tags}}
+            <span class="tag">{{this}}</span>
+            {{/each}}
+          </div>
+        </div>
+        {{/if}}
 
         <!-- Contact CTA Section -->
         <div
@@ -186,7 +250,7 @@
               style="background: #3b5998; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none;">
               📘 Facebook
             </a>
-            <a href="https://twitter.com/intent/tweet?url={{canonical filename}}&text=10 Ngày Vàng Lái Xe An Toàn– Nhận Ưu Đãi Ngập Tràn (10/10 – 20/10)" target="_blank"
+            <a href="https://twitter.com/intent/tweet?url={{canonical filename}}&text={{title}}" target="_blank"
               style="background: #1da1f2; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none;">
               🐦 Twitter
             </a>
@@ -198,7 +262,14 @@
         </div>
 
         <!-- Author Info -->
-        
+        {{#if author}}
+        <div
+          style="margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #007bff;">
+          <h4 style="margin-bottom: 10px;">✍️ Về tác giả</h4>
+          <p style="margin: 0;"><strong>{{author.name}}</strong></p>
+          {{#if author.bio}}
+          <p style="margin: 5px 0 0 0; color: #666;">{{author.bio}}</p>
+          {{/if}}
         </div>
         {{/if}}
       </div>
@@ -206,7 +277,51 @@
   </div>
 
   <!-- Footer -->
-  {{include "partials/footer.html"}}
+  <footer class="footer-infor" style="margin-top: 60px;">
+  <div
+    style="display: flex; justify-content: space-between; padding: 20px 5%; background: linear-gradient(274deg, rgba(6, 66, 120, 0.8) 5.2%, rgba(5, 120, 185, 0.8) 97.96%);">
+    <img style="width: 160px; height: 30px;" src="https://www.baoviet.com.vn/themes/md_baoviet/img/logo.png"
+      alt="Bảo Việt Logo">
+  </div>
+
+  <div class="infor-wrapper">
+    <div class="infor-col">
+      <p class="title">Thông tin liên hệ</p>
+      <ul>
+        <li>Văn phòng: 54 Nguyễn Văn Linh, Thạc Gián, Thanh Khê, Đà Nẵng</li>
+        <li>Hotline: <a href="tel:+8490549949">0905.499.496</a> / <a href="tel:+84931909697">0931.909.697</a></li>
+        <li>Gmail: <a href="mailto:vanthangnguyen1802@gmail.com">vanthangnguyen1802@gmail.com</a></li>
+        <li>Fan Page: facebook.com</li>
+      </ul>
+    </div>
+
+    <div class="infor-col">
+      <p class="title">Các sản phẩm mới</p>
+      <ul>
+        <li>Bảo lãnh viện phí - Chăm sóc Y tế cao cấp</li>
+        <li>Bảo hiểm Xe cơ giới</li>
+        <li>Bảo hiểm Cháy, nổ bắt buộc</li>
+        <li>Bảo vệ vượt trội</li>
+        <li>Tích lũy ưu việt</li>
+      </ul>
+    </div>
+
+    <div class="infor-col">
+      <p class="title">Giải thưởng danh giá</p>
+      <p style="margin:0;">Bảo hiểm phi nhân thọ tốt nhất Việt Nam</p>
+      <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/e3753335c1f0f2538ee6fc0f07e4b2b0.png"
+          alt="Giải thưởng">
+        <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/fbbf198a4c26dc8b27158d49c7a22984.png"
+          alt="Giải thưởng">
+        <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/9c28c0d2654e022cff9c689ee87f6c7f.png"
+          alt="Giải thưởng">
+        <img class="icon_gt" src="https://baovietonline.com.vn/uploads/content/7f3415b56cf02a9f78dba149c0edef97.png"
+          alt="Giải thưởng">
+      </div>
+    </div>
+  </div>
+</footer>
 
   <!-- JavaScript -->
   <script>
@@ -275,7 +390,11 @@
   </script>
 
   <!-- Additional Scripts -->
-  
+  {{#if customScripts}}
+  {{#each customScripts}}
+  <script src="{{this}}"></script>
+  {{/each}}
+  {{/if}}
 </body>
 
 </html>
