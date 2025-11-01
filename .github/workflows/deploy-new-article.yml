@@ -1,0 +1,73 @@
+name: 🚀 Deploy New Article to GitHub Pages
+
+on:
+  repository_dispatch:
+    types: [new-article-created]
+  workflow_dispatch:
+    inputs:
+      article_id:
+        description: "ID của bài viết cần deploy"
+        required: true
+        type: string
+      article_filename:
+        description: "Tên file HTML cần tạo"
+        required: true
+        type: string
+
+jobs:
+  deploy-article:
+    runs-on: ubuntu-latest
+    name: 📝 Generate & Deploy Article
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm init -y
+          npm install @supabase/supabase-js node-fetch cheerio
+
+      - name: 🏗️ Generate Article HTML
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          node .github/scripts/generate-article.js "${{ github.event.client_payload.article_id || github.event.inputs.article_id }}" "${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+
+      - name: 📊 Update Sitemap
+        run: |
+          node .github/scripts/update-sitemap.js "${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+
+      - name: 🔄 Commit & Push Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🚀 Auto-deploy: Add new article ${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+            git push
+          fi
+
+      - name: 🎯 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          exclude_assets: ".github,node_modules,package*.json,temp"
+
+      - name: ✅ Notify Success
+        run: |
+          echo "🎉 Successfully deployed article: ${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
+          echo "🌐 Available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
