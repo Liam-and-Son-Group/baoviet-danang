@@ -18,7 +18,7 @@ jobs:
   deploy-article:
     runs-on: ubuntu-latest
     name: 📝 Generate & Deploy Article
-    
+
     # 🔑 Grant permissions để GitHub Actions có thể push
     permissions:
       contents: write

@@ -1,6 +1,7 @@
 # 🚨 Fix GitHub Actions Permission Denied Error
 
 ## ❌ **Lỗi Hiện Tại**
+
 ```
 remote: Permission to Liam-and-Son-Group/baoviet-danang.git denied to github-actions[bot].
 fatal: unable to access 'https://github.com/...': The requested URL returned error: 403
@@ -8,6 +9,7 @@ Error: Process completed with exit code 128.
 ```
 
 ## 🔍 **Nguyên Nhân**
+
 GitHub Actions `GITHUB_TOKEN` có **limited permissions** và không thể push vào repository trong một số trường hợp.
 
 ## ✅ **Solutions (2 Options)**
@@ -15,16 +17,18 @@ GitHub Actions `GITHUB_TOKEN` có **limited permissions** và không thể push 
 ### 🛠️ **Option 1: Fix Permissions (đã áp dụng)**
 
 #### ✅ Đã thêm permissions vào workflow:
+
 ```yaml
 jobs:
   deploy-article:
     permissions:
-      contents: write    # Cho phép push code
-      pages: write      # Cho phép deploy GitHub Pages  
-      id-token: write   # Cho phép authentication
+      contents: write # Cho phép push code
+      pages: write # Cho phép deploy GitHub Pages
+      id-token: write # Cho phép authentication
 ```
 
 #### ✅ Đã fix git push command:
+
 ```yaml
 - name: 🔄 Commit & Push Changes
   env:
@@ -36,6 +40,7 @@ jobs:
 ### 🔑 **Option 2: Personal Access Token (nếu Option 1 không work)**
 
 #### Bước 1: Tạo Personal Access Token
+
 ```
 1. Vào: https://github.com/settings/tokens
 2. Click "Generate new token (classic)"
@@ -46,6 +51,7 @@ jobs:
 ```
 
 #### Bước 2: Thêm vào Repository Secrets
+
 ```
 1. Vào: https://github.com/Liam-and-Son-Group/baoviet-danang/settings/secrets/actions
 2. Click "New repository secret"
@@ -54,17 +60,19 @@ jobs:
 ```
 
 #### Bước 3: Update workflow để sử dụng PAT
+
 ```yaml
 - name: 📥 Checkout Repository
   uses: actions/checkout@v4
   with:
-    token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Thay vì GITHUB_TOKEN
+    token: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # Thay vì GITHUB_TOKEN
     fetch-depth: 0
 ```
 
 ## 🧪 **Test Fix**
 
 ### Test với permissions fix hiện tại:
+
 ```bash
 # Trigger workflow manually
 gh workflow run deploy-new-article.yml \
@@ -73,6 +81,7 @@ gh workflow run deploy-new-article.yml \
 ```
 
 ### Kiểm tra workflow logs:
+
 ```
 1. Vào: https://github.com/Liam-and-Son-Group/baoviet-danang/actions
 2. Click vào latest workflow run
@@ -84,11 +93,13 @@ gh workflow run deploy-new-article.yml \
 Đảm bảo GitHub Actions có permissions:
 
 ### Bước 1: Repository Settings
+
 ```
 Settings → Actions → General
 ```
 
 ### Bước 2: Workflow permissions
+
 ```
 ✅ Read and write permissions
 ✅ Allow GitHub Actions to create and approve pull requests
@@ -97,9 +108,10 @@ Settings → Actions → General
 ## 🎯 **Expected Fix Results**
 
 Sau khi fix, workflow sẽ:
+
 ```
 ✅ Generate article HTML
-✅ Update sitemap  
+✅ Update sitemap
 ✅ Commit changes
 ✅ Push to repository
 ✅ Deploy to GitHub Pages
@@ -115,7 +127,7 @@ Sau khi fix, workflow sẽ:
 ## 🚀 **Next Actions**
 
 1. ✅ **Permissions đã được thêm** - test lại workflow
-2. 🔲 Nếu vẫn fail → Setup Personal Access Token  
+2. 🔲 Nếu vẫn fail → Setup Personal Access Token
 3. 🔲 Verify repository settings
 4. 🔲 Test complete auto-deploy flow
 
