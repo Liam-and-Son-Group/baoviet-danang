@@ -28,7 +28,7 @@
       background: white;
       border-radius: 16px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      padding: 3rem 2rem;
+      padding: 24px;
       width: 100%;
       max-width: 400px;
       text-align: center;
@@ -247,7 +247,8 @@
       <div class="form-group">
         <label for="password" class="form-label">Mật khẩu Admin</label>
         <div class="password-container">
-          <input type="password" id="password" name="password" class="form-input" placeholder="Nhập mật khẩu admin..." required>
+          <input type="password" id="password" name="password" class="form-input" placeholder="Nhập mật khẩu admin..."
+            required>
           <button type="button" class="toggle-password" onclick="togglePassword('password')">👁️</button>
         </div>
       </div>
@@ -260,14 +261,16 @@
 
         <div class="form-group">
           <label for="supabaseUrl" class="form-label">Supabase URL</label>
-          <input type="url" id="supabaseUrl" name="supabaseUrl" class="form-input" placeholder="https://your-project.supabase.co">
+          <input type="url" id="supabaseUrl" name="supabaseUrl" class="form-input"
+            placeholder="https://your-project.supabase.co">
           <div class="help-text">URL dự án Supabase của bạn</div>
         </div>
 
         <div class="form-group">
           <label for="supabaseKey" class="form-label">Supabase Anon Key</label>
           <div class="password-container">
-            <input type="password" id="supabaseKey" name="supabaseKey" class="form-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            <input type="password" id="supabaseKey" name="supabaseKey" class="form-input"
+              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
             <button type="button" class="toggle-password" onclick="togglePassword('supabaseKey')">👁️</button>
           </div>
           <div class="help-text">Anon key từ Settings > API trong Supabase Dashboard</div>
@@ -291,7 +294,7 @@
     const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
     // Load saved configuration
-    window.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('DOMContentLoaded', function () {
       loadSavedConfig();
     });
 
@@ -338,7 +341,7 @@
       }
     }
 
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const password = document.getElementById('password').value;
@@ -435,7 +438,7 @@
     }
 
     // Handle Enter key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         document.getElementById('loginForm').dispatchEvent(new Event('submit'));

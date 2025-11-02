@@ -361,7 +361,7 @@
 
   <!-- EmailJS Browser SDK -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  
+
   <!-- Supabase Browser SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 
@@ -475,7 +475,7 @@
           }
 
           console.log('💾 Saving registration to database...');
-          
+
           const registrationData = {
             full_name: data.fullName,
             phone: data.phone,
@@ -571,7 +571,7 @@
               if (dbResult.success) {
                 successMessage += ' (Đã lưu vào hệ thống)';
               }
-              
+
               successEl.textContent = successMessage;
               successEl.style.display = 'block';
               successEl.style.background = '#ecfdf5';
@@ -580,7 +580,7 @@
             })
             .catch((error) => {
               console.error('Email send failed:', error);
-              
+
               // Even if email fails, if DB succeeded, show partial success
               if (dbResult.success) {
                 successEl.textContent = 'Đã lưu thông tin vào hệ thống, nhưng email thông báo gửi thất bại. Chúng tôi vẫn sẽ liên hệ với bạn.';

@@ -131,54 +131,61 @@ CREATE POLICY "Authenticated users can delete images" ON storage.objects FOR DEL
 Tạo trong `supabase/functions/deploy-article/index.ts`:
 
 ```typescript
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { article_id, trigger_source } = await req.json()
-    
+    const { article_id, trigger_source } = await req.json();
+
     // GitHub repository dispatch
-    const response = await fetch('https://api.github.com/repos/Liam-and-Son-Group/baoviet-danang/dispatches', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('GITHUB_TOKEN')}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        event_type: 'deploy-new-article',
-        client_payload: {
-          article_id: article_id,
-          trigger_source: trigger_source || 'edge_function'
-        }
-      })
-    })
+    const response = await fetch(
+      "https://api.github.com/repos/Liam-and-Son-Group/baoviet-danang/dispatches",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${Deno.env.get("GITHUB_TOKEN")}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event_type: "deploy-new-article",
+          client_payload: {
+            article_id: article_id,
+            trigger_source: trigger_source || "edge_function",
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`)
+      throw new Error(`GitHub API error: ${response.status}`);
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Deploy triggered successfully' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+      JSON.stringify({
+        success: true,
+        message: "Deploy triggered successfully",
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 },
-    )
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 400,
+    });
   }
-})
+});
 ```
 
 ## Cấu hình environment variables

@@ -262,6 +262,7 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
+      font-size: 12px;
     }
 
     .data-table th,
@@ -281,6 +282,13 @@
     .data-table td:nth-child(6) {
       width: 120px;
       text-align: center;
+    }
+
+    /* Table action buttons */
+    .data-table .btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 11px;
+      margin: 0.125rem;
     }
 
     .data-table th {
@@ -742,7 +750,7 @@
               <td><span class="status-badge ${statusClass}">${statusText}</span></td>
               <td>${date}</td>
               <td>
-                <button class="btn btn-secondary" onclick="editArticle('${article.id}')" style="margin-right: 0.5rem;">
+                <button class="btn btn-secondary" onclick="editArticle('${article.id}')">
                   ✏️ Sửa
                 </button>
                 <button class="btn btn-danger" onclick="deleteArticle('${article.id}', '${article.title}')">
@@ -853,7 +861,7 @@
               <td>${date}</td>
               <td><span class="status-badge ${statusClass}">${statusText}</span></td>
               <td>
-                <button class="btn btn-success" onclick="markAsContacted('${user.id}')" style="margin-right: 0.5rem;">
+                <button class="btn btn-success" onclick="markAsContacted('${user.id}')">
                   ✅ Đã liên hệ
                 </button>
                 <button class="btn btn-danger" onclick="deleteUser('${user.id}', '${user.full_name || user.name}')">

@@ -1646,80 +1646,19 @@
     }
 
     async function loadArticle(articleId) {
-      // Initialize Supabase if not already done
-      const client = await initializeSupabase();
+      // Update URL với edit parameter để workflow edit hoạt động đúng
+      const currentUrl = new URL(window.location);
+      currentUrl.searchParams.set('edit', articleId);
+      window.history.pushState({ edit: articleId }, '', currentUrl.toString());
 
-      if (!client) {
-        showStatus('❌ Chưa kết nối Supabase', 'error');
-        return;
-      }
-
+      // Gọi luôn function loadArticleForEdit đã tối ưu thay vì duplicate code
       try {
-        showStatus('⏳ Đang tải bài viết...', 'success');
+        await loadArticleForEdit(articleId);
 
-        const { data, error } = await client
-          .from('articles')
-          .select('*')
-          .eq('id', articleId)
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        // Fill form with article data (chỉ dùng cột đã có)
-        document.getElementById('title').value = data.title || '';
-        document.getElementById('description').value = data.description || '';
-        document.getElementById('category').value = data.category || 'TIN TỨC';
-        document.getElementById('publishDate').value = data.published_date || '';
-        document.getElementById('keywords').value = data.keywords || '';
-        document.getElementById('filename').value = data.filename || '';
-
-        // Load các field mới nếu tồn tại trong database
-        if (data.tags !== undefined) {
-          document.getElementById('tags').value = data.tags || '';
-        }
-
-        if (data.is_featured !== undefined) {
-          document.getElementById('featured').checked = data.is_featured || false;
-        }
-
-        // Load content into TinyMCE
-        if (!setTinyMCEContent(data.content || '')) {
-          showStatus('Không thể load nội dung vào editor', 'error');
-        }
-
+        // Hide preview container sau khi load thành công
         closePreview();
 
-        // Show info about rendered HTML availability
-        const hasRenderedHTML = data.rendered_html && data.rendered_html.trim().length > 0;
-        const templateInfo = hasRenderedHTML ?
-          ' (có template HTML hoàn chỉnh)' :
-          ' (chỉ có dữ liệu thô)';
-
-        showStatus('✅ Đã tải bài viết: ' + data.title + templateInfo, 'success');
-
-        // Add button to preview rendered HTML if available
-        if (hasRenderedHTML) {
-          const previewBtn = document.createElement('button');
-          previewBtn.textContent = '👁️ Xem HTML đã lưu';
-          previewBtn.className = 'btn btn-info';
-          previewBtn.style.margin = '10px 0';
-          previewBtn.onclick = () => {
-            const previewWindow = window.open('', '_blank');
-            previewWindow.document.open();
-            previewWindow.document.write(data.rendered_html);
-            previewWindow.document.close();
-          };
-
-          // Add to status area temporarily
-          document.getElementById('statusMessage').appendChild(previewBtn);
-          setTimeout(() => {
-            if (previewBtn.parentNode) {
-              previewBtn.parentNode.removeChild(previewBtn);
-            }
-          }, 10000);
-        }
+        showStatus('✅ Đã chuyển sang chế độ chỉnh sửa bài viết ID: ' + articleId, 'success');
 
       } catch (error) {
         console.error('Load article error:', error);
