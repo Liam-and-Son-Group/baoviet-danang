@@ -370,6 +370,50 @@
       cursor: pointer;
     }
 
+    /* Feature Image Styles */
+    .feature-image-upload {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .feature-image-dropzone {
+      border: 2px dashed #cbd5e0;
+      border-radius: 6px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin: 1rem;
+    }
+
+    .feature-image-dropzone:hover {
+      border-color: #3182ce;
+    }
+
+    .feature-image-dropzone.dragover {
+      border-color: #3182ce;
+      background: #ebf8ff;
+    }
+
+    .feature-image-preview {
+      text-align: center;
+      padding: 1rem;
+      background: #f7fafc;
+    }
+
+    .feature-image-preview img {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+    }
+
+    .feature-image-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
     .status-message {
       padding: 1rem;
       border-radius: 6px;
@@ -553,11 +597,6 @@
           </div>
 
           <div class="form-group">
-            <label for="publishDate">Ngày xuất bản</label>
-            <input type="date" id="publishDate" name="publishDate" class="form-input">
-          </div>
-
-          <div class="form-group">
             <label for="featured">
               <input type="checkbox" id="featured" name="featured">
               Bài viết nổi bật
@@ -568,6 +607,29 @@
             <label for="filename">Tên file (tự động tạo từ tiêu đề)</label>
             <input type="text" id="filename" name="filename" class="form-input" readonly
               placeholder="ten-file-se-tu-dong-tao.html">
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Image Upload -->
+      <div class="form-section">
+        <h3>🌟 Ảnh Đại Diện (Feature Image)</h3>
+        <div class="feature-image-upload" id="featureImageUpload">
+          <div class="feature-image-preview" id="featureImagePreview" style="display: none;">
+            <img id="featureImageImg" src="" alt="Feature Image Preview"
+              style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid #ddd;">
+            <div class="feature-image-actions">
+              <button type="button" class="btn btn-secondary" onclick="removeFeatureImage()">🗑️ Xóa ảnh</button>
+              <button type="button" class="btn btn-primary" onclick="changeFeatureImage()">🔄 Thay đổi</button>
+            </div>
+          </div>
+          <div class="feature-image-dropzone" id="featureImageDropzone">
+            <p>📸 Kéo thả ảnh đại diện vào đây hoặc click để chọn</p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+              Định dạng: JPG, PNG, WEBP (tối đa 5MB)<br>
+              💡 <strong>Khuyến nghị:</strong> Kích thước 1200x630px cho SEO tối ưu
+            </p>
+            <input type="file" id="featureImageInput" accept="image/*" style="display: none;">
           </div>
         </div>
       </div>
@@ -643,6 +705,7 @@
 
   <script>
     let uploadedImages = [];
+    let featureImage = null; // Store feature image data
 
     // Security: Simple password protection
     const ADMIN_PASSWORD_HASH = 'cf6e93dc9c623c2f10cea0e99bdc01d428d103188c74de8c7d602363cd7c3f5c'; // SHA256 of "secret"
@@ -923,6 +986,18 @@
     imageUpload.addEventListener('drop', handleDrop);
     imageInput.addEventListener('change', handleFileSelect);
 
+    // Feature Image upload handling
+    const featureImageDropzone = document.getElementById('featureImageDropzone');
+    const featureImageInput = document.getElementById('featureImageInput');
+    const featureImagePreview = document.getElementById('featureImagePreview');
+    const featureImageImg = document.getElementById('featureImageImg');
+
+    featureImageDropzone.addEventListener('click', () => featureImageInput.click());
+    featureImageDropzone.addEventListener('dragover', handleFeatureImageDragOver);
+    featureImageDropzone.addEventListener('dragleave', handleFeatureImageDragLeave);
+    featureImageDropzone.addEventListener('drop', handleFeatureImageDrop);
+    featureImageInput.addEventListener('change', handleFeatureImageSelect);
+
     function handleDragOver(e) {
       e.preventDefault();
       imageUpload.classList.add('dragover');
@@ -957,6 +1032,136 @@
           }
         }
       });
+    }
+
+    // Feature Image handling functions
+    function handleFeatureImageDragOver(e) {
+      e.preventDefault();
+      featureImageDropzone.classList.add('dragover');
+    }
+
+    function handleFeatureImageDragLeave(e) {
+      e.preventDefault();
+      featureImageDropzone.classList.remove('dragover');
+    }
+
+    function handleFeatureImageDrop(e) {
+      e.preventDefault();
+      featureImageDropzone.classList.remove('dragover');
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        processFeatureImage(files[0]); // Only take the first file
+      }
+    }
+
+    function handleFeatureImageSelect(e) {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
+        processFeatureImage(files[0]);
+      }
+    }
+
+    function processFeatureImage(file) {
+      if (!file.type.startsWith('image/')) {
+        showStatus('Lỗi: ' + file.name + ' không phải là file hình ảnh', 'error');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        showStatus('Lỗi: ' + file.name + ' quá lớn (>5MB)', 'error');
+        return;
+      }
+
+      uploadFeatureImageToSupabase(file);
+    }
+
+    async function uploadFeatureImageToSupabase(file) {
+      try {
+        showStatus('🌟 Đang upload ảnh đại diện: ' + file.name + '...', 'info');
+
+        // Initialize Supabase if not already done
+        const client = await initializeSupabase();
+
+        if (!client || !window.supabase) {
+          showStatus('❌ Supabase chưa được cấu hình! Feature image cần upload lên storage.', 'error');
+          return;
+        }
+
+        const fileName = Date.now() + '-feature-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const filePath = 'features/' + fileName;
+
+        // Upload to Supabase Storage
+        let uploadResult;
+        try {
+          uploadResult = await client.storage
+            .from('images')
+            .upload(filePath, file);
+        } catch (storageError) {
+          console.error('Feature image storage upload failed:', storageError);
+          showStatus('❌ Lỗi upload lên Supabase Storage: ' + storageError.message, 'error');
+          return;
+        }
+
+        const { data: uploadData, error: uploadError } = uploadResult;
+
+        if (uploadError) {
+          console.error('Feature image upload error:', uploadError);
+          showStatus('❌ Lỗi upload ' + file.name + ': ' + uploadError.message, 'error');
+          return;
+        }
+
+        // Get public URL
+        let publicUrlResult;
+        try {
+          publicUrlResult = client.storage
+            .from('images')
+            .getPublicUrl(filePath);
+        } catch (urlError) {
+          console.error('Feature image public URL error:', urlError);
+          showStatus('❌ Lỗi tạo public URL: ' + urlError.message, 'error');
+          return;
+        }
+
+        const { data: { publicUrl } } = publicUrlResult;
+
+        // Store feature image data
+        featureImage = {
+          id: Date.now() + Math.random(),
+          name: file.name,
+          url: publicUrl,
+          file: file,
+          file_path: filePath,
+          supabase: true
+        };
+
+        // Show preview
+        showFeatureImagePreview(publicUrl);
+        showStatus('✅ Đã upload ảnh đại diện: ' + file.name, 'success');
+
+      } catch (error) {
+        console.error('Feature image Supabase upload error:', error);
+        showStatus('❌ Lỗi upload ' + file.name + ': ' + error.message + '. Vui lòng kiểm tra kết nối Supabase.', 'error');
+      }
+    }
+
+    function showFeatureImagePreview(imageUrl) {
+      featureImageImg.src = imageUrl;
+      featureImagePreview.style.display = 'block';
+      featureImageDropzone.style.display = 'none';
+    }
+
+    function removeFeatureImage() {
+      if (confirm('Bạn có chắc muốn xóa ảnh đại diện?')) {
+        featureImage = null;
+        featureImagePreview.style.display = 'none';
+        featureImageDropzone.style.display = 'block';
+        featureImageInput.value = '';
+        showStatus('🗑️ Đã xóa ảnh đại diện', 'success');
+      }
+    }
+
+    function changeFeatureImage() {
+      featureImageInput.click();
     }
 
     async function uploadImageToSupabase(file) {
@@ -1265,7 +1470,7 @@
           author: 'Bảo Hiểm Bảo Việt Đà Nẵng',
           robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
           featured: formData.featured || false,
-          image: formData.image || 'https://baohiembaovietdanang.vn/assets/logo.png',
+          image: (formData.featureImage && formData.featureImage.url) ? formData.featureImage.url : 'https://baohiembaovietdanang.vn/assets/logo.png',
           imageAlt: formData.imageAlt || formData.title
         },
 
@@ -1395,7 +1600,8 @@
         tags: document.getElementById('tags').value,
         featured: document.getElementById('featured').checked,
         filename: document.getElementById('filename').value,
-        content: getTinyMCEContent()
+        content: getTinyMCEContent(),
+        featureImage: featureImage // Include feature image data
         // Note: status will be set automatically by save functions
       };
     }
@@ -1406,6 +1612,13 @@
         setTinyMCEContent('');
         uploadedImages = [];
         renderUploadedImages();
+
+        // Reset feature image
+        featureImage = null;
+        featureImagePreview.style.display = 'none';
+        featureImageDropzone.style.display = 'block';
+        featureImageInput.value = '';
+
         closePreview();
       }
     }
@@ -1498,6 +1711,10 @@
 
         if (formData.featured !== undefined) {
           articleData.is_featured = formData.featured;
+        }
+
+        if (formData.featureImage && formData.featureImage.url) {
+          articleData.feature_image_url = formData.featureImage.url;
         }
 
         if (renderedHTML) {
@@ -2002,6 +2219,18 @@
               console.log('✅ Featured field filled:', data.is_featured);
             }
           }
+
+          // Load feature image if exists
+          if (data.feature_image_url) {
+            featureImage = {
+              id: 'existing-' + Date.now(),
+              name: 'Existing Feature Image',
+              url: data.feature_image_url,
+              supabase: true
+            };
+            showFeatureImagePreview(data.feature_image_url);
+            console.log('✅ Feature image loaded:', data.feature_image_url);
+          }
         } catch (optionalError) {
           console.warn('⚠️ Error filling optional fields:', optionalError);
           // Continue execution even if optional fields fail
@@ -2065,7 +2294,7 @@
         // Sử dụng DISTINCT và sắp xếp để tránh trùng lặp
         const { data: articles, error } = await client
           .from('articles')
-          .select('id, title, description, content, category, keywords, filename, published_date, is_published, created_at, updated_at')
+          .select('id, title, description, content, category, keywords, filename, published_date, is_published, created_at, updated_at, feature_image_url')
           .eq('is_published', true)
           .order('updated_at', { ascending: false }) // Ưu tiên bài viết được cập nhật gần nhất
           .order('created_at', { ascending: false })  // Sau đó theo ngày tạo

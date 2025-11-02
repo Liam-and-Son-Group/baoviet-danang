@@ -19,6 +19,7 @@ interface Article {
   is_published: boolean;
   created_at: string;
   updated_at: string;
+  feature_image_url?: string; // Add feature image URL
 }
 
 interface RequestBody {
@@ -111,7 +112,9 @@ function generateNewsPageHTML(articles: Article[]): string {
       const publishDate = formatDate(
         article.published_date || article.created_at
       );
-      const imagePath = getImagePath(article.filename, index);
+      // Use feature image if available, otherwise fallback to old logic
+      const imagePath =
+        article.feature_image_url || getImagePath(article.filename, index);
 
       return `        <!-- News Card: ${article.title} -->
         <div class="news-item"
