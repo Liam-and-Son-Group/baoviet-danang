@@ -389,6 +389,85 @@
       border: 1px solid #fed7d7;
     }
 
+    /* Error Modal Styles */
+    .error-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .error-modal.show {
+      display: flex;
+    }
+
+    .error-modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .error-modal-icon {
+      font-size: 4rem;
+      color: #e53e3e;
+      margin-bottom: 1rem;
+    }
+
+    .error-modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .error-modal-message {
+      color: #4a5568;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .error-modal-button {
+      background: linear-gradient(135deg, #0060ae, #0087d2);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 96, 174, 0.3);
+    }
+
+    .error-modal-button:hover {
+      background: linear-gradient(135deg, #004d8a, #006bb3);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 96, 174, 0.4);
+    }
+
     @media (max-width: 768px) {
       .form-grid {
         grid-template-columns: 1fr;
@@ -401,6 +480,11 @@
       .admin-container {
         padding: 0 0.5rem;
       }
+
+      .error-modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+      }
     }
   </style>
 </head>
@@ -410,10 +494,12 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h1>📝 Soạn thảo bài viết</h1>
       <div style="display: flex; gap: 1rem; align-items: center;">
-        <a href="admin-dashboard.html" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 6px;">
+        <a href="admin-dashboard.html"
+          style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 6px;">
           🏠 Dashboard
         </a>
-        <button onclick="logout()" style="background: #e53e3e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+        <button onclick="logout()"
+          style="background: #e53e3e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
           🚪 Đăng xuất
         </button>
       </div>
@@ -647,7 +733,7 @@
       }
 
       document.body.style.display = 'block';
-      
+
       // Auto-logout after session timeout
       setTimeout(() => {
         alert('⏰ Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
@@ -783,8 +869,33 @@
       const editor = getTinyMCEEditor();
       if (editor) {
         editor.setContent(content || '');
+        console.log('✅ Content set immediately in TinyMCE');
         return true;
       }
+
+      console.warn('⚠️ TinyMCE editor not ready, starting retry sequence...');
+
+      // Multi-stage retry for TinyMCE content loading
+      let retryCount = 0;
+      const maxRetries = 5;
+
+      const retryInterval = setInterval(() => {
+        retryCount++;
+        console.log(`🔄 TinyMCE content retry ${retryCount}/${maxRetries}...`);
+
+        const retryEditor = getTinyMCEEditor();
+        if (retryEditor) {
+          retryEditor.setContent(content || '');
+          console.log('✅ Content loaded into TinyMCE after retry #' + retryCount);
+          clearInterval(retryInterval);
+          showStatus('✅ Nội dung đã được tải vào editor', 'success');
+        } else if (retryCount >= maxRetries) {
+          console.warn('❌ TinyMCE editor still not ready after all retries');
+          clearInterval(retryInterval);
+          showStatus('⚠️ Editor chưa sẵn sàng - vui lòng paste nội dung thủ công', 'warning');
+        }
+      }, 800);
+
       return false;
     }
 
@@ -1280,8 +1391,8 @@
         tags: document.getElementById('tags').value,
         featured: document.getElementById('featured').checked,
         filename: document.getElementById('filename').value,
-        content: getTinyMCEContent(),
-        status: document.getElementById('status').value || 'draft'
+        content: getTinyMCEContent()
+        // Note: status will be set automatically by save functions
       };
     }
 
@@ -1296,31 +1407,7 @@
     }
 
     // Draft/Publish Status Functions
-    function updateStatusIndicator() {
-      const statusSelect = document.getElementById('status');
-      const statusIndicator = document.getElementById('statusIndicator');
-      const statusText = document.getElementById('statusText');
-
-      const status = statusSelect.value;
-
-      if (status === 'draft') {
-        statusIndicator.className = 'status-indicator draft';
-        statusIndicator.style.display = 'block';
-        statusText.textContent = '📝 Bài viết đang ở trạng thái nháp';
-      } else if (status === 'published') {
-        statusIndicator.className = 'status-indicator published';
-        statusIndicator.style.display = 'block';
-        statusText.textContent = '✅ Bài viết đã được xuất bản';
-      } else {
-        statusIndicator.style.display = 'none';
-      }
-    }
-
     async function saveDraft() {
-      // Set status to draft
-      document.getElementById('status').value = 'draft';
-      updateStatusIndicator();
-
       showStatus('💾 Đang lưu nháp...', 'info');
 
       try {
@@ -1333,10 +1420,6 @@
     }
 
     async function saveAndPublish() {
-      // Set status to published
-      document.getElementById('status').value = 'published';
-      updateStatusIndicator();
-
       showStatus('📝 Đang lưu và xuất bản...', 'info');
 
       try {
@@ -1349,10 +1432,6 @@
     }
 
     async function saveAndDeploy() {
-      // Set status to published
-      document.getElementById('status').value = 'published';
-      updateStatusIndicator();
-
       showStatus('🚀 Đang lưu và deploy tự động...', 'info');
 
       try {
@@ -1503,12 +1582,8 @@
 
     // Legacy function for backward compatibility
     async function saveToSupabase() {
-      // Get current status from form or default to draft
-      const statusSelect = document.getElementById('status');
-      const currentStatus = statusSelect ? statusSelect.value : 'draft';
-
-      // Call the new function with current status and auto-deploy (legacy behavior)
-      await saveToSupabaseWithStatus(currentStatus, true);
+      // Default to published status for legacy behavior
+      await saveToSupabaseWithStatus('published', true);
     }
 
     async function loadArticlesList() {
@@ -1741,7 +1816,12 @@
     async function initializeApp() {
       try {
         // Check access first
-        checkAccess();
+        if (!checkAccess()) {
+          console.log('❌ Access check failed, redirecting to login');
+          return;
+        }
+
+        console.log('✅ Access check passed');
 
         // Initialize Supabase in background (non-blocking)
         initializeSupabase().catch(error => {
@@ -1761,16 +1841,33 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('publishDate').value = today;
 
-        // Initialize status indicator
-        updateStatusIndicator();
-
         // Check if editing existing article
+        console.log('🔍 Starting URL parameter analysis...');
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get('edit');
-        
+
+        console.log('🌐 URL Analysis:', {
+          fullUrl: window.location.href,
+          search: window.location.search,
+          editId: editId,
+          editIdType: typeof editId,
+          editIdLength: editId ? editId.length : 0,
+          allParams: Object.fromEntries(urlParams),
+          hasEditParam: urlParams.has('edit'),
+          rawEditValue: window.location.search.match(/edit=([^&]*)/)?.[1]
+        });
+
         if (editId) {
+          console.log('✏️ Edit mode detected with ID:', editId);
+          console.log('🔍 Current URL:', window.location.href);
+          console.log('🔍 Edit ID type:', typeof editId, 'Length:', editId.length);
           document.querySelector('.admin-header h1').textContent = '✏️ Chỉnh sửa bài viết';
-          await loadArticleForEdit(editId);
+
+          // Wait for both Supabase and TinyMCE to be ready
+          console.log('🚀 Starting waitForSupabaseAndLoadArticle...');
+          await waitForSupabaseAndLoadArticle(editId);
+        } else {
+          console.log('📝 Create new article mode');
         }
 
         console.log('✅ Admin editor initialized successfully');
@@ -1781,64 +1878,230 @@
       }
     }
 
+    // Wait for Supabase to be ready and load article
+    async function waitForSupabaseAndLoadArticle(articleId) {
+      console.log('🎯 waitForSupabaseAndLoadArticle called with ID:', articleId);
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (attempts < maxAttempts) {
+        try {
+          console.log(`🔄 Attempt ${attempts + 1}/${maxAttempts} to load article...`);
+
+          // Try to get Supabase client
+          console.log('🔍 Calling initializeSupabase...');
+          const client = await initializeSupabase();
+          console.log('🔍 Supabase client result:', client ? 'SUCCESS' : 'FAILED');
+
+          if (client) {
+            console.log('✅ Supabase ready, proceeding to load article...');
+
+            // Also wait for TinyMCE to be available
+            if (typeof tinymce !== 'undefined' && tinymce.get('content')) {
+              console.log('✅ TinyMCE also ready');
+            } else {
+              console.log('⚠️ TinyMCE not fully ready yet, but continuing...');
+            }
+
+            console.log('🚀 Calling loadArticleForEdit with ID:', articleId);
+            await loadArticleForEdit(articleId);
+            console.log('✅ loadArticleForEdit completed successfully');
+            return;
+          } else {
+            console.log('❌ Supabase client not ready, retrying...');
+          }
+
+          // Wait 500ms before next attempt
+          await new Promise(resolve => setTimeout(resolve, 500));
+          attempts++;
+        } catch (error) {
+          console.error(`❌ Attempt ${attempts + 1} failed:`, error);
+          attempts++;
+          if (attempts >= maxAttempts) {
+            console.error('❌ All attempts failed to load article');
+            showErrorModal(
+              'Không thể tải bài viết',
+              'Không thể kết nối đến cơ sở dữ liệu sau nhiều lần thử. Vui lòng kiểm tra kết nối mạng và thử lại.'
+            );
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+      console.log('❌ waitForSupabaseAndLoadArticle finished without success');
+    }
+
     // Load article for editing
     async function loadArticleForEdit(articleId) {
       try {
+        console.log('🎯 loadArticleForEdit called with ID:', articleId);
+        console.log('🔍 Starting to load article for edit. ID type:', typeof articleId, 'Value:', articleId);
         showStatus('⏳ Đang tải bài viết để chỉnh sửa...', 'info');
 
+        console.log('🔗 Getting Supabase client...');
         const client = await initializeSupabase();
         if (!client) {
+          console.error('❌ Supabase client not available');
           showStatus('❌ Chưa kết nối Supabase', 'error');
           return;
         }
 
+        console.log('✅ Supabase client ready, querying article...');
+
+        // Test query to verify connection
+        try {
+          console.log('🧪 Running connection test...');
+          const testQuery = await client
+            .from('articles')
+            .select('id, title')
+            .limit(1);
+          console.log('🔍 Supabase connection test result:', testQuery);
+        } catch (testError) {
+          console.warn('⚠️ Supabase connection test failed:', testError);
+        }
+
+        console.log('📡 Executing main query for article ID:', articleId);
         const { data, error } = await client
           .from('articles')
           .select('*')
           .eq('id', articleId)
           .single();
 
+        console.log('📊 Main query result:');
+        console.log('- Data:', data);
+        console.log('- Error:', error);
+        console.log('- Article ID searched:', articleId);
+
         if (error) {
+          console.error('❌ Database query error:', error);
           throw error;
         }
 
         if (!data) {
-          throw new Error('Không tìm thấy bài viết');
+          console.error('❌ No article data returned');
+          const errorMessage = `Bài viết với ID "${articleId}" không tồn tại hoặc đã bị xóa.`;
+          showErrorModal('Không tìm thấy bài viết', errorMessage);
+          throw new Error(errorMessage);
         }
+
+        console.log('✅ Article data loaded:', data);
+        console.log('📋 Article data details:', {
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          status: data.status,
+          content_length: data.content ? data.content.length : 0
+        });
 
         // Fill form with article data
-        document.getElementById('title').value = data.title || '';
-        document.getElementById('description').value = data.description || '';
-        document.getElementById('category').value = data.category || 'TIN TỨC';
-        document.getElementById('publishDate').value = data.published_date || '';
-        document.getElementById('keywords').value = data.keywords || '';
-        document.getElementById('filename').value = data.filename || '';
-        document.getElementById('status').value = data.status || (data.is_published ? 'published' : 'draft');
+        console.log('📝 Starting to fill form with article data...');
 
-        // Load optional fields if they exist
-        if (data.tags !== undefined) {
-          document.getElementById('tags').value = data.tags || '';
+        try {
+          console.log('🔍 Validating form elements exist...');
+          // Validate form elements exist
+          const requiredElements = ['title', 'description', 'category', 'publishDate', 'keywords', 'filename'];
+          for (const elementId of requiredElements) {
+            const element = document.getElementById(elementId);
+            if (!element) {
+              console.error(`❌ Form element not found: ${elementId}`);
+              throw new Error(`Form element không tìm thấy: ${elementId}`);
+            } else {
+              console.log(`✅ Found form element: ${elementId}`);
+            }
+          }
+
+          console.log('📝 Filling basic form fields...');
+          // Fill basic fields
+          document.getElementById('title').value = data.title || '';
+          console.log('✅ Title filled:', data.title);
+
+          document.getElementById('description').value = data.description || '';
+          console.log('✅ Description filled:', data.description);
+
+          document.getElementById('category').value = data.category || 'TIN TỨC';
+          console.log('✅ Category filled:', data.category);
+
+          document.getElementById('publishDate').value = data.published_date || '';
+          console.log('✅ Publish date filled:', data.published_date);
+
+          document.getElementById('keywords').value = data.keywords || '';
+          console.log('✅ Keywords filled:', data.keywords);
+
+          document.getElementById('filename').value = data.filename || '';
+          console.log('✅ Filename filled:', data.filename);
+
+          // Log article status for reference
+          const articleStatus = data.status || (data.is_published ? 'published' : 'draft');
+          console.log('✅ Article status loaded:', articleStatus);
+
+          console.log('✅ Basic form fields filled successfully');
+        } catch (fillError) {
+          console.error('❌ Error filling form fields:', fillError);
+          throw fillError;
         }
 
-        if (data.is_featured !== undefined) {
-          document.getElementById('featured').checked = data.is_featured || false;
+        // Load optional fields if they exist
+        try {
+          if (data.tags !== undefined) {
+            const tagsElement = document.getElementById('tags');
+            if (tagsElement) {
+              tagsElement.value = data.tags || '';
+              console.log('✅ Tags field filled:', data.tags);
+            }
+          }
+
+          if (data.is_featured !== undefined) {
+            const featuredElement = document.getElementById('featured');
+            if (featuredElement) {
+              featuredElement.checked = data.is_featured || false;
+              console.log('✅ Featured field filled:', data.is_featured);
+            }
+          }
+        } catch (optionalError) {
+          console.warn('⚠️ Error filling optional fields:', optionalError);
+          // Continue execution even if optional fields fail
         }
 
         // Load content into TinyMCE
-        if (!setTinyMCEContent(data.content || '')) {
-          showStatus('Không thể load nội dung vào editor', 'error');
-        }
+        console.log('📝 Loading content into TinyMCE...');
+        console.log('📄 Content details:', {
+          hasContent: !!data.content,
+          contentLength: data.content ? data.content.length : 0,
+          contentPreview: data.content ? data.content.substring(0, 100) + '...' : 'No content'
+        });
 
-        // Update status indicator
-        updateStatusIndicator();
+        console.log('🔧 Calling setTinyMCEContent...');
+        setTinyMCEContent(data.content || '');
+        console.log('✅ Content loading initiated for TinyMCE');
 
-        showStatus('✅ Đã tải bài viết để chỉnh sửa: ' + data.title, 'success');
-
+        console.log('💾 Storing article ID for future updates...');
         // Store article ID for updating
         window.currentEditingId = articleId;
+        console.log('✅ Article ID stored:', window.currentEditingId);
+
+        showStatus('✅ Đã tải bài viết để chỉnh sửa: ' + data.title, 'success');
+        console.log('🎉 loadArticleForEdit completed successfully!');
 
       } catch (error) {
-        console.error('Error loading article for edit:', error);
+        console.error('❌ Error in loadArticleForEdit:', error);
+        console.error('❌ Error stack:', error.stack);
+
+        // Show error modal for article not found or other critical errors
+        if (error.message.includes('không tồn tại') || error.message.includes('not found')) {
+          showErrorModal(
+            'Không tìm thấy bài viết',
+            `Bài viết với ID "${articleId}" không tồn tại hoặc đã bị xóa. Vui lòng kiểm tra lại danh sách bài viết.`
+          );
+        } else {
+          // For other errors, show modal with general error
+          showErrorModal(
+            'Lỗi tải bài viết',
+            `Có lỗi xảy ra khi tải bài viết: ${error.message}. Vui lòng thử lại hoặc quay về dashboard.`
+          );
+        }
+
+        // Also show status for debugging
         showStatus('❌ Lỗi tải bài viết: ' + error.message, 'error');
       }
     }
@@ -1974,6 +2237,53 @@
     document.addEventListener('DOMContentLoaded', initializeApp);
 
     // Logout function
+    // Error Modal Functions
+    function showErrorModal(title, message) {
+      const modal = document.getElementById('errorModal');
+      const titleEl = modal.querySelector('.error-modal-title');
+      const messageEl = document.getElementById('errorModalMessage');
+
+      if (title) titleEl.textContent = title;
+      if (message) messageEl.textContent = message;
+
+      modal.classList.add('show');
+      console.log('🚨 Error modal displayed:', title, message);
+
+      // Add ESC key listener
+      document.addEventListener('keydown', handleModalEscape);
+    }
+
+    function hideErrorModal() {
+      const modal = document.getElementById('errorModal');
+      modal.classList.remove('show');
+      document.removeEventListener('keydown', handleModalEscape);
+    }
+
+    function handleModalEscape(event) {
+      if (event.key === 'Escape') {
+        hideErrorModal();
+      }
+    }
+
+    function handleModalBackdropClick(event) {
+      if (event.target === event.currentTarget) {
+        hideErrorModal();
+      }
+    }
+
+    function goBackToDashboard() {
+      console.log('🏠 Redirecting to dashboard...');
+      window.location.href = 'admin-dashboard.html';
+    }
+
+    // Debug function - call from browser console to test loading a specific article
+    window.debugLoadArticle = function (articleId) {
+      console.log('🧪 DEBUG: Testing article loading for ID:', articleId);
+      loadArticleForEdit(articleId).catch(error => {
+        console.error('🧪 DEBUG: Article loading failed:', error);
+      });
+    };
+
     function logout() {
       if (confirm('Bạn có chắc muốn đăng xuất?')) {
         sessionStorage.clear();
@@ -1982,6 +2292,21 @@
     }
 
   </script>
+
+  <!-- Error Modal -->
+  <div id="errorModal" class="error-modal" onclick="handleModalBackdropClick(event)">
+    <div class="error-modal-content" onclick="event.stopPropagation()">
+      <div class="error-modal-icon">❌</div>
+      <div class="error-modal-title">Không tìm thấy bài viết</div>
+      <div class="error-modal-message" id="errorModalMessage">
+        Bài viết với ID được yêu cầu không tồn tại hoặc đã bị xóa.
+      </div>
+      <button class="error-modal-button" onclick="goBackToDashboard()">
+        🏠 Quay về Dashboard
+      </button>
+    </div>
+  </div>
+
 </body>
 
 </html>
