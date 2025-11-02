@@ -2061,12 +2061,14 @@
         }
 
         // Lấy tất cả bài viết đã published để cập nhật trang tin tức
+        // Sử dụng DISTINCT và sắp xếp để tránh trùng lặp
         const { data: articles, error } = await client
           .from('articles')
-          .select('*')
+          .select('id, title, description, content, category, keywords, filename, published_date, is_published, created_at, updated_at')
           .eq('is_published', true)
-          .order('created_at', { ascending: false })
-          .limit(15); // Chỉ lấy 15 bài mới nhất
+          .order('updated_at', { ascending: false }) // Ưu tiên bài viết được cập nhật gần nhất
+          .order('created_at', { ascending: false })  // Sau đó theo ngày tạo
+          .limit(20); // Lấy 20 bài để có dự phòng sau khi deduplicate
 
         if (error) {
           throw error;
@@ -2077,10 +2079,31 @@
           return;
         }
 
+        // Deduplicate theo filename để tránh trùng lặp bài viết
+        const uniqueArticles = [];
+        const seenFilenames = new Set();
+        const seenIds = new Set();
+
+        for (const article of articles) {
+          // Kiểm tra trùng lặp theo filename và id
+          if (!seenFilenames.has(article.filename) && !seenIds.has(article.id)) {
+            seenFilenames.add(article.filename);
+            seenIds.add(article.id);
+            uniqueArticles.push(article);
+          }
+        }
+
+        // Chỉ lấy 15 bài sau khi deduplicate
+        const finalArticles = uniqueArticles.slice(0, 15);
+
+        showStatus(`📊 Đã lọc ${finalArticles.length} bài viết unique từ ${articles.length} bài trong database`, 'info');
+
         // Call Supabase Edge Function để cập nhật tin-tuc.html
         const { data, error: updateError } = await client.functions.invoke('update-news-page', {
           body: {
-            articles: articles,
+            articles: finalArticles, // Sử dụng danh sách đã deduplicate
+            total_count: articles.length, // Gửi kèm số lượng gốc để thống kê
+            unique_count: finalArticles.length,
             trigger_source: 'admin_interface'
           }
         });
@@ -2090,8 +2113,13 @@
         }
 
         if (data && data.success) {
-          showStatus('✅ Đã cập nhật trang tin tức thành công!', 'success');
-          console.log('✅ News page updated successfully:', data);
+          showStatus(`✅ Đã cập nhật trang tin tức thành công! (${finalArticles.length} bài viết unique)`, 'success');
+          console.log('✅ News page updated successfully:', {
+            unique_articles: finalArticles.length,
+            total_articles: articles.length,
+            duplicates_removed: articles.length - finalArticles.length,
+            response: data
+          });
         } else {
           throw new Error('News page update returned false');
         }
