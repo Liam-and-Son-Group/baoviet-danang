@@ -31,6 +31,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: master
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -63,7 +64,8 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "🚀 Auto-deploy: Add new article ${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
-            git push origin HEAD
+            git pull --rebase origin master
+            git push origin master
           fi
 
       - name: 🎯 Deploy to GitHub Pages
