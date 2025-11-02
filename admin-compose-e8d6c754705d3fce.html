@@ -614,10 +614,10 @@
         <button type="button" class="btn btn-success" onclick="saveAndPublish()">
           🚀 Lưu và Xuất bản
         </button>
-        <button type="button" class="btn btn-warning" onclick="saveAndDeploy()" style="background: #ff8c00;">
+        <!-- <button type="button" class="btn btn-warning" onclick="saveAndDeploy()" style="background: #ff8c00;">
           🚀 Lưu và Deploy Tự Động
-        </button>
-        <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
+        </button> -->
+        <!-- <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
           🚀 Deploy GitHub Pages
         </button>
         <button type="button" class="btn btn-info" onclick="updateNewsPage()"
@@ -626,7 +626,7 @@
         </button>
         <button type="button" class="btn btn-info" onclick="checkDeployStatus()" style="background: #17a2b8;">
           📊 Kiểm tra Deploy Status
-        </button>
+        </button> -->
       </div>
     </form>
 
@@ -1428,6 +1428,7 @@
 
       try {
         await saveToSupabaseWithStatus('published', true); // published, auto-deploy
+        await updateNewsPage()
         showStatus('✅ Đã lưu và xuất bản thành công!', 'success');
       } catch (error) {
         console.error('Save and publish error:', error);
