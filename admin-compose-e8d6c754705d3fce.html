@@ -407,7 +407,17 @@
 
 <body>
   <header class="admin-header">
-    <h1>📝 Admin Panel - Tạo Bài Viết Mới</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1>📝 Soạn thảo bài viết</h1>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <a href="admin-dashboard.html" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 6px;">
+          🏠 Dashboard
+        </a>
+        <button onclick="logout()" style="background: #e53e3e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+          🚪 Đăng xuất
+        </button>
+      </div>
+    </div>
   </header>
 
   <div class="admin-container">
@@ -466,18 +476,6 @@
               <input type="checkbox" id="featured" name="featured">
               Bài viết nổi bật
             </label>
-          </div>
-
-          <div class="form-group">
-            <label for="status">Trạng thái bài viết</label>
-            <select id="status" name="status" class="form-input" onchange="updateStatusIndicator()">
-              <option value="draft">📝 Nháp</option>
-              <option value="published">✅ Đã xuất bản</option>
-            </select>
-            <div id="statusIndicator" class="status-indicator"
-              style="margin-top: 8px; padding: 6px 12px; border-radius: 4px; font-size: 14px; display: none;">
-              <span id="statusText"></span>
-            </div>
           </div>
 
           <div class="form-group full-width">
@@ -643,38 +641,20 @@
       }
 
       if (savedHash !== ADMIN_PASSWORD_HASH) {
-        const password = prompt('🔐 Nhập mật khẩu admin để truy cập:');
-        if (!password) {
-          window.location.href = '/';
-          return false;
-        }
-
-        // Simple hash check (use a proper hash for production)
-        crypto.subtle.digest('SHA-256', new TextEncoder().encode(password))
-          .then(hashBuffer => {
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if (hashHex === ADMIN_PASSWORD_HASH) {
-              sessionStorage.setItem('admin_access', hashHex);
-              sessionStorage.setItem('admin_login_time', Date.now().toString());
-              document.body.style.display = 'block';
-
-              // Auto-logout after session timeout
-              setTimeout(() => {
-                alert('⏰ Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
-                sessionStorage.clear();
-                window.location.reload();
-              }, SESSION_TIMEOUT);
-            } else {
-              alert('❌ Mật khẩu không đúng!');
-              window.location.href = '/';
-            }
-          });
+        // Redirect to login page instead of prompt
+        window.location.href = 'admin-login.html';
         return false;
       }
 
       document.body.style.display = 'block';
+      
+      // Auto-logout after session timeout
+      setTimeout(() => {
+        alert('⏰ Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+        sessionStorage.clear();
+        window.location.href = 'admin-login.html';
+      }, SESSION_TIMEOUT);
+
       return true;
     }
 
@@ -1427,34 +1407,50 @@
           status: status // Add status field
         };
 
-        // Thêm các cột mới nếu tồn tại trong database
-        // if (formData.tags) {
-        //   articleData.tags = formData.tags;
-        // }
-
-        // if (formData.featured !== undefined) {
-        //   articleData.is_featured = formData.featured;
-        // }
-
-        // if (renderedHTML) {
-        //   articleData.rendered_html = renderedHTML;
-        //   articleData.template_version = '1.0';
-        // }
-
-        // Insert or update article
-        const { data, error } = await client
-          .from('articles')
-          .upsert(articleData, {
-            onConflict: 'filename',
-            ignoreDuplicates: false
-          })
-          .select();
-
-        if (error) {
-          throw error;
+        // Add optional fields if they exist in form
+        if (formData.tags) {
+          articleData.tags = formData.tags;
         }
 
-        const savedArticle = data[0];
+        if (formData.featured !== undefined) {
+          articleData.is_featured = formData.featured;
+        }
+
+        if (renderedHTML) {
+          articleData.rendered_html = renderedHTML;
+          articleData.template_version = '1.0';
+        }
+
+        let savedArticle;
+
+        // Check if we're editing an existing article
+        if (window.currentEditingId) {
+          // Update existing article
+          const { data, error } = await client
+            .from('articles')
+            .update(articleData)
+            .eq('id', window.currentEditingId)
+            .select()
+            .single();
+
+          if (error) throw error;
+          savedArticle = data;
+          showStatus('✅ Đã cập nhật bài viết thành công!', 'success');
+        } else {
+          // Insert new article
+          const { data, error } = await client
+            .from('articles')
+            .upsert(articleData, {
+              onConflict: 'filename',
+              ignoreDuplicates: false
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+          savedArticle = data;
+          showStatus('✅ Đã tạo bài viết mới thành công!', 'success');
+        }
 
         // Associate uploaded Supabase images with this article
         const supabaseImages = uploadedImages.filter(img => !img.local && img.supabase_id);
@@ -1767,13 +1763,83 @@
 
         // Initialize status indicator
         updateStatusIndicator();
-        document.getElementById('publishDate').value = today;
+
+        // Check if editing existing article
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit');
+        
+        if (editId) {
+          document.querySelector('.admin-header h1').textContent = '✏️ Chỉnh sửa bài viết';
+          await loadArticleForEdit(editId);
+        }
 
         console.log('✅ Admin editor initialized successfully');
         showStatus('Admin interface đã sẵn sàng!', 'success');
       } catch (error) {
         console.error('❌ App initialization failed:', error);
         showStatus('Lỗi khởi tạo ứng dụng: ' + error.message, 'error');
+      }
+    }
+
+    // Load article for editing
+    async function loadArticleForEdit(articleId) {
+      try {
+        showStatus('⏳ Đang tải bài viết để chỉnh sửa...', 'info');
+
+        const client = await initializeSupabase();
+        if (!client) {
+          showStatus('❌ Chưa kết nối Supabase', 'error');
+          return;
+        }
+
+        const { data, error } = await client
+          .from('articles')
+          .select('*')
+          .eq('id', articleId)
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data) {
+          throw new Error('Không tìm thấy bài viết');
+        }
+
+        // Fill form with article data
+        document.getElementById('title').value = data.title || '';
+        document.getElementById('description').value = data.description || '';
+        document.getElementById('category').value = data.category || 'TIN TỨC';
+        document.getElementById('publishDate').value = data.published_date || '';
+        document.getElementById('keywords').value = data.keywords || '';
+        document.getElementById('filename').value = data.filename || '';
+        document.getElementById('status').value = data.status || (data.is_published ? 'published' : 'draft');
+
+        // Load optional fields if they exist
+        if (data.tags !== undefined) {
+          document.getElementById('tags').value = data.tags || '';
+        }
+
+        if (data.is_featured !== undefined) {
+          document.getElementById('featured').checked = data.is_featured || false;
+        }
+
+        // Load content into TinyMCE
+        if (!setTinyMCEContent(data.content || '')) {
+          showStatus('Không thể load nội dung vào editor', 'error');
+        }
+
+        // Update status indicator
+        updateStatusIndicator();
+
+        showStatus('✅ Đã tải bài viết để chỉnh sửa: ' + data.title, 'success');
+
+        // Store article ID for updating
+        window.currentEditingId = articleId;
+
+      } catch (error) {
+        console.error('Error loading article for edit:', error);
+        showStatus('❌ Lỗi tải bài viết: ' + error.message, 'error');
       }
     }
 
@@ -1906,6 +1972,14 @@
 
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', initializeApp);
+
+    // Logout function
+    function logout() {
+      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+        sessionStorage.clear();
+        window.location.href = 'admin-login.html';
+      }
+    }
 
   </script>
 </body>
