@@ -614,15 +614,19 @@
         <button type="button" class="btn btn-success" onclick="saveAndPublish()">
           🚀 Lưu và Xuất bản
         </button>
-        <!-- <button type="button" class="btn btn-warning" onclick="saveAndDeploy()" style="background: #ff8c00;">
+        <button type="button" class="btn btn-warning" onclick="saveAndDeploy()" style="background: #ff8c00;">
           🚀 Lưu và Deploy Tự Động
-        </button> -->
-        <!-- <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
+        </button>
+        <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
           🚀 Deploy GitHub Pages
+        </button>
+        <button type="button" class="btn btn-info" onclick="updateNewsPage()"
+          style="background: #28a745; color: white;">
+          📰 Cập nhật Trang Tin Tức
         </button>
         <button type="button" class="btn btn-info" onclick="checkDeployStatus()" style="background: #17a2b8;">
           📊 Kiểm tra Deploy Status
-        </button> -->
+        </button>
       </div>
     </form>
 
@@ -2045,12 +2049,104 @@
       }
     }
 
-    // 🚀 GITHUB AUTO-DEPLOY FUNCTIONS (VIA SUPABASE EDGE FUNCTION)
+    // � UPDATE NEWS PAGE FUNCTION
+    async function updateNewsPage() {
+      try {
+        showStatus('📰 Đang cập nhật trang tin tức...', 'info');
+
+        // Get Supabase client
+        const client = await initializeSupabase();
+        if (!client) {
+          throw new Error('Supabase client not initialized');
+        }
+
+        // Lấy tất cả bài viết đã published để cập nhật trang tin tức
+        // Sử dụng DISTINCT và sắp xếp để tránh trùng lặp
+        const { data: articles, error } = await client
+          .from('articles')
+          .select('id, title, description, content, category, keywords, filename, published_date, is_published, created_at, updated_at')
+          .eq('is_published', true)
+          .order('updated_at', { ascending: false }) // Ưu tiên bài viết được cập nhật gần nhất
+          .order('created_at', { ascending: false })  // Sau đó theo ngày tạo
+          .limit(20); // Lấy 20 bài để có dự phòng sau khi deduplicate
+
+        if (error) {
+          throw error;
+        }
+
+        if (!articles || articles.length === 0) {
+          showStatus('⚠️ Không có bài viết nào để cập nhật trang tin tức', 'warning');
+          return;
+        }
+
+        // Deduplicate theo filename để tránh trùng lặp bài viết
+        const uniqueArticles = [];
+        const seenFilenames = new Set();
+        const seenIds = new Set();
+
+        for (const article of articles) {
+          // Kiểm tra trùng lặp theo filename và id
+          if (!seenFilenames.has(article.filename) && !seenIds.has(article.id)) {
+            seenFilenames.add(article.filename);
+            seenIds.add(article.id);
+            uniqueArticles.push(article);
+          }
+        }
+
+        // Chỉ lấy 15 bài sau khi deduplicate
+        const finalArticles = uniqueArticles.slice(0, 15);
+
+        showStatus(`📊 Đã lọc ${finalArticles.length} bài viết unique từ ${articles.length} bài trong database`, 'info');
+
+        // Call Supabase Edge Function để cập nhật tin-tuc.html
+        const { data, error: updateError } = await client.functions.invoke('update-news-page', {
+          body: {
+            articles: finalArticles, // Sử dụng danh sách đã deduplicate
+            total_count: articles.length, // Gửi kèm số lượng gốc để thống kê
+            unique_count: finalArticles.length,
+            trigger_source: 'admin_interface'
+          }
+        });
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        if (data && data.success) {
+          showStatus(`✅ Đã cập nhật trang tin tức thành công! (${finalArticles.length} bài viết unique)`, 'success');
+          console.log('✅ News page updated successfully:', {
+            unique_articles: finalArticles.length,
+            total_articles: articles.length,
+            duplicates_removed: articles.length - finalArticles.length,
+            response: data
+          });
+        } else {
+          throw new Error('News page update returned false');
+        }
+
+      } catch (error) {
+        console.error('❌ Update news page failed:', error);
+
+        if (error.message?.includes('not found') || error.message?.includes('404')) {
+          showStatus('❌ Edge Function "update-news-page" chưa được deploy!', 'error');
+        } else {
+          showStatus('❌ Cập nhật trang tin tức thất bại: ' + error.message, 'error');
+        }
+
+        // Không throw error để không làm gián đoạn quá trình deploy chính
+        console.warn('⚠️ News page update failed but continuing with main deploy...');
+      }
+    }
+
+    // �🚀 GITHUB AUTO-DEPLOY FUNCTIONS (VIA SUPABASE EDGE FUNCTION)
     async function triggerGitHubDeploy(article) {
       console.log('🚀 Triggering GitHub deploy for:', article.filename);
 
       try {
         showStatus('🚀 Đang khởi động deploy GitHub Pages...', 'info');
+
+        // Cập nhật trang tin tức trước khi deploy bài viết
+        await updateNewsPage();
 
         // Get Supabase client
         const client = await initializeSupabase();
@@ -2171,6 +2267,7 @@
     window.triggerGitHubDeploy = triggerGitHubDeploy;
     window.manualDeploy = manualDeploy;
     window.checkDeployStatus = checkDeployStatus;
+    window.updateNewsPage = updateNewsPage;
 
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', initializeApp);
