@@ -614,15 +614,19 @@
         <button type="button" class="btn btn-success" onclick="saveAndPublish()">
           🚀 Lưu và Xuất bản
         </button>
-        <!-- <button type="button" class="btn btn-warning" onclick="saveAndDeploy()" style="background: #ff8c00;">
+        <button type="button" class="btn btn-warning" onclick="saveAndDeploy()" style="background: #ff8c00;">
           🚀 Lưu và Deploy Tự Động
-        </button> -->
-        <!-- <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
+        </button>
+        <button type="button" class="btn btn-warning" onclick="manualDeploy()" style="background: #ff8c00;">
           🚀 Deploy GitHub Pages
+        </button>
+        <button type="button" class="btn btn-info" onclick="updateNewsPage()"
+          style="background: #28a745; color: white;">
+          📰 Cập nhật Trang Tin Tức
         </button>
         <button type="button" class="btn btn-info" onclick="checkDeployStatus()" style="background: #17a2b8;">
           📊 Kiểm tra Deploy Status
-        </button> -->
+        </button>
       </div>
     </form>
 
@@ -2045,12 +2049,76 @@
       }
     }
 
-    // 🚀 GITHUB AUTO-DEPLOY FUNCTIONS (VIA SUPABASE EDGE FUNCTION)
+    // � UPDATE NEWS PAGE FUNCTION
+    async function updateNewsPage() {
+      try {
+        showStatus('📰 Đang cập nhật trang tin tức...', 'info');
+
+        // Get Supabase client
+        const client = await initializeSupabase();
+        if (!client) {
+          throw new Error('Supabase client not initialized');
+        }
+
+        // Lấy tất cả bài viết đã published để cập nhật trang tin tức
+        const { data: articles, error } = await client
+          .from('articles')
+          .select('*')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false })
+          .limit(15); // Chỉ lấy 15 bài mới nhất
+
+        if (error) {
+          throw error;
+        }
+
+        if (!articles || articles.length === 0) {
+          showStatus('⚠️ Không có bài viết nào để cập nhật trang tin tức', 'warning');
+          return;
+        }
+
+        // Call Supabase Edge Function để cập nhật tin-tuc.html
+        const { data, error: updateError } = await client.functions.invoke('update-news-page', {
+          body: {
+            articles: articles,
+            trigger_source: 'admin_interface'
+          }
+        });
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        if (data && data.success) {
+          showStatus('✅ Đã cập nhật trang tin tức thành công!', 'success');
+          console.log('✅ News page updated successfully:', data);
+        } else {
+          throw new Error('News page update returned false');
+        }
+
+      } catch (error) {
+        console.error('❌ Update news page failed:', error);
+
+        if (error.message?.includes('not found') || error.message?.includes('404')) {
+          showStatus('❌ Edge Function "update-news-page" chưa được deploy!', 'error');
+        } else {
+          showStatus('❌ Cập nhật trang tin tức thất bại: ' + error.message, 'error');
+        }
+
+        // Không throw error để không làm gián đoạn quá trình deploy chính
+        console.warn('⚠️ News page update failed but continuing with main deploy...');
+      }
+    }
+
+    // �🚀 GITHUB AUTO-DEPLOY FUNCTIONS (VIA SUPABASE EDGE FUNCTION)
     async function triggerGitHubDeploy(article) {
       console.log('🚀 Triggering GitHub deploy for:', article.filename);
 
       try {
         showStatus('🚀 Đang khởi động deploy GitHub Pages...', 'info');
+
+        // Cập nhật trang tin tức trước khi deploy bài viết
+        await updateNewsPage();
 
         // Get Supabase client
         const client = await initializeSupabase();
@@ -2171,6 +2239,7 @@
     window.triggerGitHubDeploy = triggerGitHubDeploy;
     window.manualDeploy = manualDeploy;
     window.checkDeployStatus = checkDeployStatus;
+    window.updateNewsPage = updateNewsPage;
 
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', initializeApp);
