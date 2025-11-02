@@ -194,7 +194,7 @@
 
     .section-header {
       display: flex;
-      justify-content: between;
+      justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
       padding-bottom: 1rem;
@@ -271,6 +271,18 @@
       border-bottom: 1px solid #e2e8f0;
     }
 
+    .data-table th:nth-child(3),
+    .data-table td:nth-child(3) {
+      width: 120px;
+      text-align: center;
+    }
+
+    .data-table th:nth-child(6),
+    .data-table td:nth-child(6) {
+      width: 120px;
+      text-align: center;
+    }
+
     .data-table th {
       background: #f7fafc;
       font-weight: 600;
@@ -285,10 +297,11 @@
     }
 
     .status-badge {
-      padding: 0.25rem 0.75rem;
+      padding: 0.375rem 1rem;
       border-radius: 9999px;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 500;
+      white-space: nowrap;
     }
 
     .status-draft {
@@ -571,7 +584,7 @@
     let currentSection = 'overview';
 
     // Initialize app
-    window.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('DOMContentLoaded', function () {
       checkAuth();
       initializeSupabase();
       loadOverviewStats();
@@ -608,7 +621,7 @@
 
     // Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', function(e) {
+      item.addEventListener('click', function (e) {
         e.preventDefault();
         const section = this.dataset.section;
         switchSection(section);
