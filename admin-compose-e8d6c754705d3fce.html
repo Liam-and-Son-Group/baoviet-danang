@@ -552,6 +552,11 @@
 
   <div class="admin-container">
     <div id="statusMessage" class="status-message"></div>
+    
+    <!-- Supabase Connection Status -->
+    <div id="supabaseStatus" class="status-indicator" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; font-size: 0.9rem;">
+      <span id="supabaseStatusText">🔄 Đang kiểm tra kết nối Supabase...</span>
+    </div>
 
     <form class="editor-form" id="newsForm">
       <!-- Article Metadata -->
@@ -667,8 +672,12 @@
         <button type="button" class="btn btn-secondary" onclick="loadArticlesList()">
           📂 Load bài viết
         </button>
-        <button type="button" class="btn btn-secondary" onclick="configureSupabase()" title="Cấu hình Supabase connection">
+        <button type="button" class="btn btn-secondary" onclick="configureSupabase()"
+          title="Cấu hình Supabase connection">
           ⚙️ Cấu hình
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="testSupabaseConnection()" title="Test kết nối Supabase">
+          🧪 Test kết nối
         </button>
         <button type="button" class="btn btn-primary" onclick="previewTemplateHTML()">
           👁️ Preview HTML
@@ -739,16 +748,61 @@
         
         showStatus('✅ Đã cập nhật Supabase configuration!', 'success');
         
-        // Try to reconnect
-        initializeSupabase().then(() => {
-          showStatus('✅ Đã kết nối lại Supabase thành công!', 'success');
-        }).catch(error => {
-          showStatus('❌ Lỗi kết nối Supabase: ' + error.message, 'error');
-        });
+        // Try to reconnect and test
+        testSupabaseConnection();
       }
     }
 
-    async function initializeSupabase() {
+    // Test Supabase connection
+    async function testSupabaseConnection() {
+      try {
+        showStatus('🧪 Đang test kết nối Supabase...', 'info');
+        
+        const client = await initializeSupabase();
+        if (!client) {
+          showStatus('❌ Không thể khởi tạo Supabase client', 'error');
+          return false;
+        }
+
+        // Test basic connection with a simple query
+        console.log('🔍 Testing Supabase connection...');
+        const { data, error } = await Promise.race([
+          client.from('articles').select('id').limit(1),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Connection timeout')), 10000)
+          )
+        ]);
+
+        if (error) {
+          console.error('❌ Supabase connection test failed:', error);
+          showStatus('❌ Test kết nối thất bại: ' + error.message, 'error');
+          
+          // Show helpful error messages
+          if (error.message.includes('JWT')) {
+            showStatus('💡 Lỗi JWT - kiểm tra lại Anon Key', 'warning');
+          } else if (error.message.includes('timeout')) {
+            showStatus('💡 Timeout - kiểm tra kết nối mạng và URL Supabase', 'warning');
+          }
+          return false;
+        }
+
+        console.log('✅ Supabase connection test successful');
+        showStatus('✅ Kết nối Supabase thành công! Có thể upload ảnh lên Storage.', 'success');
+        updateSupabaseStatus('✅ Test thành công - Supabase hoạt động tốt', 'success');
+        return true;
+
+      } catch (error) {
+        console.error('❌ Connection test error:', error);
+        if (error.message.includes('timeout')) {
+          showStatus('❌ Timeout kết nối - kiểm tra mạng và URL Supabase', 'error');
+          updateSupabaseStatus('❌ Timeout kết nối - kiểm tra mạng', 'error');
+        } else {
+          showStatus('❌ Lỗi test kết nối: ' + error.message, 'error');
+          updateSupabaseStatus('❌ Lỗi kết nối: ' + error.message, 'error');
+        }
+        return false;
+      }
+    }    async function initializeSupabase() {
       if (supabaseInitialized) return supabase;
 
       try {
@@ -787,9 +841,11 @@
           supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
           console.log('✅ Supabase connected successfully');
           showStatus('Đã kết nối Supabase thành công!', 'success');
+          updateSupabaseStatus('✅ Supabase đã kết nối - có thể upload ảnh lên Storage', 'success');
         } else {
           console.log('⚠️ Supabase not configured, using local mode');
           showStatus('Chế độ local - không kết nối Supabase', 'info');
+          updateSupabaseStatus('⚠️ Supabase chưa cấu hình - ảnh sẽ lưu dạng base64', 'warning');
         }
 
         supabaseInitialized = true;
@@ -798,8 +854,30 @@
       } catch (error) {
         console.error('❌ Supabase initialization failed:', error);
         showStatus('Lỗi khởi tạo Supabase: ' + error.message, 'error');
+        updateSupabaseStatus('❌ Lỗi kết nối Supabase: ' + error.message, 'error');
         supabaseInitialized = true; // Mark as attempted
         return null;
+      }
+    }
+
+    // Update Supabase status indicator
+    function updateSupabaseStatus(message, type) {
+      const statusEl = document.getElementById('supabaseStatus');
+      const textEl = document.getElementById('supabaseStatusText');
+      
+      if (statusEl && textEl) {
+        textEl.textContent = message;
+        
+        // Update styling based on status type
+        statusEl.style.background = type === 'success' ? '#d4edda' : 
+                                   type === 'warning' ? '#fff3cd' :
+                                   type === 'error' ? '#f8d7da' : '#f8f9fa';
+        statusEl.style.borderColor = type === 'success' ? '#c3e6cb' : 
+                                    type === 'warning' ? '#ffeaa7' :
+                                    type === 'error' ? '#f5c6cb' : '#dee2e6';
+        statusEl.style.color = type === 'success' ? '#155724' : 
+                              type === 'warning' ? '#856404' :
+                              type === 'error' ? '#721c24' : '#495057';
       }
     }
 
@@ -880,10 +958,14 @@
 
             if (!client || !window.supabase) {
               console.warn('⚠️ Supabase not available, using base64 fallback');
+              showStatus('⚠️ Supabase không khả dụng - sử dụng base64 fallback', 'warning');
+              
               // Fallback to base64 if Supabase not available
               const reader = new FileReader();
               reader.onload = function () {
+                console.log('📱 Using base64 fallback for TinyMCE image');
                 success(reader.result);
+                showStatus('📱 Đã lưu ảnh dạng base64 (cục bộ)', 'info');
               };
               reader.onerror = function () {
                 if (typeof failure === 'function') {
@@ -904,13 +986,56 @@
             // Show progress if available
             if (progress) progress(0);
 
-            // Upload to Supabase Storage
-            const { data: uploadData, error: uploadError } = await client.storage
+            console.log('☁️ Attempting Supabase Storage upload...');
+            showStatus('☁️ Đang upload lên Supabase Storage: ' + blobInfo.filename(), 'info');
+
+            // Add timeout wrapper for upload
+            const uploadPromise = client.storage
               .from('images')
               .upload(filePath, file);
 
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Upload timeout after 15 seconds')), 15000);
+            });
+
+            // Race between upload and timeout
+            const { data: uploadData, error: uploadError } = await Promise.race([
+              uploadPromise,
+              timeoutPromise
+            ]);
+
             if (uploadError) {
               console.error('TinyMCE upload error:', uploadError);
+              
+              // Check if it's a network/timeout error
+              if (uploadError.message.includes('timeout') || 
+                  uploadError.message.includes('fetch') || 
+                  uploadError.message.includes('network') ||
+                  uploadError.message.includes('connection')) {
+                
+                console.warn('🔄 Network error detected, falling back to base64');
+                showStatus('⚠️ Lỗi kết nối Supabase - chuyển sang base64 fallback', 'warning');
+                
+                // Auto-fallback to base64 for network errors
+                const reader = new FileReader();
+                reader.onload = function () {
+                  console.log('📱 Network fallback: using base64 for TinyMCE image');
+                  success(reader.result);
+                  showStatus('📱 Đã lưu ảnh dạng base64 do lỗi kết nối', 'info');
+                };
+                reader.onerror = function () {
+                  if (typeof failure === 'function') {
+                    failure('Lỗi xử lý ảnh fallback');
+                  } else {
+                    console.error('Base64 fallback failed');
+                    showStatus('❌ Lỗi xử lý ảnh', 'error');
+                  }
+                };
+                reader.readAsDataURL(blobInfo.blob());
+                return;
+              }
+              
+              // For other errors, show error and try fallback
               if (typeof failure === 'function') {
                 failure('Lỗi upload ảnh: ' + uploadError.message);
               } else {
@@ -952,12 +1077,29 @@
           } catch (error) {
             console.error('TinyMCE upload error:', error);
             
-            // Fallback to base64 on error
+            // Check if it's a network/timeout/connection error
+            const isNetworkError = error.message.includes('timeout') || 
+                                   error.message.includes('fetch') || 
+                                   error.message.includes('network') ||
+                                   error.message.includes('connection') ||
+                                   error.message.includes('ERR_CONNECTION_TIMED_OUT') ||
+                                   error.name === 'StorageUnknownError';
+            
+            if (isNetworkError) {
+              console.warn('🔄 Network/timeout error detected, auto-fallback to base64');
+              showStatus('⚠️ Timeout kết nối Supabase - tự động chuyển sang base64', 'warning');
+            } else {
+              console.error('❌ Unexpected error:', error);
+              showStatus('❌ Lỗi không xác định: ' + error.message, 'error');
+            }
+
+            // Fallback to base64 on any error
             try {
               const reader = new FileReader();
               reader.onload = function () {
                 console.log('🔄 Using base64 fallback for TinyMCE image');
                 success(reader.result);
+                showStatus('📱 Đã lưu ảnh dạng base64 (fallback)', 'info');
               };
               reader.onerror = function () {
                 if (typeof failure === 'function') {
