@@ -713,9 +713,9 @@
 
     // Supabase Configuration
     const SUPABASE_CONFIG = {
-      // Replace with your Supabase project details
-      url: null,
-      anonKey: null
+      // Supabase project URL (pre-configured)
+      url: 'https://fiaxrsiycswrwucthian.supabase.co',
+      anonKey: null // Only this needs to be entered by user
     };
 
     // Initialize Supabase client
@@ -742,21 +742,16 @@
         }
 
         // Get configuration from user if not set
-        if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
-          const storedUrl = localStorage.getItem('supabase_url');
+        if (!SUPABASE_CONFIG.anonKey) {
           const storedKey = localStorage.getItem('supabase_anon_key');
 
-          if (storedUrl && storedKey) {
-            SUPABASE_CONFIG.url = storedUrl;
+          if (storedKey) {
             SUPABASE_CONFIG.anonKey = storedKey;
           } else {
-            const url = prompt('Nhập Supabase URL của bạn (hoặc Enter để dùng local):');
-            const key = url ? prompt('Nhập Supabase Anon Key của bạn:') : null;
+            const key = prompt('Nhập Supabase Anon Key của bạn:');
 
-            if (url && key) {
-              SUPABASE_CONFIG.url = url;
+            if (key) {
               SUPABASE_CONFIG.anonKey = key;
-              localStorage.setItem('supabase_url', url);
               localStorage.setItem('supabase_anon_key', key);
             }
           }
@@ -850,17 +845,99 @@
         content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 16px; line-height: 1.6; }',
 
         // Image upload settings
-        images_upload_handler: function (blobInfo, success, failure) {
-          // Convert image to base64 for preview (you can implement actual upload here)
-          const reader = new FileReader();
-          reader.onload = function () {
-            success(reader.result);
-          };
-          reader.readAsDataURL(blobInfo.blob());
+        images_upload_handler: async function (blobInfo, success, failure, progress) {
+          try {
+            console.log('🖼️ TinyMCE image upload started:', blobInfo.filename());
+
+            // Initialize Supabase if not already done
+            const client = await initializeSupabase();
+
+            if (!client || !window.supabase) {
+              console.warn('⚠️ Supabase not available, using base64 fallback');
+              // Fallback to base64 if Supabase not available
+              const reader = new FileReader();
+              reader.onload = function () {
+                success(reader.result);
+              };
+              reader.onerror = function () {
+                failure('Lỗi đọc file ảnh');
+              };
+              reader.readAsDataURL(blobInfo.blob());
+              return;
+            }
+
+            const file = blobInfo.blob();
+            const fileName = Date.now() + '-tinymce-' + blobInfo.filename().replace(/[^a-zA-Z0-9.-]/g, '_');
+            const filePath = 'editor/' + fileName;
+
+            // Show progress if available
+            if (progress) progress(0);
+
+            // Upload to Supabase Storage
+            const { data: uploadData, error: uploadError } = await client.storage
+              .from('images')
+              .upload(filePath, file);
+
+            if (uploadError) {
+              console.error('TinyMCE upload error:', uploadError);
+              failure('Lỗi upload ảnh: ' + uploadError.message);
+              return;
+            }
+
+            // Get public URL
+            const { data: { publicUrl } } = client.storage
+              .from('images')
+              .getPublicUrl(filePath);
+
+            // Save image metadata to database (optional)
+            try {
+              await client
+                .from('article_images')
+                .insert({
+                  filename: fileName,
+                  original_name: blobInfo.filename(),
+                  file_path: filePath,
+                  public_url: publicUrl,
+                  file_size: file.size,
+                  file_type: file.type,
+                  source: 'tinymce-editor'
+                });
+            } catch (dbError) {
+              console.warn('TinyMCE: Could not save image metadata:', dbError);
+              // Continue anyway - we have the image uploaded
+            }
+
+            console.log('✅ TinyMCE image uploaded successfully:', publicUrl);
+            showStatus('✅ Đã upload ảnh vào editor: ' + blobInfo.filename(), 'success');
+
+            if (progress) progress(100);
+            success(publicUrl);
+
+          } catch (error) {
+            console.error('TinyMCE upload error:', error);
+            failure('Lỗi upload ảnh: ' + error.message);
+
+            // Fallback to base64 on error
+            try {
+              const reader = new FileReader();
+              reader.onload = function () {
+                console.log('🔄 Using base64 fallback for TinyMCE image');
+                success(reader.result);
+              };
+              reader.readAsDataURL(blobInfo.blob());
+            } catch (fallbackError) {
+              failure('Lỗi xử lý ảnh: ' + fallbackError.message);
+            }
+          }
         },
 
         // Allow paste of images
         paste_data_images: true,
+
+        // Upload settings
+        automatic_uploads: true,
+        images_upload_url: '', // We handle this in images_upload_handler
+        images_reuse_filename: false,
 
         // Image options
         image_advtab: true,
@@ -1422,6 +1499,55 @@
       }
     }
 
+    // Function to cleanup unused editor images
+    async function cleanupEditorImages(articleId, htmlContent) {
+      try {
+        const client = await initializeSupabase();
+        if (!client) return;
+
+        // Get all images associated with this article from TinyMCE
+        const { data: editorImages, error } = await client
+          .from('article_images')
+          .select('*')
+          .eq('article_id', articleId)
+          .eq('source', 'tinymce-editor');
+
+        if (error || !editorImages) return;
+
+        // Check which images are still used in the HTML content
+        const unusedImages = editorImages.filter(img => {
+          return !htmlContent.includes(img.public_url);
+        });
+
+        // Delete unused images
+        for (const img of unusedImages) {
+          try {
+            // Delete from storage
+            await client.storage
+              .from('images')
+              .remove([img.file_path]);
+
+            // Delete from database
+            await client
+              .from('article_images')
+              .delete()
+              .eq('id', img.id);
+
+            console.log('🗑️ Cleaned up unused editor image:', img.filename);
+          } catch (cleanupError) {
+            console.warn('Could not cleanup image:', img.filename, cleanupError);
+          }
+        }
+
+        if (unusedImages.length > 0) {
+          showStatus(`🧹 Đã dọn dẹp ${unusedImages.length} ảnh không sử dụng`, 'success');
+        }
+
+      } catch (error) {
+        console.warn('Editor image cleanup failed:', error);
+      }
+    }
+
     function generateFilename(title) {
       if (!title) return '';
       return title
@@ -1766,6 +1892,13 @@
         }
 
         console.log('Article saved with status:', status, savedArticle);
+
+        // Cleanup unused editor images
+        try {
+          await cleanupEditorImages(savedArticle.id, formData.content);
+        } catch (cleanupError) {
+          console.warn('Editor image cleanup failed:', cleanupError);
+        }
 
         // Deploy logic - only deploy if requested and status is published
         if (shouldDeploy && status === 'published') {
@@ -2549,6 +2682,38 @@
         console.error('🧪 DEBUG: Article loading failed:', error);
       });
     };
+
+    // Configure Supabase function
+    function configureSupabase() {
+      const currentKey = localStorage.getItem('supabase_anon_key');
+      const newKey = prompt(
+        'Nhập Supabase Anon Key mới:' + (currentKey ? '\n\nHiện tại: ' + currentKey.substring(0, 20) + '...' : ''),
+        currentKey || ''
+      );
+
+      if (newKey && newKey !== currentKey) {
+        localStorage.setItem('supabase_anon_key', newKey);
+        SUPABASE_CONFIG.anonKey = newKey;
+        
+        // Reset Supabase client to force reinitialization
+        supabase = null;
+        supabaseInitialized = false;
+        
+        showStatus('✅ Đã cập nhật Supabase Anon Key. Reload trang để áp dụng.', 'success');
+        
+        // Ask if user wants to reload
+        if (confirm('Reload trang để áp dụng cấu hình mới?')) {
+          window.location.reload();
+        }
+      } else if (newKey === '') {
+        // User wants to clear the key
+        localStorage.removeItem('supabase_anon_key');
+        SUPABASE_CONFIG.anonKey = null;
+        supabase = null;
+        supabaseInitialized = false;
+        showStatus('🗑️ Đã xóa Supabase Anon Key', 'info');
+      }
+    }
 
     function logout() {
       if (confirm('Bạn có chắc muốn đăng xuất?')) {

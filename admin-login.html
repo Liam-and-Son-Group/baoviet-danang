@@ -256,14 +256,7 @@
       <!-- Supabase Configuration -->
       <div class="supabase-config">
         <div class="config-title">
-          ⚙️ Cấu hình Supabase
-        </div>
-
-        <div class="form-group">
-          <label for="supabaseUrl" class="form-label">Supabase URL</label>
-          <input type="url" id="supabaseUrl" name="supabaseUrl" class="form-input"
-            placeholder="https://your-project.supabase.co">
-          <div class="help-text">URL dự án Supabase của bạn</div>
+          ⚙️ Cấu hình Database
         </div>
 
         <div class="form-group">
@@ -299,12 +292,7 @@
     });
 
     function loadSavedConfig() {
-      const savedUrl = localStorage.getItem('supabase_url');
       const savedKey = localStorage.getItem('supabase_anon_key');
-
-      if (savedUrl) {
-        document.getElementById('supabaseUrl').value = savedUrl;
-      }
 
       if (savedKey) {
         document.getElementById('supabaseKey').value = savedKey;
@@ -345,7 +333,7 @@
       e.preventDefault();
 
       const password = document.getElementById('password').value;
-      const supabaseUrl = document.getElementById('supabaseUrl').value;
+      const supabaseUrl = 'https://rvzxmqmyosszlqvfqphf.supabase.co'; // Fixed URL
       const supabaseKey = document.getElementById('supabaseKey').value;
       const rememberConfig = document.getElementById('rememberConfig').checked;
 
@@ -368,18 +356,16 @@
           throw new Error('Mật khẩu không đúng');
         }
 
-        // Verify Supabase configuration if provided
-        if (supabaseUrl && supabaseKey) {
+        // Verify Supabase configuration if key provided
+        if (supabaseKey) {
           await testSupabaseConnection(supabaseUrl, supabaseKey);
         }
 
         // Save configuration if requested
-        if (rememberConfig) {
-          if (supabaseUrl) localStorage.setItem('supabase_url', supabaseUrl);
-          if (supabaseKey) localStorage.setItem('supabase_anon_key', supabaseKey);
+        if (rememberConfig && supabaseKey) {
+          localStorage.setItem('supabase_anon_key', supabaseKey);
         } else {
           // Clear saved config if not remembering
-          localStorage.removeItem('supabase_url');
           localStorage.removeItem('supabase_anon_key');
         }
 
