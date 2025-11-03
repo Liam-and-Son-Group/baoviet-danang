@@ -92,13 +92,13 @@ function createBasicSitemap() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://baoviet-dn.com/</loc>
+    <loc>https://baohiembaovietdanang.com/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://baoviet-dn.com/tin-tuc.html</loc>
+    <loc>https://baohiembaovietdanang.com/tin-tuc.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
