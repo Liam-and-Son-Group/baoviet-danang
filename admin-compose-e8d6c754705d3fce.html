@@ -667,6 +667,9 @@
         <button type="button" class="btn btn-secondary" onclick="loadArticlesList()">
           📂 Load bài viết
         </button>
+        <button type="button" class="btn btn-secondary" onclick="configureSupabase()" title="Cấu hình Supabase connection">
+          ⚙️ Cấu hình
+        </button>
         <button type="button" class="btn btn-primary" onclick="previewTemplateHTML()">
           👁️ Preview HTML
         </button>
@@ -714,13 +717,36 @@
     // Supabase Configuration
     const SUPABASE_CONFIG = {
       // Supabase project URL (pre-configured)
-      url: 'https://fiaxrsiycswrwucthian.supabase.co',
+      url: 'https://rvzxmqmyosszlqvfqphf.supabase.co',
       anonKey: null // Only this needs to be entered by user
     };
 
     // Initialize Supabase client
     let supabase = null;
     let supabaseInitialized = false;
+
+    // Configuration function for Supabase
+    function configureSupabase() {
+      const newKey = prompt('Nhập Supabase Anon Key mới:', SUPABASE_CONFIG.anonKey || '');
+      
+      if (newKey && newKey.trim()) {
+        SUPABASE_CONFIG.anonKey = newKey.trim();
+        localStorage.setItem('supabase_anon_key', newKey.trim());
+        
+        // Reset initialization to force reconnection
+        supabaseInitialized = false;
+        supabase = null;
+        
+        showStatus('✅ Đã cập nhật Supabase configuration!', 'success');
+        
+        // Try to reconnect
+        initializeSupabase().then(() => {
+          showStatus('✅ Đã kết nối lại Supabase thành công!', 'success');
+        }).catch(error => {
+          showStatus('❌ Lỗi kết nối Supabase: ' + error.message, 'error');
+        });
+      }
+    }
 
     async function initializeSupabase() {
       if (supabaseInitialized) return supabase;
@@ -860,7 +886,12 @@
                 success(reader.result);
               };
               reader.onerror = function () {
-                failure('Lỗi đọc file ảnh');
+                if (typeof failure === 'function') {
+                  failure('Lỗi đọc file ảnh');
+                } else {
+                  console.error('TinyMCE failure callback not available: Lỗi đọc file ảnh');
+                  showStatus('❌ Lỗi đọc file ảnh', 'error');
+                }
               };
               reader.readAsDataURL(blobInfo.blob());
               return;
@@ -880,7 +911,12 @@
 
             if (uploadError) {
               console.error('TinyMCE upload error:', uploadError);
-              failure('Lỗi upload ảnh: ' + uploadError.message);
+              if (typeof failure === 'function') {
+                failure('Lỗi upload ảnh: ' + uploadError.message);
+              } else {
+                console.error('TinyMCE failure callback not available:', uploadError.message);
+                showStatus('❌ Lỗi upload ảnh: ' + uploadError.message, 'error');
+              }
               return;
             }
 
@@ -915,8 +951,7 @@
 
           } catch (error) {
             console.error('TinyMCE upload error:', error);
-            failure('Lỗi upload ảnh: ' + error.message);
-
+            
             // Fallback to base64 on error
             try {
               const reader = new FileReader();
@@ -924,9 +959,23 @@
                 console.log('🔄 Using base64 fallback for TinyMCE image');
                 success(reader.result);
               };
+              reader.onerror = function () {
+                if (typeof failure === 'function') {
+                  failure('Lỗi xử lý ảnh: ' + error.message);
+                } else {
+                  console.error('TinyMCE failure callback not available:', error.message);
+                  showStatus('❌ Lỗi upload ảnh: ' + error.message, 'error');
+                }
+              };
               reader.readAsDataURL(blobInfo.blob());
             } catch (fallbackError) {
-              failure('Lỗi xử lý ảnh: ' + fallbackError.message);
+              console.error('Fallback error:', fallbackError);
+              if (typeof failure === 'function') {
+                failure('Lỗi xử lý ảnh: ' + fallbackError.message);
+              } else {
+                console.error('TinyMCE failure callback not available:', fallbackError.message);
+                showStatus('❌ Lỗi xử lý ảnh: ' + fallbackError.message, 'error');
+              }
             }
           }
         },
@@ -2694,13 +2743,13 @@
       if (newKey && newKey !== currentKey) {
         localStorage.setItem('supabase_anon_key', newKey);
         SUPABASE_CONFIG.anonKey = newKey;
-        
+
         // Reset Supabase client to force reinitialization
         supabase = null;
         supabaseInitialized = false;
-        
+
         showStatus('✅ Đã cập nhật Supabase Anon Key. Reload trang để áp dụng.', 'success');
-        
+
         // Ask if user wants to reload
         if (confirm('Reload trang để áp dụng cấu hình mới?')) {
           window.location.reload();
