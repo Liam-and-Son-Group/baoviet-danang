@@ -781,25 +781,104 @@
     }
 
     async function deleteArticle(articleId, title) {
-      if (!confirm(`Bạn có chắc muốn xóa bài viết "${title}"?`)) {
-        return;
-      }
+      // Show "feature not ready" modal instead of allowing deletion
+      await showFeatureNotReadyModal();
+    }
 
-      try {
-        const { error } = await supabase
-          .from('articles')
-          .delete()
-          .eq('id', articleId);
+    // Feature not ready modal
+    function showFeatureNotReadyModal() {
+      return new Promise((resolve) => {
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+          backdrop-filter: blur(4px);
+        `;
 
-        if (error) throw error;
+        // Create modal content
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          background: white;
+          border-radius: 12px;
+          padding: 2rem;
+          max-width: 400px;
+          width: 90%;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          animation: modalSlideIn 0.3s ease-out;
+        `;
 
-        showStatus('Đã xóa bài viết thành công!', 'success');
-        loadArticles();
-        loadOverviewStats();
-      } catch (error) {
-        console.error('Error deleting article:', error);
-        showStatus('Lỗi xóa bài viết: ' + error.message, 'error');
-      }
+        modal.innerHTML = `
+          <style>
+            @keyframes modalSlideIn {
+              from { transform: translateY(-50px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          </style>
+          <div style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🚧</div>
+            <h3 style="color: #f39c12; margin-bottom: 1rem; font-size: 1.25rem;">Tính năng chưa sẵn sàng</h3>
+            <p style="color: #666; margin-bottom: 1.5rem; line-height: 1.6;">
+              Chức năng xóa bài viết hiện đang được phát triển và chưa sẵn sàng sử dụng.
+            </p>
+            <div style="background: #e3f2fd; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+              <div style="color: #1976d2; font-size: 0.9rem; line-height: 1.4;">
+                💡 <strong>Gợi ý:</strong> Vui lòng liên hệ quản trị viên nếu cần xóa bài viết cụ thể.
+              </div>
+            </div>
+            <button id="closeModal" style="
+              background: #007bff;
+              color: white;
+              border: none;
+              padding: 0.75rem 2rem;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: background-color 0.2s;
+              margin-top: 1rem;
+            " onmouseover="this.style.background='#0056b3'" onmouseout="this.style.background='#007bff'">
+              Đã hiểu
+            </button>
+          </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Add event listeners
+        const closeBtn = modal.querySelector('#closeModal');
+
+        closeBtn.addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          resolve();
+        });
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            document.body.removeChild(overlay);
+            resolve();
+          }
+        });
+
+        // Close on Escape key
+        const handleEscape = (e) => {
+          if (e.key === 'Escape') {
+            document.body.removeChild(overlay);
+            document.removeEventListener('keydown', handleEscape);
+            resolve();
+          }
+        };
+        document.addEventListener('keydown', handleEscape);
+      });
     }
 
     // Users management
@@ -903,8 +982,130 @@
       }
     }
 
+    // Custom delete confirmation modal
+    function showDeleteConfirmationModal(title, message, warning, confirmText, cancelText) {
+      return new Promise((resolve) => {
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+          backdrop-filter: blur(4px);
+        `;
+
+        // Create modal content
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          background: white;
+          border-radius: 12px;
+          padding: 2rem;
+          max-width: 500px;
+          width: 90%;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          animation: modalSlideIn 0.3s ease-out;
+        `;
+
+        modal.innerHTML = `
+          <style>
+            @keyframes modalSlideIn {
+              from { transform: translateY(-50px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          </style>
+          <div style="text-align: center;">
+            <h3 style="color: #dc3545; margin-bottom: 1rem; font-size: 1.25rem;">${title}</h3>
+            <p style="color: #333; margin-bottom: 1rem; line-height: 1.6;">${message}</p>
+            <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+              <div style="color: #856404; font-weight: 600; margin-bottom: 0.5rem;">⚠️ CẢNH BÁO:</div>
+              <div style="color: #856404; font-size: 0.9rem; line-height: 1.4;">${warning}</div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+              <button id="confirmDelete" style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+              " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                ${confirmText}
+              </button>
+              <button id="cancelDelete" style="
+                background: #6c757d;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+              " onmouseover="this.style.background='#545b62'" onmouseout="this.style.background='#6c757d'">
+                ${cancelText}
+              </button>
+            </div>
+          </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Add event listeners
+        const confirmBtn = modal.querySelector('#confirmDelete');
+        const cancelBtn = modal.querySelector('#cancelDelete');
+
+        confirmBtn.addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          resolve(true);
+        });
+
+        cancelBtn.addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          resolve(false);
+        });
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            document.body.removeChild(overlay);
+            resolve(false);
+          }
+        });
+
+        // Close on Escape key
+        const handleEscape = (e) => {
+          if (e.key === 'Escape') {
+            document.body.removeChild(overlay);
+            document.removeEventListener('keydown', handleEscape);
+            resolve(false);
+          }
+        };
+        document.addEventListener('keydown', handleEscape);
+      });
+    }
+
     async function deleteUser(userId, name) {
-      if (!confirm(`Bạn có chắc muốn xóa đăng ký của "${name}"?`)) {
+      // Create and show custom confirmation modal
+      const confirmed = await showDeleteConfirmationModal(
+        '🗑️ Xác nhận xóa người đăng ký',
+        `Bạn có chắc chắn muốn xóa đăng ký của "${name}"?`,
+        'Hành động này sẽ XÓA VĨNH VIỄN thông tin đăng ký và KHÔNG THỂ HOÀN TÁC hay khôi phục lại.',
+        'Xóa vĩnh viễn',
+        'Hủy bỏ'
+      );
+
+      if (!confirmed) {
         return;
       }
 
