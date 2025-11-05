@@ -2596,17 +2596,10 @@
           '<li style="margin-bottom: 0.5rem; padding: 0.5rem; border-bottom: 1px solid #eee;">' +
           '<strong>' + publishedBadge + ' ' + article.title + '</strong><br>' +
           '<small>📂 ' + article.category + ' | 📅 ' + dateStr + ' | 📄 ' + article.filename + '</small><br>' +
-          '<div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">' +
           '<button onclick="loadArticle(' + "'" + article.id + "'" + ')" class="btn btn-primary"' +
-          ' style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">' +
+          ' style="font-size: 0.8rem; padding: 0.25rem 0.5rem; margin-top: 0.25rem;">' +
           '📝 Chỉnh sửa' +
           '</button>' +
-          '<button onclick="deleteArticle(' + "'" + article.id + "'" + ', ' + JSON.stringify(article.title) + ')" class="btn btn-danger"' +
-          ' style="font-size: 0.8rem; padding: 0.25rem 0.5rem; background: #dc3545; color: white; border: 1px solid #dc3545;"' +
-          ' onmouseover="this.style.background=\'#c82333\'" onmouseout="this.style.background=\'#dc3545\'">' +
-          '🗑️ Xóa' +
-          '</button>' +
-          '</div>' +
           '</li>';
       });
 
@@ -2635,110 +2628,6 @@
       } catch (error) {
         console.error('Load article error:', error);
         showStatus('❌ Lỗi tải bài viết: ' + error.message, 'error');
-      }
-    }
-
-    async function deleteArticle(articleId, articleTitle) {
-      const confirmed = await showQuestionModal(
-        '🗑️ Xác nhận xóa bài viết',
-        `Bạn có chắc chắn muốn xóa bài viết "${articleTitle}"?\n\nHành động này không thể hoàn tác!`,
-        'Xóa bài viết',
-        'Hủy bỏ'
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      // Initialize Supabase if not already done
-      const client = await initializeSupabase();
-
-      if (!client) {
-        showErrorNotification('❌ Chưa kết nối Supabase', 'Vui lòng cấu hình Supabase trước khi xóa bài viết.');
-        return;
-      }
-
-      const loadingModal = showLoadingModal('🗑️ Đang xóa bài viết...', 'Hệ thống đang xóa bài viết từ database.');
-
-      try {
-        // First get article details to know the filename
-        const { data: articleData, error: fetchError } = await client
-          .from('articles')
-          .select('filename')
-          .eq('id', articleId)
-          .single();
-
-        if (fetchError) {
-          throw fetchError;
-        }
-
-        // Delete the article from database
-        const { error: deleteError } = await client
-          .from('articles')
-          .delete()
-          .eq('id', articleId);
-
-        if (deleteError) {
-          throw deleteError;
-        }
-
-        hideNotificationModal();
-
-        // Show success and ask about updating news page
-        const shouldUpdateNews = await showQuestionModal(
-          '✅ Đã xóa bài viết thành công',
-          'Bài viết đã được xóa khỏi database.\n\nBạn có muốn cập nhật trang tin tức ngay bây giờ?',
-          'Cập nhật tin tức',
-          'Để sau'
-        );
-
-        if (shouldUpdateNews) {
-          await triggerNewsUpdate(articleData.filename);
-        }
-
-        // Refresh the articles list
-        await loadArticlesList();
-
-        showSuccessNotification('✅ Xóa thành công', `Bài viết "${articleTitle}" đã được xóa khỏi hệ thống.`);
-
-      } catch (error) {
-        console.error('Delete article error:', error);
-        hideNotificationModal();
-        showErrorNotification('❌ Lỗi xóa bài viết', 'Có lỗi xảy ra khi xóa bài viết: ' + error.message);
-      }
-    }
-
-    async function triggerNewsUpdate(deletedFilename) {
-      const loadingModal = showLoadingModal('📰 Đang cập nhật trang tin tức...', 'Hệ thống đang cập nhật trang tin tức và xóa file HTML.');
-
-      try {
-        // For now, show a manual instruction since we don't have GitHub token in browser
-        hideNotificationModal();
-
-        const manualSteps = `
-        <div style="text-align: left; line-height: 1.6;">
-          <h4>📋 Cách cập nhật thủ công:</h4>
-          <ol style="margin: 1rem 0; padding-left: 1.5rem;">
-            <li>Vào GitHub repository: <strong>Liam-and-Son-Group/baoviet-danang</strong></li>
-            <li>Chọn tab <strong>Actions</strong></li>
-            <li>Tìm workflow <strong>"Update News Page"</strong></li>
-            <li>Click <strong>"Run workflow"</strong></li>
-            <li>Chọn action = <strong>"delete"</strong></li>
-            <li>Nhập filename = <strong>"${deletedFilename}"</strong></li>
-            <li>Click <strong>"Run workflow"</strong></li>
-          </ol>
-          <p style="margin-top: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 6px; color: #1976d2;">
-            💡 <strong>Tip:</strong> Workflow sẽ tự động xóa file HTML và cập nhật trang tin tức trong vài phút.
-          </p>
-        </div>
-        `;
-
-        showInfoModal('📰 Hướng dẫn cập nhật tin tức', manualSteps, false);
-
-      } catch (error) {
-        console.error('Trigger news update error:', error);
-        hideNotificationModal();
-        showWarningModal('⚠️ Cần cập nhật thủ công', 'Không thể tự động cập nhật trang tin tức. Vui lòng cập nhật thủ công hoặc thông báo với quản trị viên.');
       }
     }
 

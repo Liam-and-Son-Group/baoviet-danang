@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | Bảo Hiểm Bảo Việt Đà Nẵng</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0060ae 0%, #0087d2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #0060ae 0%, #0087d2 100%);
+      border-radius: 50%;
+      margin: 0 auto 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+    }
+
+    .login-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+      color: #718096;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #4a5568;
+      font-size: 0.9rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s;
+      background: #f7fafc;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #0060ae;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0, 96, 174, 0.1);
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #718096;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.25rem;
+    }
+
+    .toggle-password:hover {
+      color: #4a5568;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #0060ae 0%, #0087d2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 96, 174, 0.3);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status-message {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .status-success {
+      background: #f0fff4;
+      color: #22543d;
+      border: 1px solid #c6f6d5;
+    }
+
+    .status-error {
+      background: #fff5f5;
+      color: #742a2a;
+      border: 1px solid #fed7d7;
+    }
+
+    .status-info {
+      background: #ebf8ff;
+      color: #0056b3;
+      border: 1px solid #bee3f8;
+    }
+
+    .supabase-config {
+      text-align: left;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .config-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .help-text {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: #4a5568;
+    }
+
+    .checkbox {
+      width: 16px;
+      height: 16px;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 1rem;
+        padding: 2rem 1.5rem;
+      }
+
+      .login-title {
+        font-size: 1.5rem;
+      }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="logo">🔐</div>
+    <h1 class="login-title">Admin Panel</h1>
+    <p class="login-subtitle">Đăng nhập để quản lý hệ thống</p>
+
+    <div id="statusMessage" class="status-message"></div>
+
+    <form id="loginForm">
+      <!-- Admin Password -->
+      <div class="form-group">
+        <label for="password" class="form-label">Mật khẩu Admin</label>
+        <div class="password-container">
+          <input type="password" id="password" name="password" class="form-input" placeholder="Nhập mật khẩu admin..."
+            required>
+          <button type="button" class="toggle-password" onclick="togglePassword('password')">👁️</button>
+        </div>
+      </div>
+
+      <!-- Supabase Configuration -->
+      <div class="supabase-config">
+        <div class="config-title">
+          ⚙️ Cấu hình Database
+        </div>
+
+        <div class="form-group">
+          <label for="supabaseKey" class="form-label">Supabase Anon Key</label>
+          <div class="password-container">
+            <input type="password" id="supabaseKey" name="supabaseKey" class="form-input"
+              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            <button type="button" class="toggle-password" onclick="togglePassword('supabaseKey')">👁️</button>
+          </div>
+          <div class="help-text">Anon key từ Settings > API trong Supabase Dashboard</div>
+        </div>
+      </div>
+
+      <div class="remember-me">
+        <input type="checkbox" id="rememberConfig" class="checkbox" checked>
+        <label for="rememberConfig">Lưu cấu hình Supabase</label>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        Đăng nhập
+      </button>
+    </form>
+  </div>
+
+  <script>
+    // Constants
+    const ADMIN_PASSWORD_HASH = 'cf6e93dc9c623c2f10cea0e99bdc01d428d103188c74de8c7d602363cd7c3f5c'; // SHA256 of "secret"
+    const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+    // Load saved configuration
+    window.addEventListener('DOMContentLoaded', function () {
+      loadSavedConfig();
+    });
+
+    function loadSavedConfig() {
+      const savedKey = localStorage.getItem('supabase_anon_key');
+
+      if (savedKey) {
+        document.getElementById('supabaseKey').value = savedKey;
+      }
+
+      // Check if already logged in
+      checkExistingSession();
+    }
+
+    function checkExistingSession() {
+      const savedHash = sessionStorage.getItem('admin_access');
+      const loginTime = parseInt(sessionStorage.getItem('admin_login_time') || '0');
+      const currentTime = Date.now();
+
+      // Check if session is still valid
+      if (savedHash === ADMIN_PASSWORD_HASH && (currentTime - loginTime) < SESSION_TIMEOUT) {
+        showStatus('Đã đăng nhập trước đó, đang chuyển hướng...', 'success');
+        setTimeout(() => {
+          window.location.href = 'admin-dashboard.html';
+        }, 1000);
+      }
+    }
+
+    function togglePassword(fieldId) {
+      const field = document.getElementById(fieldId);
+      const button = field.nextElementSibling;
+
+      if (field.type === 'password') {
+        field.type = 'text';
+        button.textContent = '🙈';
+      } else {
+        field.type = 'password';
+        button.textContent = '👁️';
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const supabaseUrl = 'https://fiaxrsiycswrwucthian.supabase.co'; // Fixed URL
+      const supabaseKey = document.getElementById('supabaseKey').value;
+      const rememberConfig = document.getElementById('rememberConfig').checked;
+
+      if (!password) {
+        showStatus('Vui lòng nhập mật khẩu admin', 'error');
+        return;
+      }
+
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="loading-spinner"></span>Đang đăng nhập...';
+
+      try {
+        // Hash password and verify
+        const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        if (hashHex !== ADMIN_PASSWORD_HASH) {
+          throw new Error('Mật khẩu không đúng');
+        }
+
+        // Verify Supabase configuration if key provided
+        if (supabaseKey) {
+          await testSupabaseConnection(supabaseUrl, supabaseKey);
+        }
+
+        // Save configuration if requested
+        if (rememberConfig && supabaseKey) {
+          localStorage.setItem('supabase_anon_key', supabaseKey);
+        } else {
+          // Clear saved config if not remembering
+          localStorage.removeItem('supabase_anon_key');
+        }
+
+        // Save session
+        sessionStorage.setItem('admin_access', hashHex);
+        sessionStorage.setItem('admin_login_time', Date.now().toString());
+
+        showStatus('Đăng nhập thành công! Đang chuyển hướng...', 'success');
+
+        setTimeout(() => {
+          window.location.href = 'admin-dashboard.html';
+        }, 1500);
+
+      } catch (error) {
+        console.error('Login error:', error);
+        showStatus(error.message || 'Đăng nhập thất bại', 'error');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = 'Đăng nhập';
+      }
+    });
+
+    async function testSupabaseConnection(url, key) {
+      try {
+        showStatus('Đang kiểm tra kết nối Supabase...', 'info');
+
+        // Simple test - try to create client and make a basic request
+        const response = await fetch(url + '/rest/v1/', {
+          headers: {
+            'apikey': key,
+            'Authorization': 'Bearer ' + key
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Không thể kết nối Supabase - kiểm tra URL và API key');
+        }
+
+        showStatus('Kết nối Supabase thành công!', 'success');
+      } catch (error) {
+        throw new Error('Lỗi kết nối Supabase: ' + error.message);
+      }
+    }
+
+    function showStatus(message, type) {
+      const statusEl = document.getElementById('statusMessage');
+      statusEl.textContent = message;
+      statusEl.className = 'status-message status-' + type;
+      statusEl.style.display = 'block';
+
+      if (type !== 'info') {
+        setTimeout(() => {
+          statusEl.style.display = 'none';
+        }, 5000);
+      }
+    }
+
+    // Handle Enter key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+</body>
+
+</html>
