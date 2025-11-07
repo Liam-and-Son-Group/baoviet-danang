@@ -107,7 +107,7 @@ class SimpleTemplateEngine {
     // {{canonical filename}}
     result = result.replace(/\{\{canonical\s+(\w+)\}\}/g, (match, field) => {
       const filename = data[field];
-      return filename ? `https://baoviet-dn.com/${filename}` : "";
+      return filename ? `https://baohiembaovietdanang.com/${filename}` : "";
     });
 
     // {{upper text}}
@@ -237,7 +237,7 @@ async function getArticleFromSupabase(articleId) {
  * Prepare template data với đầy đủ nested objects
  */
 function prepareTemplateData(article) {
-  const baseUrl = "https://baoviet-dn.com";
+  const baseUrl = "https://baohiembaovietdanang.com";
   const filename = article.filename || "article.html";
 
   return {
