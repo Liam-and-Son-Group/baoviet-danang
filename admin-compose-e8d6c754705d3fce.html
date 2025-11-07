@@ -1017,6 +1017,11 @@
     let uploadedImages = [];
     let featureImage = null; // Store feature image data
 
+    // Unsaved changes tracking
+    let hasUnsavedChanges = false;
+    let initialFormState = '';
+    let isFormSubmitting = false;
+
     // Security: Simple password protection
     const ADMIN_PASSWORD_HASH = 'cf6e93dc9c623c2f10cea0e99bdc01d428d103188c74de8c7d602363cd7c3f5c'; // SHA256 of "secret"
     const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -1839,27 +1844,45 @@
         '<img src="' + img.data + '" alt="' + img.name + '">' +
         '<div class="image-actions">' +
         '<span class="image-type">📱 Base64</span>' +
-        '<button type="button" class="image-btn" onclick="insertImageToEditor(' + "'" + img.name + "'" + ', ' + "'" + img.data + "'" + ')" title="Chèn vào editor">📝</button>' +
-        '<button type="button" class="image-btn" onclick="copyImagePath(' + "'" + img.name + "'" + ')" title="Copy đường dẫn">📋</button>' +
-        '<button type="button" class="image-btn" onclick="removeImage(' + "'" + img.id + "'" + ')" title="Xóa ảnh">🗑️</button>' +
+        '<button type="button" class="image-btn" data-action="insert" data-name="' + img.name + '" data-data="' + encodeURIComponent(img.data) + '" title="Chèn vào editor">📝</button>' +
+        '<button type="button" class="image-btn" data-action="remove" data-id="' + img.id + '" title="Bỏ ảnh">🗑️</button>' +
         '</div>' +
         '</div>'
       ).join('');
+
+      // Add event listeners to buttons
+      const imageButtons = uploadedImagesContainer.querySelectorAll('.image-btn');
+      imageButtons.forEach(button => {
+        button.addEventListener('click', handleImageButtonClick);
+      });
+    }
+
+    function handleImageButtonClick(event) {
+      const button = event.currentTarget;
+      const action = button.getAttribute('data-action');
+
+      if (action === 'insert') {
+        const imageName = button.getAttribute('data-name');
+        const imageData = decodeURIComponent(button.getAttribute('data-data'));
+        insertImageToEditor(imageName, imageData);
+      } else if (action === 'remove') {
+        const imageId = parseFloat(button.getAttribute('data-id'));
+        removeImage(imageId);
+      }
     }
 
     function insertImageToEditor(imageName, imageData) {
-      const path = '/assets/tin-tuc/' + generateFilename(document.getElementById('title').value).replace('.html', '') + '/' + imageName;
       const altText = imageName.replace(/\.[^/.]+$/, ""); // Remove file extension for alt text
 
-      // Insert image into TinyMCE editor
+      // Insert image with base64 data into TinyMCE editor
       if (!insertContentToTinyMCE(
-        '<p><img src="' + path + '" alt="' + altText + '" style="width: 100%; max-width: 600px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></p>'
+        '<p><img src="' + imageData + '" alt="' + altText + '" style="width: 100%; max-width: 600px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></p>'
       )) {
         showStatus('Không thể chèn ảnh. Editor chưa sẵn sàng.', 'error');
         return;
       }
 
-      showStatus('Đã chèn ảnh vào editor!', 'success');
+      showStatus('Đã chèn ảnh base64 vào editor!', 'success');
     }
 
     function copyImagePath(imageName) {
@@ -1904,20 +1927,139 @@
       document.body.removeChild(textArea);
     }
 
-    function removeImage(imageId) {
+    async function removeImage(imageId) {
       const imageToRemove = uploadedImages.find(img => img.id === imageId);
       if (!imageToRemove) return;
+
+      // Show confirmation modal
+      const confirmed = await showRemoveImageConfirmModal(imageToRemove.name);
+      if (!confirmed) return;
 
       try {
         // Remove from local array (base64 images are stored locally only)
         uploadedImages = uploadedImages.filter(img => img.id !== imageId);
         renderUploadedImages();
-        showStatus('✅ Đã xóa ảnh: ' + imageToRemove.name, 'success');
+        showStatus('✅ Đã bỏ ảnh: ' + imageToRemove.name, 'success');
 
       } catch (error) {
         console.error('Error removing image:', error);
         showStatus('❌ Lỗi xóa ảnh: ' + error.message, 'error');
       }
+    }
+
+    // Confirmation modal for image removal
+    function showRemoveImageConfirmModal(imageName) {
+      return new Promise((resolve) => {
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+          backdrop-filter: blur(4px);
+        `;
+
+        // Create modal content
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          background: white;
+          border-radius: 12px;
+          padding: 2rem;
+          max-width: 400px;
+          width: 90%;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          animation: modalSlideIn 0.3s ease-out;
+        `;
+
+        modal.innerHTML = `
+          <style>
+            @keyframes modalSlideIn {
+              from { transform: translateY(-50px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          </style>
+          <div style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🗑️</div>
+            <h3 style="color: #dc3545; margin-bottom: 1rem; font-size: 1.25rem;">Xác nhận bỏ ảnh</h3>
+            <p style="color: #666; margin-bottom: 1.5rem; line-height: 1.6;">
+              Bạn có muốn xóa ảnh <strong>"${imageName}"</strong> khỏi Trình quản lý hình ảnh không?
+            </p>
+            <div style="background: #fff3cd; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+              <div style="color: #856404; font-size: 0.9rem; line-height: 1.4;">
+                ⚠️ Ảnh sẽ bị xóa khỏi danh sách quản lý, nhưng vẫn có thể được sử dụng trong nội dung đã chèn.
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+              <button id="confirmRemove" style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+              " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                Xóa khỏi danh sách
+              </button>
+              <button id="cancelRemove" style="
+                background: #6c757d;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+              " onmouseover="this.style.background='#545b62'" onmouseout="this.style.background='#6c757d'">
+                Hủy bỏ
+              </button>
+            </div>
+          </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Add event listeners
+        const confirmBtn = modal.querySelector('#confirmRemove');
+        const cancelBtn = modal.querySelector('#cancelRemove');
+
+        confirmBtn.addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          resolve(true);
+        });
+
+        cancelBtn.addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          resolve(false);
+        });
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            document.body.removeChild(overlay);
+            resolve(false);
+          }
+        });
+
+        // Close on Escape key
+        const handleEscape = (e) => {
+          if (e.key === 'Escape') {
+            document.body.removeChild(overlay);
+            document.removeEventListener('keydown', handleEscape);
+            resolve(false);
+          }
+        };
+        document.addEventListener('keydown', handleEscape);
+      });
     }
 
     // Function to link orphaned TinyMCE images with the article
@@ -2305,6 +2447,19 @@
     }
 
     function clearForm() {
+      if (hasUnsavedChanges) {
+        showUnsavedChangesModal(() => {
+          // User chose to discard changes and clear form
+          performClearForm();
+        });
+        return;
+      }
+
+      // No unsaved changes, clear immediately
+      performClearForm();
+    }
+
+    function performClearForm() {
       showQuestionModal(
         '🗑️ Xóa toàn bộ form?',
         'Bạn có chắc chắn muốn xóa toàn bộ nội dung form hiện tại? Hành động này không thể hoàn tác.',
@@ -2323,6 +2478,10 @@
 
           closePreview();
 
+          // Reset unsaved changes tracking
+          hasUnsavedChanges = false;
+          captureFormState();
+
           showSuccessModal('🗑️ Đã xóa form', 'Toàn bộ nội dung form đã được xóa thành công!');
         },
         () => {
@@ -2334,31 +2493,47 @@
 
     // Draft/Publish Status Functions
     async function saveDraft() {
+      isFormSubmitting = true;
       const loadingModal = showLoadingModal('💾 Đang lưu nháp...', 'Vui lòng đợi trong khi hệ thống lưu bài viết dạng nháp.');
 
       try {
         await saveToSupabaseWithStatus('draft', false); // draft, no deploy
         hideNotificationModal();
+
+        // Reset unsaved changes tracking
+        hasUnsavedChanges = false;
+        captureFormState();
+
         showSuccessModal('✅ Lưu nháp thành công!', 'Bài viết đã được lưu dạng nháp và có thể chỉnh sửa sau.');
       } catch (error) {
         console.error('Save draft error:', error);
         hideNotificationModal();
         showErrorNotification('❌ Lỗi lưu nháp', 'Có lỗi xảy ra khi lưu nháp: ' + error.message);
+      } finally {
+        isFormSubmitting = false;
       }
     }
 
     async function saveAndPublish() {
+      isFormSubmitting = true;
       const loadingModal = showLoadingModal('📝 Đang lưu và xuất bản...', 'Hệ thống đang lưu bài viết và chuẩn bị xuất bản.');
 
       try {
         await saveToSupabaseWithStatus('published', true); // published, auto-deploy
         await updateNewsPage()
         hideNotificationModal();
+
+        // Reset unsaved changes tracking
+        hasUnsavedChanges = false;
+        captureFormState();
+
         showSuccessModal('✅ Xuất bản thành công!', 'Bài viết đã được lưu và xuất bản thành công!');
       } catch (error) {
         console.error('Save and publish error:', error);
         hideNotificationModal();
         showErrorNotification('❌ Lỗi xuất bản', 'Có lỗi xảy ra khi lưu và xuất bản: ' + error.message);
+      } finally {
+        isFormSubmitting = false;
       }
     }
 
@@ -3485,11 +3660,254 @@
     }
 
     function logout() {
-      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+      checkUnsavedChanges(() => {
         sessionStorage.clear();
         window.location.href = 'admin-login.html';
+      });
+    }
+
+    // =====================================
+    // UNSAVED CHANGES TRACKING SYSTEM
+    // =====================================
+
+    // Initialize form change tracking
+    function initializeChangeTracking() {
+      // Capture initial form state
+      captureFormState();
+
+      // Add event listeners for form changes
+      const form = document.getElementById('newsForm');
+      if (form) {
+        // Track input changes
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+          input.addEventListener('input', markAsChanged);
+          input.addEventListener('change', markAsChanged);
+        });
+
+        // Track TinyMCE editor changes
+        if (typeof tinymce !== 'undefined') {
+          const editorCheckInterval = setInterval(() => {
+            const editor = getTinyMCEEditor();
+            if (editor) {
+              editor.on('input change keyup', markAsChanged);
+              clearInterval(editorCheckInterval);
+            }
+          }, 1000);
+        }
+
+        // Track uploaded images changes
+        const originalPush = uploadedImages.push;
+        uploadedImages.push = function (...args) {
+          const result = originalPush.apply(this, args);
+          markAsChanged();
+          return result;
+        };
+
+        // Track feature image changes
+        const originalSetFeatureImage = window.setFeatureImage;
+        if (originalSetFeatureImage) {
+          window.setFeatureImage = function (...args) {
+            const result = originalSetFeatureImage.apply(this, args);
+            markAsChanged();
+            return result;
+          };
+        }
+      }
+
+      // Add beforeunload event
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    function captureFormState() {
+      const formData = getFormData();
+      const editor = getTinyMCEEditor();
+      const editorContent = editor ? editor.getContent() : '';
+
+      initialFormState = JSON.stringify({
+        ...formData,
+        content: editorContent,
+        uploadedImages: uploadedImages,
+        featureImage: featureImage
+      });
+
+      hasUnsavedChanges = false;
+    }
+
+    function markAsChanged() {
+      if (!isFormSubmitting) {
+        hasUnsavedChanges = true;
       }
     }
+
+    function checkUnsavedChanges(callback) {
+      if (hasUnsavedChanges && !isFormSubmitting) {
+        showUnsavedChangesModal(callback);
+      } else {
+        callback();
+      }
+    }
+
+    function showUnsavedChangesModal(callback) {
+      return new Promise((resolve) => {
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+          backdrop-filter: blur(4px);
+        `;
+
+        // Create modal content
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          background: white;
+          border-radius: 12px;
+          padding: 2rem;
+          max-width: 500px;
+          width: 90%;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          animation: modalSlideIn 0.3s ease-out;
+        `;
+
+        modal.innerHTML = `
+          <style>
+            @keyframes modalSlideIn {
+              from { transform: translateY(-50px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          </style>
+          <div style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+            <h3 style="color: #f39c12; margin-bottom: 1rem; font-size: 1.25rem;">Có thay đổi chưa được lưu</h3>
+            <p style="color: #666; margin-bottom: 1.5rem; line-height: 1.6;">
+              Chúng tôi thấy rằng bạn đã có những chỉnh sửa gần đây. Bạn có muốn lưu trước khi rời đi?
+            </p>
+            <div style="background: #e3f2fd; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+              <div style="color: #1976d2; font-size: 0.9rem; line-height: 1.4;">
+                💡 <strong>Gợi ý:</strong> Lưu lại để tránh mất dữ liệu đã nhập.
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+              <button id="saveAndContinue" style="
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                flex: 1;
+                min-width: 140px;
+              " onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+                💾 Lưu và tiếp tục
+              </button>
+              <button id="discardChanges" style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                flex: 1;
+                min-width: 140px;
+              " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                🗑️ Bỏ qua thay đổi
+              </button>
+              <button id="cancelAction" style="
+                background: #6c757d;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                flex: 1;
+                min-width: 140px;
+              " onmouseover="this.style.background='#545b62'" onmouseout="this.style.background='#6c757d'">
+                ❌ Hủy bỏ
+              </button>
+            </div>
+          </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Add event listeners
+        const saveBtn = modal.querySelector('#saveAndContinue');
+        const discardBtn = modal.querySelector('#discardChanges');
+        const cancelBtn = modal.querySelector('#cancelAction');
+
+        saveBtn.addEventListener('click', async () => {
+          document.body.removeChild(overlay);
+          // Save first, then continue
+          isFormSubmitting = true;
+          try {
+            await saveDraft(); // Save current state
+            hasUnsavedChanges = false;
+            callback();
+          } catch (error) {
+            console.error('Error saving:', error);
+            showErrorNotification('❌ Lỗi lưu bài viết', 'Không thể lưu bài viết. Vui lòng thử lại.');
+          } finally {
+            isFormSubmitting = false;
+          }
+        });
+
+        discardBtn.addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          hasUnsavedChanges = false;
+          callback();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          // Do nothing - stay on current page
+        });
+
+        // Close on Escape key
+        const handleEscape = (e) => {
+          if (e.key === 'Escape') {
+            document.body.removeChild(overlay);
+            document.removeEventListener('keydown', handleEscape);
+          }
+        };
+        document.addEventListener('keydown', handleEscape);
+      });
+    }
+
+    function handleBeforeUnload(event) {
+      if (hasUnsavedChanges && !isFormSubmitting) {
+        event.preventDefault();
+        event.returnValue = 'Bạn có thay đổi chưa được lưu. Bạn có chắc muốn rời khỏi trang?';
+        return event.returnValue;
+      }
+    }
+
+    // Override existing functions to check for unsaved changes
+    function goToDashboard() {
+      checkUnsavedChanges(() => {
+        window.location.href = 'admin-dashboard.html';
+      });
+    }
+
+    // Initialize change tracking when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initializeChangeTracking, 1000); // Wait for TinyMCE to load
+    });
 
   </script>
 
