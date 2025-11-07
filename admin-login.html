@@ -390,7 +390,7 @@
 
     async function testSupabaseConnection(url, key) {
       try {
-        showStatus('Đang kiểm tra kết nối Supabase...', 'info');
+        showStatus('Đang kiểm tra kết nối tới Cơ sở dữ liệu...', 'info');
 
         // Simple test - try to create client and make a basic request
         const response = await fetch(url + '/rest/v1/', {
@@ -404,9 +404,9 @@
           throw new Error('Không thể kết nối Supabase - kiểm tra URL và API key');
         }
 
-        showStatus('Kết nối Supabase thành công!', 'success');
+        showStatus('Tải dữ liệu thành công!', 'success');
       } catch (error) {
-        throw new Error('Lỗi kết nối Supabase: ' + error.message);
+        throw new Error('Lỗi kết nối với Cơ sở dữ liệu: ' + error.message);
       }
     }
 
