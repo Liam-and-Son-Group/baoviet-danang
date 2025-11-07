@@ -30,7 +30,7 @@ async function updateSitemap(newFilename) {
     }
 
     // Tạo URL entry mới
-    const baseUrl = "https://baohiembaovietdanang.com";
+    const baseUrl = "https://baohiembaovietdanang.vn";
     const today = new Date().toISOString().split("T")[0];
 
     const newUrlEntry = `  <url>
@@ -92,13 +92,13 @@ function createBasicSitemap() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://baohiembaovietdanang.com/</loc>
+    <loc>https://baohiembaovietdanang.vn/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://baohiembaovietdanang.com/tin-tuc.html</loc>
+    <loc>https://baohiembaovietdanang.vn/tin-tuc.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
