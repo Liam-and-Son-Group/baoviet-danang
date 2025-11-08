@@ -34,6 +34,12 @@
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Admin Platform -->
+  <script src="supabase-config.js"></script>
+  <script src="supabase-key-manager.js"></script>
+  <script src="admin-auth-manager.js"></script>
+  <script src="admin-api-manager.js"></script>
+
   <!-- News Template Engine -->
   <script src="/news-template-engine.js"></script>
 
@@ -162,6 +168,67 @@
       margin-top: 2rem;
       padding-top: 2rem;
       border-top: 1px solid #e2e8f0;
+    }
+
+    .auth-guard-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 2rem;
+    }
+
+    .auth-guard-overlay.show {
+      display: flex;
+    }
+
+    .auth-guard-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.2);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .auth-guard-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .auth-guard-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-guard-message {
+      font-size: 1rem;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-guard-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #0060ae, #0087d2);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 12px 24px rgba(0, 96, 174, 0.25);
+      border: none;
+      cursor: pointer;
     }
 
     /* Status Indicator Styles */
@@ -810,6 +877,16 @@
     </div>
   </header>
 
+  <div id="authGuardOverlay" class="auth-guard-overlay">
+    <div class="auth-guard-card">
+      <div class="auth-guard-icon">🔐</div>
+      <div class="auth-guard-title">Phiên đăng nhập cần xác thực</div>
+      <p class="auth-guard-message">Vui lòng đăng nhập bằng tài khoản quản trị để tiếp tục soạn bài viết và lưu nội
+        dung.</p>
+      <button type="button" class="auth-guard-action" onclick="requestComposeLogin()">Đăng nhập quản trị</button>
+    </div>
+  </div>
+
   <div class="admin-container">
     <div id="statusMessage" class="status-message"></div>
 
@@ -1022,37 +1099,73 @@
     let initialFormState = '';
     let isFormSubmitting = false;
 
-    // Security: Simple password protection
-    const ADMIN_PASSWORD_HASH = 'cf6e93dc9c623c2f10cea0e99bdc01d428d103188c74de8c7d602363cd7c3f5c'; // SHA256 of "secret"
-    const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    // Admin authentication managers
+    let composeAdminAuth = null;
+    let composeAdminAPI = null;
 
-    // Supabase Configuration
-    const SUPABASE_CONFIG = {
-      // Supabase project URL (thay thế bằng URL project của bạn)
-      url: 'https://fiaxrsiycswrwucthian.supabase.co', // ⚠️ THAY ĐỔI URL NÀY
-      anonKey: null // Sẽ được nhập qua UI
+    // Supabase configuration (re-use global config loaded from supabase-config.js)
+    const composeSupabaseConfig = window.SUPABASE_CONFIG || {
+      url: 'https://fiaxrsiycswrwucthian.supabase.co',
+      anonKey: null
     };
 
     // Initialize Supabase client
     let supabase = null;
     let supabaseInitialized = false;
+    let composeAppInitialized = false;
+    let composeKeyManager = null;
+    let adminEventsBound = false;
 
     // Configuration function for Supabase
-    function configureSupabase() {
-      const newKey = prompt('Nhập Supabase Anon Key mới:', SUPABASE_CONFIG.anonKey || '');
+    async function configureSupabase() {
+      try {
+        const currentKey = composeSupabaseConfig ? composeSupabaseConfig.anonKey : null;
+        const newKeyInput = prompt('Nhập Supabase Anon Key mới:', currentKey || '');
 
-      if (newKey && newKey.trim()) {
-        SUPABASE_CONFIG.anonKey = newKey.trim();
-        localStorage.setItem('supabase_anon_key', newKey.trim());
+        if (newKeyInput && newKeyInput.trim()) {
+          const sanitizedKey = newKeyInput.trim();
 
-        // Reset initialization to force reconnection
-        supabaseInitialized = false;
-        supabase = null;
+          if (!composeKeyManager && window.SupabaseKeyManager) {
+            composeKeyManager = new window.SupabaseKeyManager({
+              baseUrl: composeSupabaseConfig?.url,
+            });
+          }
 
-        showStatus('✅ Đã cập nhật Supabase configuration!', 'success');
+          if (composeKeyManager) {
+            composeKeyManager.supplyAnonKey(sanitizedKey);
+          } else {
+            localStorage.setItem('supabase_anon_key', sanitizedKey);
+          }
 
-        // Try to reconnect and test
-        testSupabaseConnection();
+          if (composeSupabaseConfig) {
+            composeSupabaseConfig.anonKey = sanitizedKey;
+          }
+
+          supabase = null;
+          supabaseInitialized = false;
+
+          showStatus('✅ Đã cập nhật Supabase configuration!', 'success');
+
+          await testSupabaseConnection();
+        } else if (newKeyInput === '') {
+          // User cleared key
+          if (composeKeyManager) {
+            composeKeyManager.clearCache();
+          } else {
+            localStorage.removeItem('supabase_anon_key');
+          }
+
+          if (composeSupabaseConfig) {
+            composeSupabaseConfig.anonKey = null;
+          }
+
+          supabase = null;
+          supabaseInitialized = false;
+          showStatus('🗑️ Đã xóa Supabase Anon Key', 'info');
+        }
+      } catch (error) {
+        console.error('❌ Lỗi cập nhật Supabase key:', error);
+        showStatus('❌ Lỗi cập nhật Supabase key: ' + error.message, 'error');
       }
     }
 
@@ -1105,14 +1218,18 @@
         }
         return false;
       }
-    } async function initializeSupabase() {
-      if (supabaseInitialized) return supabase;
+    }
+
+    async function initializeSupabase() {
+      if (supabaseInitialized && supabase) {
+        return supabase;
+      }
 
       try {
         // Wait for Supabase script to load
         if (!window.supabase) {
           console.log('⏳ Waiting for Supabase script to load...');
-          await new Promise(resolve => {
+          await new Promise((resolve) => {
             const checkSupabase = () => {
               if (window.supabase) {
                 resolve();
@@ -1124,41 +1241,42 @@
           });
         }
 
-        // Get configuration from user if not set
-        if (!SUPABASE_CONFIG.anonKey) {
-          const storedKey = localStorage.getItem('supabase_anon_key');
+        if (!composeAdminAuth) {
+          throw new Error('Hệ thống chưa khởi tạo phiên đăng nhập quản trị');
+        }
 
-          if (storedKey) {
-            SUPABASE_CONFIG.anonKey = storedKey;
-          } else {
-            const key = prompt('Nhập Supabase Anon Key của bạn:');
+        if (!composeAdminAuth.isAuthenticated()) {
+          throw new Error('Vui lòng đăng nhập quản trị để kết nối Supabase');
+        }
 
-            if (key) {
-              SUPABASE_CONFIG.anonKey = key;
-              localStorage.setItem('supabase_anon_key', key);
-            }
+        // Bảo đảm anon key có sẵn để Supabase client hoạt động (AdminAuthManager đã xử lý login)
+        if (composeSupabaseConfig && !composeSupabaseConfig.anonKey) {
+          if (!composeKeyManager && window.SupabaseKeyManager) {
+            composeKeyManager = new window.SupabaseKeyManager({
+              baseUrl: composeSupabaseConfig.url,
+            });
+          }
+
+          if (composeKeyManager) {
+            composeSupabaseConfig.anonKey = await composeKeyManager.getAnonKey();
           }
         }
 
-        if (SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) {
-          supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-          console.log('✅ Supabase connected successfully');
-          showStatus('Đã kết nối Supabase thành công!', 'success');
-          updateSupabaseStatus('✅ Supabase đã kết nối - có thể upload ảnh lên Storage', 'success');
-        } else {
-          console.log('⚠️ Supabase not configured, using local mode');
-          showStatus('Chế độ local - không kết nối Supabase', 'info');
-          updateSupabaseStatus('⚠️ Supabase chưa cấu hình - ảnh sẽ lưu dạng base64', 'warning');
+        supabase = composeAdminAuth.getSupabaseClient();
+
+        if (!supabase) {
+          throw new Error('Không thể truy cập Supabase client từ phiên quản trị');
         }
 
         supabaseInitialized = true;
-        return supabase;
+        showStatus('✅ Supabase đã kết nối bằng tài khoản quản trị.', 'success');
+        updateSupabaseStatus('✅ Supabase đã kết nối với token bảo mật', 'success');
 
+        return supabase;
       } catch (error) {
         console.error('❌ Supabase initialization failed:', error);
-        showStatus('Lỗi khởi tạo Supabase: ' + error.message, 'error');
         updateSupabaseStatus('❌ Lỗi kết nối Supabase: ' + error.message, 'error');
-        supabaseInitialized = true; // Mark as attempted
+        supabaseInitialized = false;
         return null;
       }
     }
@@ -1184,40 +1302,75 @@
       }
     }
 
-    function checkAccess() {
-      const savedHash = sessionStorage.getItem('admin_access');
-      const loginTime = parseInt(sessionStorage.getItem('admin_login_time') || '0');
-      const currentTime = Date.now();
-
-      // Check if session expired
-      if (currentTime - loginTime > SESSION_TIMEOUT) {
-        sessionStorage.removeItem('admin_access');
-        sessionStorage.removeItem('admin_login_time');
+    function getAuthGuardElements() {
+      const overlay = document.getElementById('authGuardOverlay');
+      if (!overlay) {
+        return {};
       }
 
-      if (savedHash !== ADMIN_PASSWORD_HASH) {
-        // Redirect to login page instead of prompt
-        window.location.href = 'admin-login.html';
-        return false;
-      }
-
-      document.body.style.display = 'block';
-
-      // Auto-logout after session timeout
-      setTimeout(() => {
-        alert('⏰ Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
-        sessionStorage.clear();
-        window.location.href = 'admin-login.html';
-      }, SESSION_TIMEOUT);
-
-      return true;
+      return {
+        overlay,
+        iconEl: overlay.querySelector('.auth-guard-icon'),
+        titleEl: overlay.querySelector('.auth-guard-title'),
+        messageEl: overlay.querySelector('.auth-guard-message'),
+        actionBtn: overlay.querySelector('.auth-guard-action')
+      };
     }
 
-    // Hide content initially
-    document.body.style.display = 'none';
+    function showAuthGuard(options = {}) {
+      const { overlay, iconEl, titleEl, messageEl, actionBtn } = getAuthGuardElements();
+      if (!overlay) return;
 
-    // Check access when page loads
-    document.addEventListener('DOMContentLoaded', checkAccess);
+      overlay.classList.add('show');
+      overlay.dataset.state = options.state || 'prompt';
+
+      if (iconEl && options.icon !== undefined) {
+        iconEl.textContent = options.icon;
+      }
+
+      if (titleEl && options.title !== undefined) {
+        titleEl.textContent = options.title;
+      }
+
+      if (messageEl && options.message !== undefined) {
+        messageEl.textContent = options.message;
+      }
+
+      if (actionBtn) {
+        if (options.actionLabel !== undefined) {
+          actionBtn.textContent = options.actionLabel;
+        }
+
+        if (options.actionHandler) {
+          actionBtn.onclick = options.actionHandler;
+        } else {
+          actionBtn.onclick = requestComposeLogin;
+        }
+
+        actionBtn.style.display = options.hideAction ? 'none' : 'inline-flex';
+      }
+    }
+
+    function hideAuthGuard() {
+      const { overlay } = getAuthGuardElements();
+      if (overlay) {
+        overlay.classList.remove('show');
+        delete overlay.dataset.state;
+      }
+    }
+
+    function requestComposeLogin() {
+      if (composeAdminAuth && typeof composeAdminAuth.showLoginModal === 'function') {
+        composeAdminAuth.showLoginModal();
+        return;
+      }
+
+      if (window.adminAuthManager && typeof window.adminAuthManager.showLoginModal === 'function') {
+        window.adminAuthManager.showLoginModal();
+      } else {
+        console.warn('⚠️ AdminAuthManager chưa sẵn sàng để hiển thị modal đăng nhập');
+      }
+    }
 
     // Initialize TinyMCE with error handling
     function initializeTinyMCE() {
@@ -2894,13 +3047,16 @@
     // Initialize application when page loads
     async function initializeApp() {
       try {
-        // Check access first
-        if (!checkAccess()) {
-          console.log('❌ Access check failed, redirecting to login');
+        if (composeAppInitialized) {
+          console.log('ℹ️ Compose app already initialized, skipping duplicate setup.');
           return;
         }
 
-        console.log('✅ Access check passed');
+        if (!composeAdminAuth || !composeAdminAuth.isAuthenticated()) {
+          throw new Error('Yêu cầu đăng nhập quản trị trước khi khởi tạo');
+        }
+
+        composeAppInitialized = true;
 
         // Initialize Supabase in background (non-blocking)
         initializeSupabase().then(() => {
@@ -2960,6 +3116,140 @@
       } catch (error) {
         console.error('❌ App initialization failed:', error);
         showStatus('Lỗi khởi tạo ứng dụng: ' + error.message, 'error');
+        composeAppInitialized = false;
+        throw error;
+      }
+    }
+
+    async function setupComposeAdminAuth() {
+      if (!composeAdminAuth) {
+        if (window.adminAuthManager instanceof AdminAuthManager) {
+          composeAdminAuth = window.adminAuthManager;
+        } else {
+          composeAdminAuth = new AdminAuthManager();
+          window.adminAuthManager = composeAdminAuth;
+        }
+      }
+
+      if (!composeAdminAuth.isInitialized) {
+        await composeAdminAuth.initialize();
+      } else if (!composeAdminAuth.isAuthenticated()) {
+        await composeAdminAuth.checkCurrentSession();
+      }
+
+      if (!composeKeyManager && composeSupabaseConfig && window.SupabaseKeyManager) {
+        composeKeyManager = new window.SupabaseKeyManager({
+          baseUrl: composeSupabaseConfig.url,
+        });
+      }
+
+      if (!composeAdminAPI) {
+        if (window.adminApiManager instanceof AdminAPIManager) {
+          composeAdminAPI = window.adminApiManager;
+        } else {
+          composeAdminAPI = new AdminAPIManager();
+          window.adminApiManager = composeAdminAPI;
+        }
+      }
+
+      if (!composeAdminAPI.isInitialized) {
+        await composeAdminAPI.initialize(composeAdminAuth);
+      }
+
+      bindAdminAuthEvents();
+
+      return composeAdminAuth.isAuthenticated();
+    }
+
+    function bindAdminAuthEvents() {
+      if (adminEventsBound) return;
+
+      window.addEventListener('adminLoginSuccess', handleComposeAdminLogin);
+      window.addEventListener('adminLogout', handleComposeAdminLogout);
+      adminEventsBound = true;
+    }
+
+    async function handleComposeAdminLogin() {
+      composeAdminAuth = window.adminAuthManager || composeAdminAuth;
+      composeAdminAPI = window.adminApiManager || composeAdminAPI;
+
+      try {
+        await handleComposeAdminAuthenticated();
+      } catch (error) {
+        console.error('❌ Lỗi sau khi đăng nhập admin:', error);
+        showAuthGuard({
+          state: 'error',
+          icon: '⚠️',
+          title: 'Không thể khởi tạo soạn thảo',
+          message: error.message || 'Vui lòng thử lại.',
+          actionLabel: 'Thử lại',
+          actionHandler: () => handleComposeAdminAuthenticated()
+        });
+      }
+    }
+
+    async function handleComposeAdminAuthenticated() {
+      showAuthGuard({
+        state: 'loading',
+        icon: '🚀',
+        title: 'Đang mở trình soạn thảo',
+        message: 'Vui lòng chờ trong giây lát...'
+      });
+
+      await initializeSupabase();
+      await initializeApp();
+      hideAuthGuard();
+    }
+
+    function handleComposeAdminLogout() {
+      composeAppInitialized = false;
+      supabaseInitialized = false;
+      supabase = null;
+
+      showAuthGuard({
+        state: 'prompt',
+        icon: '🔐',
+        title: 'Bạn đã đăng xuất',
+        message: 'Vui lòng đăng nhập lại để tiếp tục soạn bài viết.',
+        actionLabel: 'Đăng nhập lại',
+        actionHandler: requestComposeLogin
+      });
+    }
+
+    async function initializeComposePage() {
+      showAuthGuard({
+        state: 'loading',
+        icon: '🔄',
+        title: 'Đang kiểm tra phiên đăng nhập',
+        message: 'Hệ thống đang xác thực tài khoản quản trị...'
+      });
+
+      try {
+        const isAuthenticated = await setupComposeAdminAuth();
+
+        if (isAuthenticated) {
+          await handleComposeAdminAuthenticated();
+        } else {
+          showAuthGuard({
+            state: 'prompt',
+            icon: '🔐',
+            title: 'Cần đăng nhập quản trị',
+            message: 'Vui lòng đăng nhập để tiếp tục chỉnh sửa và xuất bản bài viết.',
+            actionLabel: 'Đăng nhập quản trị',
+            actionHandler: requestComposeLogin
+          });
+          requestComposeLogin();
+        }
+      } catch (error) {
+        console.error('❌ Lỗi khởi tạo compose auth:', error);
+        showAuthGuard({
+          state: 'error',
+          icon: '⚠️',
+          title: 'Không thể khởi tạo quản trị',
+          message: error.message || 'Kiểm tra cấu hình Supabase và thử lại.',
+          actionLabel: 'Thử lại',
+          actionHandler: initializeComposePage
+        });
       }
     }
 
@@ -3424,7 +3714,7 @@
     window.updateNewsPage = updateNewsPage;
 
     // Initialize when page loads
-    document.addEventListener('DOMContentLoaded', initializeApp);
+    document.addEventListener('DOMContentLoaded', initializeComposePage);
 
     // Logout function
     // Enhanced Notification Modal System
@@ -3627,42 +3917,18 @@
       });
     };
 
-    // Configure Supabase function
-    function configureSupabase() {
-      const currentKey = localStorage.getItem('supabase_anon_key');
-      const newKey = prompt(
-        'Nhập Supabase Anon Key mới:' + (currentKey ? '\n\nHiện tại: ' + currentKey.substring(0, 20) + '...' : ''),
-        currentKey || ''
-      );
-
-      if (newKey && newKey !== currentKey) {
-        localStorage.setItem('supabase_anon_key', newKey);
-        SUPABASE_CONFIG.anonKey = newKey;
-
-        // Reset Supabase client to force reinitialization
-        supabase = null;
-        supabaseInitialized = false;
-
-        showStatus('✅ Đã cập nhật Supabase Anon Key. Reload trang để áp dụng.', 'success');
-
-        // Ask if user wants to reload
-        if (confirm('Reload trang để áp dụng cấu hình mới?')) {
-          window.location.reload();
-        }
-      } else if (newKey === '') {
-        // User wants to clear the key
-        localStorage.removeItem('supabase_anon_key');
-        SUPABASE_CONFIG.anonKey = null;
-        supabase = null;
-        supabaseInitialized = false;
-        showStatus('🗑️ Đã xóa Supabase Anon Key', 'info');
-      }
-    }
-
     function logout() {
-      checkUnsavedChanges(() => {
-        sessionStorage.clear();
-        window.location.href = 'admin-login.html';
+      checkUnsavedChanges(async () => {
+        try {
+          if (composeAdminAuth && typeof composeAdminAuth.logout === 'function') {
+            await composeAdminAuth.logout();
+          } else if (window.adminAuthManager && typeof window.adminAuthManager.logout === 'function') {
+            await window.adminAuthManager.logout();
+          }
+        } catch (error) {
+          console.error('❌ Lỗi khi đăng xuất:', error);
+          showStatus('Không thể đăng xuất: ' + error.message, 'error');
+        }
       });
     }
 

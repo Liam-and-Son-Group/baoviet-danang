@@ -10,7 +10,30 @@
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Admin System Scripts -->
+  <script src="supabase-config.js"></script>
+  <script src="supabase-key-manager.js"></script>
+  <script src="user-analytics.js"></script>
+  <script src="admin-auth-manager.js"></script>
+  <script src="admin-api-manager.js"></script>
+
   <style>
+    :root {
+      --sidebar-width: 280px;
+      --sidebar-mobile-height: auto;
+      --header-height: 60px;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --border-radius: 8px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -29,9 +52,88 @@
       min-height: 100vh;
     }
 
+    /* Mobile Header */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: #2d3748;
+      color: white;
+      z-index: 1000;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--spacing-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-header-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .mobile-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .auth-btn {
+      background: linear-gradient(135deg, #0060ae 0%, #0087d2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 96, 174, 0.3);
+    }
+
+    .auth-btn.logout {
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    }
+
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: var(--spacing-sm);
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Sidebar Overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
     /* Sidebar */
     .sidebar {
-      width: 280px;
+      width: var(--sidebar-width);
       background: #2d3748;
       color: white;
       padding: 0;
@@ -39,6 +141,10 @@
       height: 100vh;
       overflow-y: auto;
       box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 1001;
+      transition: transform 0.3s ease-in-out;
     }
 
     .sidebar-header {
@@ -60,6 +166,7 @@
 
     .sidebar-nav {
       padding: 1rem 0;
+      flex: 1;
     }
 
     .nav-item {
@@ -89,12 +196,151 @@
       text-align: center;
     }
 
+    .sidebar-help {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #4a5568;
+      margin-top: auto;
+    }
+
+    .help-btn {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #4a5568;
+      color: #a0aec0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .help-btn:hover {
+      background: #0060ae;
+      color: white;
+    }
+
+    .help-btn i {
+      margin-right: 0.75rem;
+      width: 20px;
+      text-align: center;
+    }
+
     .sidebar-footer {
-      position: absolute;
-      bottom: 0;
       width: 100%;
       padding: 1rem 1.5rem;
       border-top: 1px solid #4a5568;
+      margin-top: auto;
+    }
+
+    /* User Profile Styles */
+    .user-profile {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      display: flex;
+      justify-content: center;
+    }
+
+    .avatar-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .user-details {
+      text-align: center;
+      color: #a0aec0;
+    }
+
+    .user-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f7fafc;
+      margin-bottom: 0.25rem;
+    }
+
+    .user-email {
+      font-size: 0.8rem;
+      color: #a0aec0;
+      margin-bottom: 0.125rem;
+    }
+
+    .user-role {
+      font-size: 0.75rem;
+      color: #68d391;
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .profile-btn,
+    .logout-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .profile-btn {
+      background: #4a5568;
+      color: #a0aec0;
+    }
+
+    .profile-btn:hover {
+      background: #2d3748;
+      color: #f7fafc;
+    }
+
+    .logout-btn {
+      background: #e53e3e;
+      color: white;
+    }
+
+    .logout-btn:hover {
+      background: #c53030;
+    }
+
+    .auth-signin {
+      text-align: center;
+    }
+
+    .signin-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .signin-btn:hover {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      transform: translateY(-1px);
     }
 
     .user-info {
@@ -105,18 +351,6 @@
       font-size: 0.875rem;
     }
 
-    .logout-btn {
-      background: #e53e3e;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 0.75rem;
-      width: 100%;
-      transition: background 0.2s;
-    }
-
     .logout-btn:hover {
       background: #c53030;
     }
@@ -124,8 +358,9 @@
     /* Main Content */
     .main-content {
       flex: 1;
-      margin-left: 280px;
-      padding: 2rem;
+      margin-left: var(--sidebar-width);
+      padding: var(--spacing-xl);
+      transition: margin-left 0.3s ease-in-out;
     }
 
     .content-header {
@@ -177,6 +412,130 @@
       float: right;
       font-size: 2rem;
       opacity: 0.6;
+    }
+
+    /* Chart Section */
+    .chart-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .chart-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin: 0;
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .chart-btn {
+      padding: 0.5rem 1rem;
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      color: #4a5568;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chart-btn:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+    }
+
+    .chart-btn.active {
+      background: #0060ae;
+      border-color: #0060ae;
+      color: white;
+    }
+
+    /* Registration Chart Buttons */
+    .registration-chart-btn {
+      padding: 0.5rem 1rem;
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      color: #4a5568;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .registration-chart-btn:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+    }
+
+    .registration-chart-btn.active {
+      background: #38a169;
+      border-color: #38a169;
+      color: white;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #articlesChart {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .chart-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.9);
+      color: #4a5568;
+      font-size: 0.875rem;
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #0060ae;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 0.5rem;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     .content-section {
@@ -387,6 +746,476 @@
       }
     }
 
+    /* Google Search Console Section */
+    .search-console-section {
+      margin-bottom: 2rem;
+    }
+
+    .search-console-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-console-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(30px, -30px);
+    }
+
+    .search-console-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-console-icon {
+      font-size: 3rem;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    }
+
+    .search-console-content {
+      flex: 1;
+    }
+
+    .search-console-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-console-description {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .search-console-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .feature-icon {
+      font-size: 1.25rem;
+    }
+
+    .search-console-action {
+      text-align: center;
+    }
+
+    .btn-console {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #ff6b35 0%, #f39c12 100%);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-console:hover {
+      background: linear-gradient(135deg, #e55a2b 0%, #e67e22 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+      color: white;
+      text-decoration: none;
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Analytics Section */
+    .analytics-section {
+      margin: 2rem 0;
+      padding: 2rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .analytics-section .section-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .analytics-section .section-header h2 {
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .analytics-section .section-header p {
+      color: #64748b;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .analytics-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .analytics-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .analytics-card .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .analytics-card .card-header h3 {
+      margin: 0;
+      color: #1f2937;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .period-selector {
+      padding: 0.25rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    .period-badge {
+      background: #10b981;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .live-indicator {
+      background: #ef4444;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .realtime-stat {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      display: block;
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .live-pages-list {
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .live-page-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      background: #f1f5f9;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .live-page-title {
+      flex: 1;
+      color: #374151;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .live-page-count {
+      background: #3b82f6;
+      color: white;
+      padding: 0.1rem 0.4rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .analytics-table {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .table-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table-row:last-child {
+      border-bottom: none;
+    }
+
+    .table-cell-title {
+      flex: 1;
+      color: #374151;
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .table-cell-value {
+      color: #10b981;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-left: 1rem;
+    }
+
+    .keywords-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+    }
+
+    .keyword-tag {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .keyword-tag:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .keyword-frequency {
+      background: rgba(255, 255, 255, 0.3);
+      padding: 0.1rem 0.4rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      margin-left: 0.3rem;
+    }
+
+    .traffic-sources-list {
+      margin-top: 1rem;
+    }
+
+    .traffic-source-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .traffic-source-item:last-child {
+      border-bottom: none;
+    }
+
+    .traffic-source-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .traffic-source-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .source-google {
+      background: #ea4335;
+    }
+
+    .source-facebook {
+      background: #1877f2;
+    }
+
+    .source-direct {
+      background: #64748b;
+    }
+
+    .source-other {
+      background: #10b981;
+    }
+
+    .traffic-source-stats {
+      text-align: right;
+    }
+
+    .traffic-source-visits {
+      color: #10b981;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .traffic-source-percentage {
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .summary-stat {
+      text-align: center;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .summary-stat .stat-value {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+
+    .summary-stat .stat-label {
+      display: block;
+      color: #64748b;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .analytics-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      font-style: italic;
+      min-height: 100px;
+    }
+
+    .loading::before {
+      flex-shrink: 0;
+      content: '';
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e2e8f0;
+      border-top: 2px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .btn-icon {
+      font-size: 1.2rem;
+    }
+
     /* Quick Actions */
     .quick-actions {
       display: flex;
@@ -395,25 +1224,293 @@
       flex-wrap: wrap;
     }
 
-    /* Responsive */
+    /* Tablet Styles */
+    @media (max-width: 1024px) {
+      :root {
+        --sidebar-width: 250px;
+      }
+
+      .main-content {
+        padding: var(--spacing-lg);
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+      }
+
+      .help-modal-content {
+        width: 95%;
+      }
+    }
+
+    /* Mobile Styles */
     @media (max-width: 768px) {
+      .mobile-header {
+        display: flex;
+      }
+
       .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
+        transform: translateX(-100%);
+        width: 280px;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.show {
+        display: block;
       }
 
       .main-content {
         margin-left: 0;
-        padding: 1rem;
+        padding: var(--spacing-md);
+        padding-top: calc(var(--header-height) + var(--spacing-md));
       }
 
       .stats-grid {
         grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+      }
+
+      .stat-card {
+        padding: var(--spacing-md);
+      }
+
+      /* Chart responsive for tablet */
+      .chart-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+      }
+
+      .chart-controls {
+        justify-content: center;
+      }
+
+      .chart-container {
+        height: 250px;
       }
 
       .quick-actions {
         flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .quick-actions .btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      /* Content sections responsive */
+      .content-header {
+        text-align: center;
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .content-title {
+        font-size: 1.5rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        text-align: center;
+      }
+
+      /* Table responsive */
+      .data-table {
+        font-size: 0.875rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      .data-table .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      /* Sidebar responsive */
+      .sidebar-header {
+        padding: var(--spacing-lg) var(--spacing-md);
+      }
+
+      .sidebar-header h1 {
+        font-size: 1.1rem;
+      }
+
+      .nav-item {
+        padding: 0.875rem var(--spacing-md);
+        font-size: 0.9rem;
+      }
+
+      .sidebar-help {
+        padding: var(--spacing-md);
+      }
+
+      .sidebar-footer {
+        padding: var(--spacing-md);
+      }
+
+      /* Search Console responsive for tablet */
+      .search-console-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+
+      .search-console-features {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Small Mobile Styles */
+    @media (max-width: 480px) {
+      .main-content {
+        padding: var(--spacing-sm);
+        padding-top: calc(var(--header-height) + var(--spacing-sm));
+        width: 100%;
+      }
+
+      .welcome-section {
+        padding: var(--spacing-lg);
+        text-align: center;
+      }
+
+      .welcome-title {
+        font-size: 1.4rem;
+      }
+
+      .stats-grid {
+        gap: 0.75rem;
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+      }
+
+      /* Chart responsive for small mobile */
+      .chart-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+      }
+
+      .chart-container {
+        height: 200px;
+      }
+
+      .chart-title {
+        font-size: 1rem;
+      }
+
+      /* Search Console responsive */
+      .search-console-card {
+        padding: 1.5rem;
+      }
+
+      .search-console-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+
+      .search-console-icon {
+        font-size: 2.5rem;
+      }
+
+      .search-console-title {
+        font-size: 1.25rem;
+      }
+
+      .search-console-features {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .feature-item {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .btn-console {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+      }
+
+      .data-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .help-modal-content {
+        width: 98%;
+        margin: var(--spacing-sm);
+      }
+
+      .help-modal-header {
+        padding: var(--spacing-md);
+      }
+
+      .help-content {
+        padding: var(--spacing-md);
+      }
+
+      /* Mobile table improvements */
+      .data-table {
+        font-size: 10px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.5rem 0.25rem;
+        min-width: 80px;
+      }
+
+      .data-table .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 9px;
+        margin: 0.1rem;
+      }
+
+      /* Hide less important columns on mobile */
+      .data-table th:nth-child(4),
+      .data-table td:nth-child(4) {
+        display: none;
+      }
+
+      /* Stack action buttons vertically on very small screens */
+      .data-table td .btn {
+        display: block;
+        margin: 0.1rem 0;
+        text-align: center;
+      }
+
+      /* Welcome section responsive */
+      .welcome-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .welcome-title {
+        font-size: 1.25rem;
+      }
+
+      .welcome-text {
+        font-size: 0.875rem;
+      }
+
+      .welcome-notification {
+        padding: 0.75rem;
+        margin: 0.5rem 0;
       }
     }
 
@@ -436,10 +1533,560 @@
       opacity: 0.9;
       font-size: 1rem;
     }
+
+    /* Welcome notification */
+    .welcome-notification {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      backdrop-filter: blur(10px);
+      animation: welcomeSlideIn 0.6s ease-out;
+      text-align: left;
+    }
+
+    .notification-icon {
+      font-size: 2rem;
+      animation: waveHand 2s ease-in-out infinite;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .notification-message {
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .notification-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+      margin-left: 0.5rem;
+    }
+
+    .notification-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    @keyframes welcomeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+        scale: 0.95;
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        scale: 1;
+      }
+    }
+
+    @keyframes waveHand {
+
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+
+      10%,
+      30%,
+      50%,
+      70% {
+        transform: rotate(-10deg);
+      }
+
+      20%,
+      40%,
+      60% {
+        transform: rotate(10deg);
+      }
+    }
+
+    /* Responsive welcome notification */
+    @media (max-width: 768px) {
+      .welcome-notification {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+      }
+
+      .notification-icon {
+        font-size: 1.5rem;
+        align-self: center;
+      }
+
+      .notification-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+      }
+
+      .welcome-notification {
+        position: relative;
+        padding: 1.5rem 2rem 1rem 1rem;
+      }
+    }
+
+    /* Pagination Styles */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .pagination-info {
+      color: #718096;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #4a5568;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: #f7fafc;
+      border-color: #cbd5e0;
+      transform: translateY(-1px);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #f7fafc;
+    }
+
+    .page-numbers {
+      display: flex;
+      gap: 0.25rem;
+      margin: 0 0.5rem;
+    }
+
+    .page-number {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #4a5568;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .page-number:hover {
+      background: #f7fafc;
+      border-color: #cbd5e0;
+    }
+
+    .page-number.active {
+      background: #0060ae;
+      color: white;
+      border-color: #0060ae;
+    }
+
+    .page-number.ellipsis {
+      cursor: default;
+      background: transparent;
+      border: none;
+      color: #a0aec0;
+    }
+
+    .page-number.ellipsis:hover {
+      background: transparent;
+      border: none;
+    }
+
+    .page-size-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .page-size-selector select {
+      padding: 0.375rem 0.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      background: white;
+      color: #4a5568;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .page-size-selector select:focus {
+      outline: none;
+      border-color: #0060ae;
+      box-shadow: 0 0 0 3px rgba(0, 96, 174, 0.1);
+    }
+
+    /* Responsive pagination */
+    @media (max-width: 768px) {
+      .pagination-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+
+      .pagination-controls {
+        justify-content: center;
+      }
+
+      .pagination-info,
+      .page-size-selector {
+        text-align: center;
+      }
+
+      .page-numbers {
+        justify-content: center;
+      }
+
+      .pagination-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+    }
+
+    /* Loading skeleton for stats */
+    .stat-number.loading {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading-shimmer 1.5s infinite;
+      color: transparent;
+      border-radius: 4px;
+      min-height: 2rem;
+    }
+
+    @keyframes loading-shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    /* Table loading shimmer */
+    .loading-shimmer {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading-shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+
+    /* Performance optimization */
+    .stat-card {
+      will-change: transform;
+    }
+
+    .content-section {
+      will-change: transform;
+    }
+
+    /* Optimize table rendering */
+    .data-table {
+      contain: layout style paint;
+    }
+
+    .data-table tbody tr {
+      contain: layout style;
+    }
+
+    /* Help Modal Styles */
+    .help-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(4px);
+    }
+
+    .help-modal-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 900px;
+      width: 90%;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .help-modal-header {
+      background: linear-gradient(135deg, #0060ae 0%, #0087d2 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .help-modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .help-modal-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .help-modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .help-modal-body {
+      padding: 0;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .help-nav {
+      display: flex;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .help-nav-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      font-weight: 500;
+      color: #718096;
+    }
+
+    .help-nav-item:hover {
+      background: #edf2f7;
+      color: #4a5568;
+    }
+
+    .help-nav-item.active {
+      color: #0060ae;
+      border-bottom-color: #0060ae;
+      background: white;
+    }
+
+    .help-content {
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .help-section {
+      display: none;
+    }
+
+    .help-section.active {
+      display: block;
+    }
+
+    .help-section h3 {
+      color: #2d3748;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .help-section h4 {
+      color: #4a5568;
+      font-size: 1.1rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .help-section p,
+    .help-section li {
+      color: #718096;
+      margin-bottom: 0.75rem;
+    }
+
+    .help-section ul {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .help-feature {
+      background: #f7fafc;
+      border-left: 4px solid #0060ae;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .help-feature-title {
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .help-step {
+      background: #edf2f7;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 0.75rem 0;
+      border-left: 3px solid #4299e1;
+    }
+
+    .help-warning {
+      background: #fef5e7;
+      border: 1px solid #f6ad55;
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .help-warning-title {
+      color: #c05621;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .help-code {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+    }
+
+    .help-shortcut {
+      display: inline-flex;
+      align-items: center;
+      background: #edf2f7;
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
+      padding: 0.25rem 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      margin: 0 0.25rem;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Responsive help modal */
+    @media (max-width: 768px) {
+      .help-modal-content {
+        width: 95%;
+        max-height: 90vh;
+      }
+
+      .help-nav {
+        flex-wrap: wrap;
+      }
+
+      .help-nav-item {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+      }
+
+      .help-content {
+        padding: 1.5rem;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <div class="mobile-header-title">
+      <span>🏢</span>
+      <span>Admin Panel</span>
+    </div>
+    <div class="mobile-header-actions">
+      <button id="adminAuthBtn" class="auth-btn" onclick="handleAuthAction()">
+        <span id="authBtnText">🔐 Đăng nhập</span>
+      </button>
+      <button class="hamburger-btn" onclick="toggleMobileSidebar()">☰</button>
+    </div>
+  </div>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+
   <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -450,31 +2097,59 @@
 
       <nav class="sidebar-nav">
         <a href="#" class="nav-item active" data-section="overview">
-          <i>📊</i>
+          📊
           Tổng quan
         </a>
         <a href="#" class="nav-item" data-section="articles">
-          <i>📝</i>
+          📝
           Quản lý bài viết
         </a>
         <a href="#" class="nav-item" data-section="users">
-          <i>👥</i>
+          👥
           Quản lý người đăng ký
         </a>
         <a href="#" class="nav-item" data-section="compose">
-          <i>✍️</i>
+          ✍️
           Đăng bài mới
         </a>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <i>👤</i>
-          <span>Admin User</span>
-        </div>
-        <button class="logout-btn" onclick="logout()">
-          🚪 Đăng xuất
+      <div class="sidebar-help">
+        <button class="help-btn" onclick="showHelpModal()">
+          <i>❓</i>
+          Trợ giúp
         </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <!-- User Profile Section -->
+        <div class="user-profile auth-required" style="display: none;">
+          <div class="user-avatar">
+            <div class="avatar-circle">
+              <span class="user-initials">AD</span>
+            </div>
+          </div>
+          <div class="user-details">
+            <div class="user-name">Loading...</div>
+            <div class="user-email">user@domain.com</div>
+            <div class="user-role">admin</div>
+          </div>
+          <div class="user-actions">
+            <button class="profile-btn" onclick="showUserProfile()" title="User Profile">
+              ⚙️ Settings
+            </button>
+            <button class="logout-btn" onclick="handleSupabaseLogout()" title="Sign Out">
+              🚪 Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Auth Required Section -->
+        <!-- <div class="auth-signin auth-hidden">
+          <button class="signin-btn" onclick="showSupabaseAuth()">
+            🔐 Sign In Required
+          </button>
+        </div> -->
       </div>
     </aside>
 
@@ -485,8 +2160,20 @@
       <!-- Overview Section -->
       <section id="overview" class="content-section active">
         <div class="welcome-section">
-          <h2 class="welcome-title">Chào mừng đến với Admin Panel</h2>
-          <p class="welcome-text">Quản lý website Bảo Hiểm Bảo Việt Đà Nẵng</p>
+          <h2 class="welcome-title" id="welcomeTitle">Chào mừng đến với Admin Panel</h2>
+          <p class="welcome-text" id="welcomeText">Quản lý website Bảo Hiểm Bảo Việt Đà Nẵng</p>
+
+          <!-- Welcome back notification -->
+          <div id="welcomeBackNotification" class="welcome-notification" style="display: none;">
+            <div class="notification-icon">👋</div>
+            <div class="notification-content">
+              <div class="notification-title">Chào mừng bạn đã quay trở lại!</div>
+              <div class="notification-message">Hệ thống đã sẵn sàng để bạn quản lý nội dung</div>
+            </div>
+            <button class="notification-close" onclick="hideWelcomeNotification()" title="Đóng thông báo">
+              ×
+            </button>
+          </div>
         </div>
 
         <div class="stats-grid">
@@ -509,6 +2196,216 @@
             <div class="stat-icon">👥</div>
             <div class="stat-number" id="totalUsers">-</div>
             <div class="stat-label">Người đăng ký</div>
+          </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <h3 class="chart-title">📈 Tăng trưởng bài viết</h3>
+            <div class="chart-controls">
+              <button class="chart-btn active" data-period="15" onclick="changeChartPeriod(15)">15 ngày</button>
+              <button class="chart-btn" data-period="30" onclick="changeChartPeriod(30)">1 tháng</button>
+              <button class="chart-btn" data-period="90" onclick="changeChartPeriod(90)">3 tháng</button>
+              <button class="chart-btn" data-period="365" onclick="changeChartPeriod(365)">1 năm</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="articlesChart" width="400" height="200"></canvas>
+            <div class="chart-loading" id="chartLoading" style="display: none;">
+              <div class="loading-spinner"></div>
+              <div>Đang tải biểu đồ...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Registration Chart Section -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <h3 class="chart-title">👥 Thống kê đăng ký theo dịch vụ</h3>
+            <div class="chart-controls">
+              <button class="registration-chart-btn active" data-period="30"
+                onclick="changeRegistrationChartPeriod(30)">1 tháng</button>
+              <button class="registration-chart-btn" data-period="90" onclick="changeRegistrationChartPeriod(90)">3
+                tháng</button>
+              <button class="registration-chart-btn" data-period="180" onclick="changeRegistrationChartPeriod(180)">6
+                tháng</button>
+              <button class="registration-chart-btn" data-period="365" onclick="changeRegistrationChartPeriod(365)">1
+                năm</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="registrationChart" width="400" height="200"></canvas>
+            <div class="chart-loading" id="registrationChartLoading" style="display: none;">
+              <div class="loading-spinner"></div>
+              <div>Đang tải thống kê đăng ký...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Search Console Section -->
+        <div class="search-console-section">
+          <div class="search-console-card">
+            <div class="search-console-header">
+              <div class="search-console-icon">🔍</div>
+              <div class="search-console-content">
+                <h3 class="search-console-title">Phân tích thứ hạng trang web</h3>
+                <p class="search-console-description">
+                  Bạn muốn xem thứ hạng của trang web hay những trang nào đang lên Up trend hoặc Down trend?
+                  Hãy truy cập Google Search Console của hệ thống để xem chi tiết.
+                </p>
+              </div>
+            </div>
+            <div class="search-console-features">
+              <div class="feature-item">
+                <span class="feature-icon">📊</span>
+                <span>Theo dõi thứ hạng từ khóa</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">📈</span>
+                <span>Phân tích xu hướng tăng trưởng</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">📉</span>
+                <span>Phát hiện trang đang suy giảm</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🎯</span>
+                <span>Tối ưu hiệu suất SEO</span>
+              </div>
+            </div>
+            <div class="search-console-action">
+              <a href="https://search.google.com/u/1/search-console?resource_id=sc-domain%3Abaohiembaovietdanang.vn"
+                target="_blank" class="btn btn-console">
+                <span class="btn-icon">🚀</span>
+                Truy cập ngay
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Analytics Section -->
+        <div class="analytics-section">
+          <div class="section-header">
+            <h2>📊 User Analytics Dashboard</h2>
+            <p>Theo dõi hành vi người dùng realtime với insights chuyên sâu</p>
+          </div>
+
+          <div class="analytics-grid">
+            <!-- Realtime Stats -->
+            <div class="analytics-card realtime-card">
+              <div class="card-header">
+                <h3>🔴 Realtime</h3>
+                <div class="live-indicator">LIVE</div>
+              </div>
+              <div class="analytics-content">
+                <div class="realtime-stat">
+                  <span class="stat-number" id="liveVisitors">-</span>
+                  <span class="stat-label">Người dù tương trực tuyến</span>
+                </div>
+                <div class="realtime-pages">
+                  <h4>Trang đang được xem:</h4>
+                  <div id="livePages" class="live-pages-list">
+                    <div class="loading">Đang tải...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Page Views Chart -->
+            <div class="analytics-card chart-card">
+              <div class="card-header">
+                <h3>📈 Page Views</h3>
+                <select id="pageViewsPeriod" class="period-selector">
+                  <option value="7">7 ngày</option>
+                  <option value="30">30 ngày</option>
+                  <option value="90">90 ngày</option>
+                </select>
+              </div>
+              <div class="analytics-content">
+                <canvas id="pageViewsChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+
+            <!-- Top Pages -->
+            <div class="analytics-card table-card">
+              <div class="card-header">
+                <h3>🔝 Top Pages</h3>
+                <span class="period-badge">30 ngày</span>
+              </div>
+              <div class="analytics-content">
+                <div id="topPagesTable" class="analytics-table">
+                  <div class="loading">Đang tải...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Traffic Sources -->
+            <div class="analytics-card pie-card">
+              <div class="card-header">
+                <h3>🌐 Traffic Sources</h3>
+                <span class="period-badge">30 ngày</span>
+              </div>
+              <div class="analytics-content">
+                <canvas id="trafficSourcesChart" width="300" height="300"></canvas>
+                <div id="trafficSourcesList" class="traffic-sources-list">
+                  <div class="loading">Đang tải...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Keywords -->
+            <div class="analytics-card keywords-card">
+              <div class="card-header">
+                <h3>🔍 Popular Keywords</h3>
+                <span class="period-badge">30 ngày</span>
+              </div>
+              <div class="analytics-content">
+                <div id="keywordsCloud" class="keywords-cloud">
+                  <div class="loading">Đang tải...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="analytics-card summary-card">
+              <div class="card-header">
+                <h3>📊 Tổng quan</h3>
+                <span class="period-badge">30 ngày</span>
+              </div>
+              <div class="analytics-content">
+                <div class="summary-stats">
+                  <div class="summary-stat">
+                    <span class="stat-value" id="totalViews">-</span>
+                    <span class="stat-label">Total Views</span>
+                  </div>
+                  <div class="summary-stat">
+                    <span class="stat-value" id="uniqueVisitors">-</span>
+                    <span class="stat-label">Unique Visitors</span>
+                  </div>
+                  <div class="summary-stat">
+                    <span class="stat-value" id="avgTimeOnSite">-</span>
+                    <span class="stat-label">Avg. Time on Site</span>
+                  </div>
+                  <div class="summary-stat">
+                    <span class="stat-value" id="bounceRate">-</span>
+                    <span class="stat-label">Bounce Rate</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analytics-actions">
+            <button class="btn btn-outline" onclick="refreshAnalytics()">
+              🔄 Refresh Data
+            </button>
+            <button class="btn btn-outline" onclick="exportAnalytics()">
+              📊 Export Report
+            </button>
+            <button class="btn btn-outline" onclick="showAnalyticsDetails()">
+              🔍 View Details
+            </button>
           </div>
         </div>
 
@@ -545,6 +2442,42 @@
         </div>
 
         <div id="articlesTable"></div>
+
+        <!-- Pagination Controls -->
+        <div id="articlesPagination" class="pagination-container" style="display: none;">
+          <div class="pagination-info">
+            <span id="articlesPageInfo">Hiển thị 1-10 của 50 bài viết</span>
+          </div>
+          <div class="pagination-controls">
+            <button id="articlesFirstPage" class="pagination-btn" onclick="goToArticlesPage(1)">
+              ⏮️ Đầu
+            </button>
+            <button id="articlesPrevPage" class="pagination-btn"
+              onclick="goToArticlesPage(Math.max(1, currentArticlesPage - 1))">
+              ⬅️ Trước
+            </button>
+            <div id="articlesPageNumbers" class="page-numbers">
+              <!-- Page numbers will be generated here -->
+            </div>
+            <button id="articlesNextPage" class="pagination-btn"
+              onclick="goToArticlesPage(Math.min(totalArticlesPages || 1, currentArticlesPage + 1))">
+              Sau ➡️
+            </button>
+            <button id="articlesLastPage" class="pagination-btn" onclick="goToArticlesPage(totalArticlesPages || 1)">
+              Cuối ⏭️
+            </button>
+          </div>
+          <div class="page-size-selector">
+            <label for="articlesPageSize">Hiển thị:</label>
+            <select id="articlesPageSize" onchange="changeArticlesPageSize(this.value)">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span>bài viết/trang</span>
+          </div>
+        </div>
       </section>
 
       <!-- Users Section -->
@@ -591,40 +2524,121 @@
     let supabase = null;
     let currentSection = 'overview';
 
+    // Pagination variables for articles
+    let currentArticlesPage = 1;
+    let articlesPerPage = 10;
+    let totalArticles = 0;
+    let totalArticlesPages = 0;
+
+    // Cache variables to avoid unnecessary reloads
+    let overviewStatsCache = null;
+    let overviewStatsCacheTime = 0;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+    // Chart variables
+    let articlesChart = null;
+    let currentChartPeriod = 15;
+    let chartDataCache = new Map();
+
+    // Registration chart variables
+    let registrationChart = null;
+    let currentRegistrationChartPeriod = 30;
+    let registrationChartDataCache = new Map();
+
+    // Debounce variables
+    let switchSectionTimeout = null;
+
     // Initialize app
-    window.addEventListener('DOMContentLoaded', function () {
-      checkAuth();
-      initializeSupabase();
-      loadOverviewStats();
+    window.addEventListener('DOMContentLoaded', async function () {
+      showWelcomeBackNotification();
+      await initializeAdminAuth();
     });
 
+    // Legacy checkAuth function - removed redirect logic
     function checkAuth() {
-      const savedHash = sessionStorage.getItem('admin_access');
+      // No longer redirect - handled by new auth system
+      console.log('🔄 Auth check - handled by AdminAuthManager');
+    }
+
+    function showWelcomeBackNotification() {
+      const notification = document.getElementById('welcomeBackNotification');
       const loginTime = parseInt(sessionStorage.getItem('admin_login_time') || '0');
       const currentTime = Date.now();
-      const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+      const timeSinceLogin = currentTime - loginTime;
 
-      if (!savedHash || (currentTime - loginTime) > SESSION_TIMEOUT) {
-        window.location.href = 'admin-login.html';
-        return;
+      // Show welcome back message if login was recent (within 5 seconds)
+      // This indicates they just logged in
+      if (timeSinceLogin < 5000) {
+        // Get current time for personalized greeting
+        const now = new Date();
+        const hour = now.getHours();
+        let timeGreeting = 'Chào mừng bạn đã quay trở lại!';
+
+        if (hour >= 5 && hour < 12) {
+          timeGreeting = 'Chào buổi sáng! Chào mừng bạn đã quay trở lại!';
+        } else if (hour >= 12 && hour < 17) {
+          timeGreeting = 'Chào buổi chiều! Chào mừng bạn đã quay trở lại!';
+        } else if (hour >= 17 && hour < 22) {
+          timeGreeting = 'Chào buổi tối! Chào mừng bạn đã quay trở lại!';
+        } else {
+          timeGreeting = 'Chào mừng bạn đã quay trở lại!';
+        }
+
+        // Update notification content
+        const notificationTitle = notification.querySelector('.notification-title');
+        const notificationMessage = notification.querySelector('.notification-message');
+
+        if (notificationTitle) {
+          notificationTitle.textContent = timeGreeting;
+        }
+
+        // Add last login info if available
+        const lastLoginTime = sessionStorage.getItem('admin_last_access_time');
+        if (lastLoginTime && notificationMessage) {
+          const lastLogin = new Date(parseInt(lastLoginTime));
+          const timeAgo = getTimeAgo(lastLogin);
+          notificationMessage.textContent = `Lần truy cập cuối: ${timeAgo}. Hệ thống đã sẵn sàng!`;
+        }
+
+        // Show notification
+        notification.style.display = 'flex';
+
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => {
+            notification.style.display = 'none';
+            notification.style.opacity = '1'; // Reset for next time
+          }, 300);
+        }, 5000);
+
+        // Store current time as last access time for next login
+        sessionStorage.setItem('admin_last_access_time', currentTime.toString());
       }
     }
 
-    async function initializeSupabase() {
-      try {
-        const url = localStorage.getItem('supabase_url');
-        const key = localStorage.getItem('supabase_anon_key');
+    function getTimeAgo(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
 
-        if (url && key) {
-          supabase = window.supabase.createClient(url, key);
-          showStatus('Đã kết nối Supabase thành công!', 'success');
-        } else {
-          showStatus('Chưa cấu hình Supabase. Một số tính năng có thể không khả dụng.', 'info');
-        }
-      } catch (error) {
-        console.error('Supabase initialization error:', error);
-        showStatus('Lỗi kết nối Supabase: ' + error.message, 'error');
-      }
+      if (diffMins < 1) return 'vừa xong';
+      if (diffMins < 60) return `${diffMins} phút trước`;
+      if (diffHours < 24) return `${diffHours} giờ trước`;
+      if (diffDays < 7) return `${diffDays} ngày trước`;
+
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    function hideWelcomeNotification() {
+      const notification = document.getElementById('welcomeBackNotification');
+      notification.style.opacity = '0';
+      setTimeout(() => {
+        notification.style.display = 'none';
+        notification.style.opacity = '1'; // Reset for next time
+      }, 300);
     }
 
     // Navigation
@@ -637,66 +2651,142 @@
     });
 
     function switchSection(section) {
-      // Update nav
+      // Prevent multiple rapid calls
+      if (switchSectionTimeout) {
+        clearTimeout(switchSectionTimeout);
+      }
+
+      // Auto close mobile sidebar when switching sections
+      closeMobileSidebar();
+
+      // Update nav immediately for responsiveness
       document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
       });
-      document.querySelector(`[data-section="${section}"]`).classList.add('active');
+      document.querySelector(`[data-section="${section}"]`)?.classList.add('active');
 
-      // Update content
+      // Update content immediately
       document.querySelectorAll('.content-section').forEach(sec => {
         sec.classList.remove('active');
       });
-      document.getElementById(section).classList.add('active');
+      document.getElementById(section)?.classList.add('active');
 
       currentSection = section;
 
-      // Load section data
-      if (section === 'articles') {
-        loadArticles();
-      } else if (section === 'users') {
-        loadUsers();
-      } else if (section === 'overview') {
-        loadOverviewStats();
-      }
+      // Debounce data loading
+      switchSectionTimeout = setTimeout(() => {
+        // Load section data only after UI update
+        if (section === 'articles') {
+          currentArticlesPage = 1; // Reset to first page when switching to articles
+          loadArticles(1);
+        } else if (section === 'users') {
+          loadUsers();
+        } else if (section === 'overview') {
+          loadOverviewStats();
+        }
+        switchSectionTimeout = null;
+      }, 100); // Small delay to ensure smooth UI transition
     }
 
     // Overview stats
-    async function loadOverviewStats() {
+    async function loadOverviewStats(forceRefresh = false) {
       if (!supabase) return;
 
+      // Check cache first
+      const now = Date.now();
+      if (!forceRefresh && overviewStatsCache && (now - overviewStatsCacheTime) < CACHE_DURATION) {
+        updateOverviewStatsUI(overviewStatsCache);
+        return;
+      }
+
+      // Show loading state
+      showStatsLoading();
+
+      // Load charts in parallel - don't wait for stats
+      loadChart(currentChartPeriod, forceRefresh);
+      loadRegistrationChart(currentRegistrationChartPeriod, forceRefresh);
+
       try {
-        // Load articles stats
-        const { data: articles, error: articlesError } = await supabase
-          .from('articles')
-          .select('status, is_published');
+        // Use count queries for better performance
+        const [articlesCount, publishedCount, draftCount, usersCount] = await Promise.all([
+          // Total articles count
+          supabase
+            .from('articles')
+            .select('*', { count: 'exact', head: true }),
 
-        if (!articlesError && articles) {
-          const total = articles.length;
-          const published = articles.filter(a => a.is_published || a.status === 'published').length;
-          const draft = articles.filter(a => !a.is_published || a.status === 'draft').length;
+          // Published articles count
+          supabase
+            .from('articles')
+            .select('*', { count: 'exact', head: true })
+            .or('is_published.eq.true,status.eq.published'),
 
-          document.getElementById('totalArticles').textContent = total;
-          document.getElementById('publishedArticles').textContent = published;
-          document.getElementById('draftArticles').textContent = draft;
-        }
+          // Draft articles count
+          supabase
+            .from('articles')
+            .select('*', { count: 'exact', head: true })
+            .or('is_published.eq.false,status.eq.draft'),
 
-        // Load users stats (assuming you have a users table)
-        const { data: users, error: usersError } = await supabase
-          .from('registrations')
-          .select('id');
+          // Users count
+          supabase
+            .from('registrations')
+            .select('*', { count: 'exact', head: true })
+        ]);
 
-        if (!usersError && users) {
-          document.getElementById('totalUsers').textContent = users.length;
-        }
+        // Prepare cache data
+        const statsData = {
+          totalArticles: !articlesCount.error ? (articlesCount.count || 0) : 0,
+          publishedArticles: !publishedCount.error ? (publishedCount.count || 0) : 0,
+          draftArticles: !draftCount.error ? (draftCount.count || 0) : 0,
+          totalUsers: !usersCount.error ? (usersCount.count || 0) : 0
+        };
+
+        // Update cache
+        overviewStatsCache = statsData;
+        overviewStatsCacheTime = Date.now();
+
+        // Update UI
+        updateOverviewStatsUI(statsData);
 
       } catch (error) {
         console.error('Error loading overview stats:', error);
+        // Set fallback values
+        const fallbackData = {
+          totalArticles: '---',
+          publishedArticles: '---',
+          draftArticles: '---',
+          totalUsers: '---'
+        };
+        updateOverviewStatsUI(fallbackData);
       }
     }
 
-    // Articles management
-    async function loadArticles() {
+    function updateOverviewStatsUI(data, isLoading = false) {
+      const elements = ['totalArticles', 'publishedArticles', 'draftArticles', 'totalUsers'];
+      elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          if (isLoading) {
+            element.classList.add('loading');
+            element.textContent = '---';
+          } else {
+            element.classList.remove('loading');
+            element.textContent = data[id];
+          }
+        }
+      });
+    }
+
+    function showStatsLoading() {
+      updateOverviewStatsUI({}, true);
+    }
+
+    // Articles management with caching
+    let articlesCache = new Map();
+    let articlesCacheTime = new Map();
+    const ARTICLES_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
+    let prefetchTimeout = null;
+
+    async function loadArticles(page = 1) {
       if (!supabase) {
         showStatus('Chưa kết nối Supabase', 'error');
         return;
@@ -704,75 +2794,211 @@
 
       const loading = document.getElementById('articlesLoading');
       const table = document.getElementById('articlesTable');
+      const paginationContainer = document.getElementById('articlesPagination');
+
+      // Check cache first
+      const cacheKey = `page_${page}_size_${articlesPerPage}`;
+      const now = Date.now();
+      const cachedData = articlesCache.get(cacheKey);
+      const cacheTime = articlesCacheTime.get(cacheKey) || 0;
+
+      if (cachedData && (now - cacheTime) < ARTICLES_CACHE_DURATION) {
+        renderArticlesFromCache(cachedData);
+        return;
+      }
 
       loading.style.display = 'block';
-      table.innerHTML = '';
+      table.innerHTML = '<div style="text-align: center; padding: 2rem; color: #718096;"><div class="loading-shimmer" style="width: 100%; height: 200px; border-radius: 8px;"></div></div>';
+      paginationContainer.style.display = 'none';
 
       try {
-        const { data, error } = await supabase
+        const from = (page - 1) * articlesPerPage;
+        const to = from + articlesPerPage - 1;
+
+        // Single optimized query with count and data
+        const { data, error, count } = await supabase
           .from('articles')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('id, title, category, status, is_published, created_at', { count: 'exact' })
+          .order('created_at', { ascending: false })
+          .range(from, to);
 
         if (error) throw error;
 
-        loading.style.display = 'none';
+        // Update pagination vars
+        totalArticles = count || 0;
+        totalArticlesPages = Math.ceil(totalArticles / articlesPerPage);
+        currentArticlesPage = page;
 
-        if (data.length === 0) {
+        if (totalArticles === 0) {
+          loading.style.display = 'none';
           table.innerHTML = '<p style="text-align: center; padding: 2rem; color: #718096;">Chưa có bài viết nào</p>';
           return;
         }
 
-        let tableHTML = `
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Tiêu đề</th>
-                <th>Danh mục</th>
-                <th>Trạng thái</th>
-                <th>Ngày tạo</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
+        // Cache the results
+        const cacheData = { data, count, totalArticles, totalArticlesPages, currentArticlesPage };
+        articlesCache.set(cacheKey, cacheData);
+        articlesCacheTime.set(cacheKey, now);
 
-        data.forEach(article => {
-          const status = article.status || (article.is_published ? 'published' : 'draft');
-          const statusClass = status === 'published' ? 'status-published' : 'status-draft';
-          const statusText = status === 'published' ? 'Đã xuất bản' : 'Nháp';
-          const date = new Date(article.created_at).toLocaleDateString('vi-VN');
+        // Render articles
+        renderArticlesTable(data);
 
-          tableHTML += `
-            <tr>
-              <td><strong>${article.title}</strong></td>
-              <td>${article.category}</td>
-              <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-              <td>${date}</td>
-              <td>
-                <button class="btn btn-secondary" onclick="editArticle('${article.id}')">
-                  ✏️ Sửa
-                </button>
-                <button class="btn btn-danger" onclick="deleteArticle('${article.id}', '${article.title}')">
-                  🗑️ Xóa
-                </button>
-              </td>
-            </tr>
-          `;
-        });
+        loading.style.display = 'none';
+        paginationContainer.style.display = 'flex';
 
-        tableHTML += '</tbody></table>';
-        table.innerHTML = tableHTML;
+        // Update pagination controls
+        updateArticlesPagination();
+
+        // Prefetch next page after a delay
+        scheduleNextPagePrefetch();
 
       } catch (error) {
         loading.style.display = 'none';
+        paginationContainer.style.display = 'none';
         console.error('Error loading articles:', error);
         showStatus('Lỗi tải danh sách bài viết: ' + error.message, 'error');
       }
     }
 
+    // Prefetch next page for faster navigation
+    function scheduleNextPagePrefetch() {
+      if (prefetchTimeout) {
+        clearTimeout(prefetchTimeout);
+      }
+
+      prefetchTimeout = setTimeout(() => {
+        const nextPage = currentArticlesPage + 1;
+        if (nextPage <= totalArticlesPages) {
+          prefetchArticlesPage(nextPage);
+        }
+      }, 2000); // Prefetch after 2 seconds
+    }
+
+    async function prefetchArticlesPage(page) {
+      if (!supabase) return;
+
+      const cacheKey = `page_${page}_size_${articlesPerPage}`;
+      const now = Date.now();
+      const cachedData = articlesCache.get(cacheKey);
+      const cacheTime = articlesCacheTime.get(cacheKey) || 0;
+
+      // Only prefetch if not already cached
+      if (!cachedData || (now - cacheTime) >= ARTICLES_CACHE_DURATION) {
+        try {
+          const from = (page - 1) * articlesPerPage;
+          const to = from + articlesPerPage - 1;
+
+          const { data, error, count } = await supabase
+            .from('articles')
+            .select('id, title, category, status, is_published, created_at', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(from, to);
+
+          if (!error && data) {
+            const cacheData = {
+              data,
+              count,
+              totalArticles: count,
+              totalArticlesPages: Math.ceil(count / articlesPerPage),
+              currentArticlesPage: page
+            };
+            articlesCache.set(cacheKey, cacheData);
+            articlesCacheTime.set(cacheKey, now);
+            console.log(`Prefetched page ${page}`);
+          }
+        } catch (error) {
+          console.log(`Failed to prefetch page ${page}:`, error);
+        }
+      }
+    }
+
+    // Render articles table from data
+    function renderArticlesTable(data) {
+      const table = document.getElementById('articlesTable');
+
+      if (!data || data.length === 0) {
+        table.innerHTML = '<p style="text-align: center; padding: 2rem; color: #718096;">Chưa có bài viết nào</p>';
+        return;
+      }
+
+      let tableHTML = `
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tiêu đề</th>
+              <th>Danh mục</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // Use DocumentFragment for better performance
+      data.forEach(article => {
+        const status = article.status || (article.is_published ? 'published' : 'draft');
+        const statusClass = status === 'published' ? 'status-published' : 'status-draft';
+        const statusText = status === 'published' ? 'Đã xuất bản' : 'Nháp';
+        const date = new Date(article.created_at).toLocaleDateString('vi-VN');
+
+        tableHTML += `
+          <tr>
+            <td><strong>${escapeHtml(article.title)}</strong></td>
+            <td>${escapeHtml(article.category)}</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td>${date}</td>
+            <td>
+              <button class="btn btn-secondary" onclick="editArticle('${article.id}')">
+                ✏️ Sửa
+              </button>
+              <button class="btn btn-danger" onclick="deleteArticle('${article.id}', '${escapeHtml(article.title)}')">
+                🗑️ Xóa
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tableHTML += '</tbody></table>';
+      table.innerHTML = tableHTML;
+    }
+
+    // Render from cache
+    function renderArticlesFromCache(cachedData) {
+      const loading = document.getElementById('articlesLoading');
+      const paginationContainer = document.getElementById('articlesPagination');
+
+      // Update vars from cache
+      totalArticles = cachedData.totalArticles;
+      totalArticlesPages = cachedData.totalArticlesPages;
+      currentArticlesPage = cachedData.currentArticlesPage;
+
+      // Render immediately from cache
+      renderArticlesTable(cachedData.data);
+
+      loading.style.display = 'none';
+      paginationContainer.style.display = 'flex';
+      updateArticlesPagination();
+    }
+
+    // Clear articles cache when needed
+    function clearArticlesCache() {
+      articlesCache.clear();
+      articlesCacheTime.clear();
+    }
+
+    // HTML escape utility
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
     function refreshArticles() {
-      loadArticles();
+      // Clear cache on manual refresh
+      clearArticlesCache();
+      loadArticles(currentArticlesPage);
     }
 
     function editArticle(articleId) {
@@ -783,6 +3009,116 @@
     async function deleteArticle(articleId, title) {
       // Show "feature not ready" modal instead of allowing deletion
       await showFeatureNotReadyModal();
+    }
+
+    // Articles Pagination Functions
+    function updateArticlesPagination() {
+      const pageInfoElement = document.getElementById('articlesPageInfo');
+      const pageNumbersElement = document.getElementById('articlesPageNumbers');
+      const firstPageBtn = document.getElementById('articlesFirstPage');
+      const prevPageBtn = document.getElementById('articlesPrevPage');
+      const nextPageBtn = document.getElementById('articlesNextPage');
+      const lastPageBtn = document.getElementById('articlesLastPage');
+      const pageSizeSelect = document.getElementById('articlesPageSize');
+
+      // Update page info
+      const startItem = (currentArticlesPage - 1) * articlesPerPage + 1;
+      const endItem = Math.min(currentArticlesPage * articlesPerPage, totalArticles);
+      pageInfoElement.textContent = `Hiển thị ${startItem}-${endItem} của ${totalArticles} bài viết`;
+
+      // Update page size selector
+      pageSizeSelect.value = articlesPerPage;
+
+      // Update button states
+      firstPageBtn.disabled = currentArticlesPage === 1;
+      prevPageBtn.disabled = currentArticlesPage === 1;
+      nextPageBtn.disabled = currentArticlesPage === totalArticlesPages;
+      lastPageBtn.disabled = currentArticlesPage === totalArticlesPages;
+
+      // Generate page numbers
+      generateArticlesPageNumbers();
+    }
+
+    function generateArticlesPageNumbers() {
+      const pageNumbersElement = document.getElementById('articlesPageNumbers');
+
+      // Skip if no pages
+      if (totalArticlesPages <= 1) {
+        pageNumbersElement.innerHTML = '';
+        return;
+      }
+
+      // Use DocumentFragment for better performance
+      const fragment = document.createDocumentFragment();
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentArticlesPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalArticlesPages, startPage + maxVisiblePages - 1);
+
+      // Adjust start page if we're near the end
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      // Add first page and ellipsis if needed
+      if (startPage > 1) {
+        const firstBtn = createPageButton(1, false);
+        fragment.appendChild(firstBtn);
+
+        if (startPage > 2) {
+          const ellipsis = document.createElement('span');
+          ellipsis.className = 'page-number ellipsis';
+          ellipsis.textContent = '...';
+          fragment.appendChild(ellipsis);
+        }
+      }
+
+      // Add visible page numbers
+      for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === currentArticlesPage;
+        const pageBtn = createPageButton(i, isActive);
+        fragment.appendChild(pageBtn);
+      }
+
+      // Add ellipsis and last page if needed
+      if (endPage < totalArticlesPages) {
+        if (endPage < totalArticlesPages - 1) {
+          const ellipsis = document.createElement('span');
+          ellipsis.className = 'page-number ellipsis';
+          ellipsis.textContent = '...';
+          fragment.appendChild(ellipsis);
+        }
+        const lastBtn = createPageButton(totalArticlesPages, false);
+        fragment.appendChild(lastBtn);
+      }
+
+      // Clear and append all at once
+      pageNumbersElement.innerHTML = '';
+      pageNumbersElement.appendChild(fragment);
+    }
+
+    // Helper function to create page buttons
+    function createPageButton(pageNum, isActive) {
+      const button = document.createElement('button');
+      button.className = `page-number ${isActive ? 'active' : ''}`;
+      button.textContent = pageNum;
+      button.onclick = () => goToArticlesPage(pageNum);
+      return button;
+    }
+
+    function goToArticlesPage(page) {
+      if (page < 1 || page > totalArticlesPages || page === currentArticlesPage) {
+        return;
+      }
+      loadArticles(page);
+    }
+
+    function changeArticlesPageSize(newSize) {
+      articlesPerPage = parseInt(newSize);
+      currentArticlesPage = 1; // Reset to first page
+
+      // Clear cache when page size changes
+      clearArticlesCache();
+      loadArticles(1);
     }
 
     // Feature not ready modal
@@ -1138,12 +3474,2155 @@
       }, 5000);
     }
 
+    // Legacy logout function - now handled by AdminAuthManager
     function logout() {
-      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+      if (adminAuth) {
+        adminAuth.logout();
+      } else {
+        console.warn('⚠️ AdminAuth not available - clearing session');
         sessionStorage.clear();
-        window.location.href = 'admin-login.html';
+        location.reload();
       }
     }
+
+    // Help Modal Functions
+    function showHelpModal() {
+      const modal = document.getElementById('helpModal');
+      modal.style.display = 'flex';
+
+      // Add keyboard event listener
+      document.addEventListener('keydown', handleHelpModalKeyboard);
+    }
+
+    function hideHelpModal() {
+      const modal = document.getElementById('helpModal');
+      modal.style.display = 'none';
+
+      // Remove keyboard event listener
+      document.removeEventListener('keydown', handleHelpModalKeyboard);
+    }
+
+    function handleHelpModalBackdrop(event) {
+      if (event.target === event.currentTarget) {
+        hideHelpModal();
+      }
+    }
+
+    function handleHelpModalKeyboard(event) {
+      if (event.key === 'Escape') {
+        hideHelpModal();
+      }
+    }
+
+    function showHelpSection(sectionId) {
+      // Hide all sections
+      const sections = document.querySelectorAll('.help-section');
+      sections.forEach(section => {
+        section.classList.remove('active');
+      });
+
+      // Remove active class from nav items
+      const navItems = document.querySelectorAll('.help-nav-item');
+      navItems.forEach(item => {
+        item.classList.remove('active');
+      });
+
+      // Show selected section
+      const targetSection = document.getElementById('help-' + sectionId);
+      if (targetSection) {
+        targetSection.classList.add('active');
+      }
+
+      // Add active class to clicked nav item
+      const clickedNavItem = event.target;
+      if (clickedNavItem) {
+        clickedNavItem.classList.add('active');
+      }
+    }
+
+    // Mobile Sidebar Functions
+    function toggleMobileSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('show');
+    }
+
+    function closeMobileSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('show');
+    }
+
+    // Close mobile sidebar when clicking nav items
+    document.addEventListener('DOMContentLoaded', function () {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', function () {
+          // Close mobile sidebar after small delay
+          setTimeout(closeMobileSidebar, 150);
+        });
+      });
+
+      // Handle window resize
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 768) {
+          closeMobileSidebar();
+        }
+      });
+    });
+
+    // Chart Functions
+    async function loadChart(period = 15, forceRefresh = false) {
+      if (!supabase) return;
+
+      // Check cache first
+      const cacheKey = `chart_${period}`;
+      const now = Date.now();
+      if (!forceRefresh && chartDataCache.has(cacheKey)) {
+        const cached = chartDataCache.get(cacheKey);
+        if (now - cached.timestamp < CACHE_DURATION) {
+          renderChart(cached.data, period);
+          return;
+        }
+      }
+
+      // Show loading with better message
+      const loadingEl = document.getElementById('chartLoading');
+      loadingEl.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div>Đang tải dữ liệu ${period} ngày...</div>
+      `;
+      loadingEl.style.display = 'flex';
+
+      try {
+        // Calculate date range - from current date back to period days ago
+        const endDate = new Date();
+        const startDate = new Date();
+
+        // Use more accurate date calculation for longer periods
+        if (period >= 365) {
+          // For 1 year, go back exactly 1 year
+          startDate.setFullYear(endDate.getFullYear() - 1);
+        } else if (period >= 90) {
+          // For 3 months, go back 3 months
+          startDate.setMonth(endDate.getMonth() - 3);
+        } else if (period >= 30) {
+          // For 1 month, go back 1 month
+          startDate.setMonth(endDate.getMonth() - 1);
+        } else {
+          // For shorter periods, use days
+          startDate.setDate(endDate.getDate() - period);
+        }
+
+        // Debug log to check date range
+        console.log(`Chart period: ${period} days`);
+        console.log(`Start date: ${startDate.toLocaleDateString('vi-VN')} (${startDate.toISOString().split('T')[0]})`);
+        console.log(`End date: ${endDate.toLocaleDateString('vi-VN')} (${endDate.toISOString().split('T')[0]})`);
+
+        // Single query to get all articles in the period - much faster!
+        const { data: articles, error } = await supabase
+          .from('articles')
+          .select('created_at')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString())
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        // Determine optimal step size and format for readability
+        let stepDays = 1;
+        let labelFormat = { month: 'short', day: 'numeric' };
+        let maxDataPoints = 20; // Optimal number of points for chart readability
+
+        if (period >= 365) { // 1 year - show monthly data
+          stepDays = 30; // Monthly intervals
+          labelFormat = { month: 'short', year: '2-digit' };
+          maxDataPoints = 12; // 12 months
+        } else if (period >= 180) { // 6 months - show bi-weekly
+          stepDays = 14; // Bi-weekly intervals  
+          labelFormat = { month: 'short', day: 'numeric' };
+          maxDataPoints = 13; // ~13 points
+        } else if (period >= 90) { // 3 months - show weekly
+          stepDays = 7; // Weekly intervals
+          labelFormat = { month: 'short', day: 'numeric' };
+          maxDataPoints = 13; // ~13 weeks
+        } else if (period >= 30) { // 1 month - show every 2-3 days
+          stepDays = 2; // Every 2 days
+          labelFormat = { month: 'short', day: 'numeric' };
+          maxDataPoints = 15; // ~15 points
+        } else { // 15 days - daily
+          stepDays = 1; // Daily
+          labelFormat = { month: 'short', day: 'numeric' };
+          maxDataPoints = 15; // 15 days
+        }
+
+        console.log(`Using step: ${stepDays} days, targeting ~${maxDataPoints} data points`);
+
+        // Process data on client side - group by date intervals
+        const dateCountMap = new Map();
+        const labels = [];
+        const dateRanges = [];
+
+        // Normalize start and end dates to avoid timezone issues
+        const normalizedStartDate = new Date(startDate);
+        normalizedStartDate.setHours(0, 0, 0, 0);
+        const normalizedEndDate = new Date(endDate);
+        normalizedEndDate.setHours(23, 59, 59, 999);
+
+        // Initialize date ranges with step intervals
+        const currentDate = new Date(normalizedStartDate);
+        while (currentDate <= normalizedEndDate) {
+          const rangeStart = new Date(currentDate);
+          rangeStart.setHours(0, 0, 0, 0);
+
+          const rangeEnd = new Date(currentDate);
+          rangeEnd.setDate(rangeEnd.getDate() + stepDays - 1);
+          rangeEnd.setHours(23, 59, 59, 999);
+
+          // Don't exceed end date
+          if (rangeEnd > normalizedEndDate) {
+            rangeEnd.setTime(normalizedEndDate.getTime());
+          }
+
+          const rangeKey = `${rangeStart.toISOString().split('T')[0]}_${rangeEnd.toISOString().split('T')[0]}`;
+          dateCountMap.set(rangeKey, 0);
+          dateRanges.push({
+            start: new Date(rangeStart),
+            end: new Date(rangeEnd),
+            key: rangeKey,
+            startDateStr: rangeStart.toISOString().split('T')[0],
+            endDateStr: rangeEnd.toISOString().split('T')[0]
+          });
+
+          // Create smart labels based on step size
+          let label;
+          if (stepDays === 1) {
+            // Daily: "8/11"
+            label = rangeStart.toLocaleDateString('vi-VN', labelFormat);
+          } else if (stepDays === 30) {
+            // Monthly: "T11/25" or "Th11"
+            label = rangeStart.toLocaleDateString('vi-VN', { month: 'short', year: '2-digit' });
+          } else if (stepDays === 14) {
+            // Bi-weekly: "8/11"
+            label = rangeStart.toLocaleDateString('vi-VN', labelFormat);
+          } else if (stepDays === 7) {
+            // Weekly: "8/11"
+            label = rangeStart.toLocaleDateString('vi-VN', labelFormat);
+          } else if (stepDays === 2) {
+            // Every 2 days: "8/11"
+            label = rangeStart.toLocaleDateString('vi-VN', labelFormat);
+          } else {
+            // Multi-day: "8/11"
+            label = rangeStart.toLocaleDateString('vi-VN', labelFormat);
+          }
+          labels.push(label);
+
+          currentDate.setDate(currentDate.getDate() + stepDays);
+        }
+
+        // Count articles by date range - using date strings for accurate comparison
+        if (articles && articles.length > 0) {
+          articles.forEach(article => {
+            // Convert article date to date string for comparison
+            const articleDateStr = new Date(article.created_at).toISOString().split('T')[0];
+
+            // Find which range this article belongs to
+            for (const range of dateRanges) {
+              if (articleDateStr >= range.startDateStr && articleDateStr <= range.endDateStr) {
+                dateCountMap.set(range.key, dateCountMap.get(range.key) + 1);
+                break;
+              }
+            }
+          });
+        }
+
+        // Convert to array for chart
+        const data = Array.from(dateCountMap.values());
+        const chartData = { labels, data };
+
+        // Cache the data
+        chartDataCache.set(cacheKey, {
+          data: chartData,
+          timestamp: now
+        });
+
+        renderChart(chartData, period);
+
+      } catch (error) {
+        console.error('Error loading chart data:', error);
+        document.getElementById('chartLoading').innerHTML = `
+          <div style="color: #e53e3e; font-size: 0.875rem;">
+            ❌ Không thể tải dữ liệu biểu đồ
+          </div>
+        `;
+      } finally {
+        setTimeout(() => {
+          document.getElementById('chartLoading').style.display = 'none';
+        }, 500);
+      }
+    }
+
+    function renderChart(chartData, period) {
+      const ctx = document.getElementById('articlesChart').getContext('2d');
+
+      // Destroy existing chart
+      if (articlesChart) {
+        articlesChart.destroy();
+      }
+
+      // Determine label based on period - match the step logic
+      let datasetLabel = 'Số bài viết mới';
+
+      if (period >= 365) {
+        datasetLabel = 'Bài viết/tháng';
+      } else if (period >= 180) {
+        datasetLabel = 'Bài viết/2 tuần';
+      } else if (period >= 90) {
+        datasetLabel = 'Bài viết/tuần';
+      } else if (period >= 30) {
+        datasetLabel = 'Bài viết/2 ngày';
+      }
+
+      // Create new chart
+      articlesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartData.labels,
+          datasets: [{
+            label: datasetLabel,
+            data: chartData.data,
+            borderColor: '#0060ae',
+            backgroundColor: 'rgba(0, 96, 174, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#0060ae',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#ffffff',
+              bodyColor: '#ffffff',
+              borderColor: '#0060ae',
+              borderWidth: 1,
+              cornerRadius: 6,
+              displayColors: false,
+              callbacks: {
+                title: function (context) {
+                  const label = context[0].label;
+
+                  // Use same step logic as above
+                  let stepDays = 1;
+                  let periodName = 'ngày';
+
+                  if (period >= 365) {
+                    stepDays = 30;
+                    periodName = 'tháng';
+                  } else if (period >= 180) {
+                    stepDays = 14;
+                    periodName = '2 tuần';
+                  } else if (period >= 90) {
+                    stepDays = 7;
+                    periodName = 'tuần';
+                  } else if (period >= 30) {
+                    stepDays = 2;
+                    periodName = '2 ngày';
+                  }
+
+                  if (stepDays === 1) {
+                    return label;
+                  } else {
+                    return `${label} (${periodName})`;
+                  }
+                },
+                label: function (context) {
+                  // Use same step logic as above
+                  let stepDays = 1;
+                  let periodName = 'ngày';
+
+                  if (period >= 365) {
+                    stepDays = 30;
+                    periodName = 'tháng';
+                  } else if (period >= 180) {
+                    stepDays = 14;
+                    periodName = '2 tuần';
+                  } else if (period >= 90) {
+                    stepDays = 7;
+                    periodName = 'tuần';
+                  } else if (period >= 30) {
+                    stepDays = 2;
+                    periodName = '2 ngày';
+                  }
+
+                  const count = context.parsed.y;
+                  if (stepDays === 1) {
+                    return `${count} bài viết`;
+                  } else {
+                    return `${count} bài viết/${periodName}`;
+                  }
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: '#718096',
+                font: {
+                  size: 11
+                }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                color: '#718096',
+                font: {
+                  size: 11
+                },
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function changeChartPeriod(period) {
+      // Update active button immediately for instant feedback
+      document.querySelectorAll('.chart-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`.chart-btn[data-period="${period}"]`).classList.add('active');
+
+      // Show loading immediately if data not cached
+      const cacheKey = `chart_${period}`;
+      const now = Date.now();
+      const isCached = chartDataCache.has(cacheKey) &&
+        (now - chartDataCache.get(cacheKey).timestamp) < CACHE_DURATION;
+
+      if (!isCached) {
+        document.getElementById('chartLoading').style.display = 'flex';
+      }
+
+      // Update current period and load chart
+      currentChartPeriod = period;
+      loadChart(period);
+    }
+
+    // Registration Chart Functions
+    async function loadRegistrationChart(period = 30, forceRefresh = false) {
+      if (!supabase) return;
+
+      // Check cache first
+      const cacheKey = `registration_chart_${period}`;
+      const now = Date.now();
+      if (!forceRefresh && registrationChartDataCache.has(cacheKey)) {
+        const cached = registrationChartDataCache.get(cacheKey);
+        if (now - cached.timestamp < CACHE_DURATION) {
+          renderRegistrationChart(cached.data, period);
+          return;
+        }
+      }
+
+      // Show loading with better message
+      const loadingEl = document.getElementById('registrationChartLoading');
+      loadingEl.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div>Đang tải thống kê ${period} ngày...</div>
+      `;
+      loadingEl.style.display = 'flex';
+
+      try {
+        // Calculate date range
+        const endDate = new Date();
+        const startDate = new Date();
+
+        // Use more accurate date calculation
+        if (period >= 365) {
+          startDate.setFullYear(endDate.getFullYear() - 1);
+        } else if (period >= 180) {
+          startDate.setMonth(endDate.getMonth() - 6);
+        } else if (period >= 90) {
+          startDate.setMonth(endDate.getMonth() - 3);
+        } else if (period >= 30) {
+          startDate.setMonth(endDate.getMonth() - 1);
+        } else {
+          startDate.setDate(endDate.getDate() - period);
+        }
+
+        console.log(`Registration chart period: ${period} days`);
+        console.log(`Start date: ${startDate.toLocaleDateString('vi-VN')}`);
+        console.log(`End date: ${endDate.toLocaleDateString('vi-VN')}`);
+
+        // Query user registrations with service interest information
+        const { data: registrations, error } = await supabase
+          .from('registrations')
+          .select('created_at, service_interest')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString())
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        // Determine step size based on period
+        let stepDays = 7; // Default weekly for registration stats
+
+        if (period >= 365) {
+          stepDays = 30; // Monthly
+        } else if (period >= 180) {
+          stepDays = 14; // Bi-weekly
+        } else if (period >= 90) {
+          stepDays = 7; // Weekly
+        } else {
+          stepDays = 7; // Weekly even for 1 month
+        }
+
+        // Extract unique service interests from actual data
+        const servicesSet = new Set();
+        if (registrations && registrations.length > 0) {
+          registrations.forEach(registration => {
+            if (registration.service_interest && registration.service_interest.trim() !== '') {
+              servicesSet.add(registration.service_interest.trim());
+            }
+          });
+        }
+
+        const services = Array.from(servicesSet).sort();
+
+        // Service interests are already readable strings, use them directly
+        const serviceNames = {};
+        services.forEach(service => {
+          serviceNames[service] = service; // Use the string value as-is
+        });
+
+        console.log('Found service interests:', services);
+        console.log('Service names:', serviceNames);
+
+        // Initialize date ranges
+        const dateRanges = [];
+        const labels = [];
+        const normalizedStartDate = new Date(startDate);
+        normalizedStartDate.setHours(0, 0, 0, 0);
+        const normalizedEndDate = new Date(endDate);
+        normalizedEndDate.setHours(23, 59, 59, 999);
+
+        const currentDate = new Date(normalizedStartDate);
+        while (currentDate <= normalizedEndDate) {
+          const rangeStart = new Date(currentDate);
+          rangeStart.setHours(0, 0, 0, 0);
+
+          const rangeEnd = new Date(currentDate);
+          rangeEnd.setDate(rangeEnd.getDate() + stepDays - 1);
+          rangeEnd.setHours(23, 59, 59, 999);
+
+          if (rangeEnd > normalizedEndDate) {
+            rangeEnd.setTime(normalizedEndDate.getTime());
+          }
+
+          dateRanges.push({
+            start: new Date(rangeStart),
+            end: new Date(rangeEnd),
+            startDateStr: rangeStart.toISOString().split('T')[0],
+            endDateStr: rangeEnd.toISOString().split('T')[0]
+          });
+
+          // Create labels
+          if (stepDays === 30) {
+            labels.push(rangeStart.toLocaleDateString('vi-VN', { month: 'short', year: '2-digit' }));
+          } else {
+            labels.push(rangeStart.toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' }));
+          }
+
+          currentDate.setDate(currentDate.getDate() + stepDays);
+        }
+
+        // Count registrations by service and time period
+        const datasets = [];
+
+        // Generate colors dynamically for any number of services
+        const generateColors = (count) => {
+          const baseColors = [
+            '#0060ae', '#38a169', '#e53e3e', '#dd6b20', '#805ad5',
+            '#3182ce', '#319795', '#d69e2e', '#9f7aea', '#ed64a6',
+            '#4299e1', '#48bb78', '#ed8936', '#667eea', '#f56565'
+          ];
+
+          if (count <= baseColors.length) {
+            return baseColors.slice(0, count);
+          }
+
+          // Generate additional colors if needed
+          const colors = [...baseColors];
+          for (let i = baseColors.length; i < count; i++) {
+            const hue = (i * 137.508) % 360; // Golden angle approximation
+            colors.push(`hsl(${hue}, 70%, 50%)`);
+          }
+          return colors;
+        };
+
+        const colors = generateColors(services.length);
+
+        services.forEach((service, index) => {
+          const serviceCounts = new Array(dateRanges.length).fill(0);
+
+          if (registrations && registrations.length > 0) {
+            registrations.forEach(registration => {
+              const registrationServiceInterest = registration.service_interest ? registration.service_interest.trim() : '';
+              if (registrationServiceInterest === service) {
+                const registrationDateStr = new Date(registration.created_at).toISOString().split('T')[0];
+
+                // Find which range this registration belongs to
+                for (let i = 0; i < dateRanges.length; i++) {
+                  const range = dateRanges[i];
+                  if (registrationDateStr >= range.startDateStr && registrationDateStr <= range.endDateStr) {
+                    serviceCounts[i]++;
+                    break;
+                  }
+                }
+              }
+            });
+          }
+
+          datasets.push({
+            label: serviceNames[service],
+            data: serviceCounts,
+            backgroundColor: colors[index],
+            borderColor: colors[index],
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4
+          });
+        });
+
+        const chartData = { labels, datasets };
+
+        // Cache the data
+        registrationChartDataCache.set(cacheKey, {
+          data: chartData,
+          timestamp: now
+        });
+
+        renderRegistrationChart(chartData, period);
+
+      } catch (error) {
+        console.error('Error loading registration chart data:', error);
+        document.getElementById('registrationChartLoading').innerHTML = `
+          <div style="color: #e53e3e; font-size: 0.875rem;">
+            ❌ Không thể tải thống kê đăng ký
+          </div>
+        `;
+      } finally {
+        setTimeout(() => {
+          document.getElementById('registrationChartLoading').style.display = 'none';
+        }, 500);
+      }
+    }
+
+    function renderRegistrationChart(chartData, period) {
+      const ctx = document.getElementById('registrationChart').getContext('2d');
+
+      // Destroy existing chart
+      if (registrationChart) {
+        registrationChart.destroy();
+      }
+
+      // Create new chart
+      registrationChart = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                font: {
+                  size: 11
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#ffffff',
+              bodyColor: '#ffffff',
+              borderColor: '#0060ae',
+              borderWidth: 1,
+              cornerRadius: 6,
+              callbacks: {
+                title: function (context) {
+                  return context[0].label;
+                },
+                label: function (context) {
+                  return `${context.dataset.label}: ${context.parsed.y} người`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: '#718096',
+                font: {
+                  size: 10
+                }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                color: '#718096',
+                font: {
+                  size: 10
+                },
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function changeRegistrationChartPeriod(period) {
+      // Update active button immediately
+      document.querySelectorAll('.registration-chart-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`.registration-chart-btn[data-period="${period}"]`).classList.add('active');
+
+      // Show loading immediately if data not cached
+      const cacheKey = `registration_chart_${period}`;
+      const now = Date.now();
+      const isCached = registrationChartDataCache.has(cacheKey) &&
+        (now - registrationChartDataCache.get(cacheKey).timestamp) < CACHE_DURATION;
+
+      if (!isCached) {
+        document.getElementById('registrationChartLoading').style.display = 'flex';
+      }
+
+      // Update current period and load chart
+      currentRegistrationChartPeriod = period;
+      loadRegistrationChart(period);
+    }
+    // =====================================================
+    // User Analytics Functions
+    // =====================================================
+
+    // Analytics charts instances
+    let pageViewsChart = null;
+    let trafficSourcesChart = null;
+    let analyticsInitialized = false;
+    let analyticsRefreshTimers = [];
+
+    function clearAnalyticsRefreshTimers() {
+      analyticsRefreshTimers.forEach(timerId => clearInterval(timerId));
+      analyticsRefreshTimers = [];
+    }
+
+    function resetAnalyticsState() {
+      clearAnalyticsRefreshTimers();
+      analyticsInitialized = false;
+
+      const resetValues = {
+        totalViews: '-',
+        uniqueVisitors: '-',
+        avgTimeOnSite: '-',
+        bounceRate: '-',
+        liveVisitors: '-',
+      };
+
+      Object.entries(resetValues).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = value;
+        }
+      });
+
+      const livePagesContainer = document.getElementById('livePages');
+      if (livePagesContainer) {
+        livePagesContainer.innerHTML = '<div class="loading">Đang tải...</div>';
+      }
+
+      const topPagesContainer = document.getElementById('topPagesTable');
+      if (topPagesContainer) {
+        topPagesContainer.innerHTML = '<div class="loading">Đang tải...</div>';
+      }
+
+      const trafficSourcesList = document.getElementById('trafficSourcesList');
+      if (trafficSourcesList) {
+        trafficSourcesList.innerHTML = '<div class="loading">Đang tải...</div>';
+      }
+
+      const keywordsCloud = document.getElementById('keywordsCloud');
+      if (keywordsCloud) {
+        keywordsCloud.innerHTML = '<div class="loading">Đang tải...</div>';
+      }
+
+      if (pageViewsChart) {
+        pageViewsChart.destroy();
+        pageViewsChart = null;
+      }
+
+      if (trafficSourcesChart) {
+        trafficSourcesChart.destroy();
+        trafficSourcesChart = null;
+      }
+    }
+
+    function ensureAdminSessionForAnalytics() {
+      if (!adminAuth || !adminAuth.isAuthenticated()) {
+        throw new Error('Yêu cầu đăng nhập Admin để tải analytics');
+      }
+    }
+
+    async function fetchSupabaseFunction(path, options = {}) {
+      ensureAdminSessionForAnalytics();
+
+      const baseUrl = window.SUPABASE_CONFIG?.url;
+      if (!baseUrl) {
+        throw new Error('Supabase config chưa sẵn sàng');
+      }
+
+      const authHeaders = { ...adminAuth.getAuthHeaders() };
+
+      // Loại bỏ Content-Type mặc định cho các request GET
+      const method = (options.method || 'GET').toUpperCase();
+      if (method === 'GET' && !options.body && authHeaders['Content-Type']) {
+        delete authHeaders['Content-Type'];
+      }
+
+      const response = await fetch(`${baseUrl.replace(/\/$/, '')}/functions/v1/${path}`, {
+        ...options,
+        headers: {
+          ...authHeaders,
+          ...options.headers,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status} ${response.statusText} ${errorText}`.trim());
+      }
+
+      return response;
+    }
+
+    // Initialize analytics dashboard
+    async function initAnalytics() {
+      try {
+        ensureAdminSessionForAnalytics();
+
+        clearAnalyticsRefreshTimers();
+        if (!analyticsInitialized) {
+          resetAnalyticsState();
+        }
+
+        await Promise.all([
+          loadAnalyticsSummary(),
+          loadRealtimeStats(),
+          loadTopPages(),
+          loadTrafficSources(),
+          loadKeywords(),
+          loadPageViewsChart()
+        ]);
+
+        analyticsRefreshTimers.push(
+          setInterval(() => {
+            loadRealtimeStats().catch(error => console.error('Realtime stats refresh failed:', error));
+          }, 30000),
+          setInterval(() => {
+            loadAnalyticsSummary().catch(error => console.error('Analytics summary refresh failed:', error));
+          }, 60000)
+        );
+
+        analyticsInitialized = true;
+        initializeAdminAnalytics();
+        console.log('📊 Analytics dashboard initialized');
+      } catch (error) {
+        console.error('Analytics initialization error:', error);
+        setAnalyticsError('Không thể tải dữ liệu analytics');
+      }
+    }
+
+    // Load analytics summary stats
+    async function loadAnalyticsSummary(days = 30) {
+      try {
+        const response = await fetchSupabaseFunction(`track-user-behavior?type=summary&days=${days}`);
+        const data = await response.json();
+
+        // Update summary stats
+        document.getElementById('totalViews').textContent =
+          data.summary.reduce((sum, day) => sum + (day.total_views || 0), 0).toLocaleString();
+
+        document.getElementById('uniqueVisitors').textContent =
+          data.summary.reduce((sum, day) => sum + (day.unique_visitors || 0), 0).toLocaleString();
+
+        const avgTime = data.summary.reduce((sum, day) => sum + (day.avg_session_duration || 0), 0) / data.summary.length;
+        document.getElementById('avgTimeOnSite').textContent =
+          formatDuration(avgTime);
+
+        const avgBounce = data.summary.reduce((sum, day) => sum + (day.bounce_rate || 0), 0) / data.summary.length;
+        document.getElementById('bounceRate').textContent =
+          avgBounce.toFixed(1) + '%';
+
+        // Update realtime stats
+        document.getElementById('liveVisitors').textContent = data.active_users || 0;
+
+      } catch (error) {
+        console.error('Error loading analytics summary:', error);
+        setAnalyticsError('Không thể tải dữ liệu tổng quan');
+      }
+    }
+
+    // Load realtime statistics
+    async function loadRealtimeStats() {
+      try {
+        const response = await fetchSupabaseFunction('track-user-behavior?type=summary&days=1');
+        if (response.ok) {
+          const data = await response.json();
+
+          // Update live visitor count
+          document.getElementById('liveVisitors').textContent = data.active_users || 0;
+
+          // Update live pages (mock data for now)
+          const livePagesContainer = document.getElementById('livePages');
+          livePagesContainer.innerHTML = `
+            <div class="live-page-item">
+              <span class="live-page-title">Bảo hiểm ô tô</span>
+              <span class="live-page-count">${Math.floor(Math.random() * 5) + 1}</span>
+            </div>
+            <div class="live-page-item">
+              <span class="live-page-title">Bảo hiểm sức khỏe</span>
+              <span class="live-page-count">${Math.floor(Math.random() * 3) + 1}</span>
+            </div>
+            <div class="live-page-item">
+              <span class="live-page-title">Trang chủ</span>
+              <span class="live-page-count">${Math.floor(Math.random() * 8) + 2}</span>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading realtime stats:', error);
+      }
+    }
+
+    // Load top pages
+    async function loadTopPages(days = 30) {
+      try {
+        const response = await fetchSupabaseFunction(`track-user-behavior?type=pages&days=${days}`);
+        const data = await response.json();
+        const topPagesContainer = document.getElementById('topPagesTable');
+
+        if (data.pages && data.pages.length > 0) {
+          topPagesContainer.innerHTML = data.pages.slice(0, 10).map(page => `
+            <div class="table-row">
+              <span class="table-cell-title">${page.page_title || page.page_path}</span>
+              <span class="table-cell-value">${page.total_views.toLocaleString()}</span>
+            </div>
+          `).join('');
+        } else {
+          topPagesContainer.innerHTML = '<div class="loading">Chưa có dữ liệu</div>';
+        }
+
+      } catch (error) {
+        console.error('Error loading top pages:', error);
+        document.getElementById('topPagesTable').innerHTML =
+          '<div class="loading">Lỗi tải dữ liệu</div>';
+      }
+    }
+
+    // Load traffic sources
+    async function loadTrafficSources(days = 30) {
+      try {
+        const response = await fetchSupabaseFunction(`track-user-behavior?type=traffic_sources&days=${days}`);
+        const data = await response.json();
+        const trafficContainer = document.getElementById('trafficSourcesList');
+
+        if (data.traffic_sources && data.traffic_sources.length > 0) {
+          const total = data.traffic_sources.reduce((sum, source) => sum + source.visits, 0);
+
+          trafficContainer.innerHTML = data.traffic_sources.map(source => {
+            const percentage = ((source.visits / total) * 100).toFixed(1);
+            const iconClass = getTrafficSourceIcon(source.source);
+
+            return `
+              <div class="traffic-source-item">
+                <div class="traffic-source-name">
+                  <div class="traffic-source-icon ${iconClass}">
+                    ${getTrafficSourceEmoji(source.source)}
+                  </div>
+                  ${source.source} (${source.medium})
+                </div>
+                <div class="traffic-source-stats">
+                  <div class="traffic-source-visits">${source.visits.toLocaleString()}</div>
+                  <div class="traffic-source-percentage">${percentage}%</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          // Update pie chart
+          updateTrafficSourcesChart(data.traffic_sources);
+        } else {
+          trafficContainer.innerHTML = '<div class="loading">Chưa có dữ liệu</div>';
+        }
+
+      } catch (error) {
+        console.error('Error loading traffic sources:', error);
+        document.getElementById('trafficSourcesList').innerHTML =
+          '<div class="loading">Lỗi tải dữ liệu</div>';
+      }
+    }
+
+    // Load keywords
+    async function loadKeywords(days = 30) {
+      try {
+        const response = await fetchSupabaseFunction(`track-user-behavior?type=keywords&days=${days}`);
+        const data = await response.json();
+        const keywordsContainer = document.getElementById('keywordsCloud');
+
+        if (data.keywords && data.keywords.length > 0) {
+          keywordsContainer.innerHTML = data.keywords.slice(0, 20).map(keyword => `
+            <div class="keyword-tag">
+              ${keyword.keyword}
+              <span class="keyword-frequency">${keyword.frequency}</span>
+            </div>
+          `).join('');
+        } else {
+          keywordsContainer.innerHTML = '<div class="loading">Chưa có dữ liệu</div>';
+        }
+
+      } catch (error) {
+        console.error('Error loading keywords:', error);
+        document.getElementById('keywordsCloud').innerHTML =
+          '<div class="loading">Lỗi tải dữ liệu</div>';
+      }
+    }
+
+    // Load page views chart
+    async function loadPageViewsChart(days = 7) {
+      try {
+        const response = await fetchSupabaseFunction(`track-user-behavior?type=summary&days=${days}`);
+        const data = await response.json();
+
+        if (data.summary && data.summary.length > 0) {
+          updatePageViewsChart(data.summary);
+        }
+
+      } catch (error) {
+        console.error('Error loading page views chart:', error);
+      }
+    }
+
+    // Update page views chart
+    function updatePageViewsChart(summaryData) {
+      const ctx = document.getElementById('pageViewsChart').getContext('2d');
+
+      if (pageViewsChart) {
+        pageViewsChart.destroy();
+      }
+
+      const labels = summaryData.map(day => {
+        const date = new Date(day.date);
+        return date.toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' });
+      });
+
+      const views = summaryData.map(day => day.total_views || 0);
+      const visitors = summaryData.map(day => day.unique_visitors || 0);
+
+      pageViewsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Page Views',
+              data: views,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Unique Visitors',
+              data: visitors,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (value) {
+                  return value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Update traffic sources chart
+    function updateTrafficSourcesChart(trafficData) {
+      const ctx = document.getElementById('trafficSourcesChart').getContext('2d');
+
+      if (trafficSourcesChart) {
+        trafficSourcesChart.destroy();
+      }
+
+      const labels = trafficData.map(source => `${source.source} (${source.medium})`);
+      const data = trafficData.map(source => source.visits);
+      const colors = trafficData.map(source => getTrafficSourceColor(source.source));
+
+      trafficSourcesChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: colors,
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 15,
+                usePointStyle: true
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Helper functions
+    function getTrafficSourceIcon(source) {
+      switch (source.toLowerCase()) {
+        case 'google': return 'source-google';
+        case 'facebook': return 'source-facebook';
+        case 'direct': return 'source-direct';
+        default: return 'source-other';
+      }
+    }
+
+    function getTrafficSourceEmoji(source) {
+      switch (source.toLowerCase()) {
+        case 'google': return '🔍';
+        case 'facebook': return '📘';
+        case 'direct': return '🔗';
+        case 'referral': return '🌐';
+        default: return '📊';
+      }
+    }
+
+    function getTrafficSourceColor(source) {
+      switch (source.toLowerCase()) {
+        case 'google': return '#ea4335';
+        case 'facebook': return '#1877f2';
+        case 'direct': return '#64748b';
+        case 'referral': return '#10b981';
+        default: return '#f59e0b';
+      }
+    }
+
+    function formatDuration(seconds) {
+      if (!seconds || seconds < 0) return '0s';
+
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+
+      if (minutes > 0) {
+        return `${minutes}m ${remainingSeconds}s`;
+      } else {
+        return `${remainingSeconds}s`;
+      }
+    }
+
+    function setAnalyticsError(message) {
+      const errorElements = document.querySelectorAll('.analytics-content .loading');
+      errorElements.forEach(el => {
+        el.textContent = message;
+        el.classList.add('error');
+      });
+    }
+
+    // Analytics action functions
+    function refreshAnalytics() {
+      if (!adminAuth || !adminAuth.isAuthenticated()) {
+        showNotification('🔒 Vui lòng đăng nhập để refresh analytics', 'warning');
+        showSupabaseAuth();
+        return;
+      }
+
+      clearAnalyticsRefreshTimers();
+      showNotification('🔄 Đang refresh analytics data...', 'info');
+      resetAnalyticsState();
+
+      initAnalytics().catch(error => {
+        console.error('Analytics refresh failed:', error);
+        showNotification('❌ Refresh analytics thất bại', 'error');
+      });
+    }
+
+    function exportAnalytics() {
+      if (!adminAuth || !adminAuth.isAuthenticated()) {
+        showNotification('🔒 Vui lòng đăng nhập để export analytics', 'warning');
+        return;
+      }
+      showNotification('📊 Tính năng export sẽ sớm có...', 'info');
+    }
+
+    function showAnalyticsDetails() {
+      if (!adminAuth || !adminAuth.isAuthenticated()) {
+        showNotification('🔒 Vui lòng đăng nhập để xem chi tiết analytics', 'warning');
+        return;
+      }
+      showNotification('🔍 Tính năng chi tiết sẽ sớm có...', 'info');
+    }
+
+    // Period selector handler
+    document.addEventListener('change', function (e) {
+      if (e.target.id === 'pageViewsPeriod') {
+        const days = parseInt(e.target.value);
+        loadPageViewsChart(days);
+      }
+    });
+
+    // Không tự động khởi tạo analytics khi chưa đăng nhập
+
+  </script>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="help-modal" onclick="handleHelpModalBackdrop(event)">
+    <div class="help-modal-content" onclick="event.stopPropagation()">
+      <div class="help-modal-header">
+        <h2 class="help-modal-title">📚 Hướng dẫn sử dụng Admin Panel</h2>
+        <button class="help-modal-close" onclick="hideHelpModal()">×</button>
+      </div>
+
+      <div class="help-nav">
+        <div class="help-nav-item active" onclick="showHelpSection('overview')">🏠 Tổng quan</div>
+        <div class="help-nav-item" onclick="showHelpSection('articles')">📝 Quản lý bài viết</div>
+        <div class="help-nav-item" onclick="showHelpSection('compose')">✍️ Viết bài</div>
+        <div class="help-nav-item" onclick="showHelpSection('users')">👥 Người dùng</div>
+        <div class="help-nav-item" onclick="showHelpSection('analytics')">📊 Analytics</div>
+        <div class="help-nav-item" onclick="showHelpSection('tips')">💡 Mẹo hay</div>
+      </div>
+
+      <div class="help-modal-body">
+        <div class="help-content">
+
+          <!-- Overview Section -->
+          <div id="help-overview" class="help-section active">
+            <h3>🏠 Tổng quan hệ thống</h3>
+            <p>Admin Panel là hệ thống quản lý nội dung cho website Bảo Hiểm Bảo Việt Đà Nẵng. Bạn có thể quản lý bài
+              viết, theo dõi thống kê và xử lý đăng ký từ khách hàng.</p>
+
+            <div class="help-feature">
+              <div class="help-feature-title">📊 Dashboard Thống kê</div>
+              <p>Xem tổng quan về:</p>
+              <ul>
+                <li><strong>Tổng bài viết:</strong> Số lượng bài viết trong hệ thống</li>
+                <li><strong>Đã xuất bản:</strong> Bài viết đang hiển thị trên website</li>
+                <li><strong>Bài nháp:</strong> Bài viết chưa xuất bản</li>
+                <li><strong>Người đăng ký:</strong> Số lượng khách hàng quan tâm</li>
+              </ul>
+            </div>
+
+            <h4>🚀 Tính năng nổi bật</h4>
+            <ul>
+              <li><strong>Real-time:</strong> Thống kê cập nhật tự động</li>
+              <li><strong>Cache thông minh:</strong> Tải nhanh với bộ nhớ đệm</li>
+              <li><strong>Responsive:</strong> Sử dụng được trên mọi thiết bị</li>
+              <li><strong>Bảo mật:</strong> Phiên làm việc an toàn 30 phút</li>
+            </ul>
+          </div>
+
+          <!-- Articles Section -->
+          <div id="help-articles" class="help-section">
+            <h3>📝 Quản lý bài viết</h3>
+            <p>Quản lý toàn bộ nội dung bài viết của website với các tính năng powerful.</p>
+
+            <h4>🔍 Danh sách bài viết</h4>
+            <div class="help-feature">
+              <div class="help-feature-title">📋 Thông tin hiển thị</div>
+              <ul>
+                <li><strong>Tiêu đề:</strong> Tên bài viết</li>
+                <li><strong>Danh mục:</strong> Phân loại bài viết</li>
+                <li><strong>Trạng thái:</strong> Published (đã xuất bản) hoặc Draft (nháp)</li>
+                <li><strong>Ngày tạo:</strong> Thời gian tạo bài</li>
+                <li><strong>Thao tác:</strong> Sửa hoặc Xóa bài viết</li>
+              </ul>
+            </div>
+
+            <h4>📄 Phân trang thông minh</h4>
+            <div class="help-step">
+              <strong>Tính năng Pagination:</strong>
+              <ul>
+                <li>Hiển thị 10/20/50/100 bài viết mỗi trang</li>
+                <li>Điều hướng: Đầu, Trước, Sau, Cuối</li>
+                <li>Cache thông minh: Trang đã xem load instant</li>
+                <li>Prefetch: Tự động tải sẵn trang tiếp theo</li>
+              </ul>
+            </div>
+
+            <h4>⚡ Tối ưu hiệu suất</h4>
+            <ul>
+              <li><strong>Single Query:</strong> Gộp count và data trong 1 lần truy vấn</li>
+              <li><strong>Selective Fields:</strong> Chỉ tải trường cần thiết</li>
+              <li><strong>Background Prefetch:</strong> Tải trước trang tiếp theo</li>
+              <li><strong>Smart Cache:</strong> Cache 2 phút cho mỗi trang</li>
+            </ul>
+
+            <div class="help-warning">
+              <div class="help-warning-title">⚠️ Lưu ý quan trọng</div>
+              <p>Tính năng xóa bài viết hiện đang được phát triển. Sử dụng tính năng sửa để thay đổi trạng thái bài viết
+                thay vì xóa.</p>
+            </div>
+          </div>
+
+          <!-- Compose Section -->
+          <div id="help-compose" class="help-section">
+            <h3>✍️ Viết và chỉnh sửa bài viết</h3>
+            <p>Trình soạn thảo bài viết mạnh mẽ với đầy đủ tính năng của một CMS chuyên nghiệp.</p>
+
+            <h4>📝 TinyMCE Editor</h4>
+            <div class="help-feature">
+              <div class="help-feature-title">🛠️ Công cụ soạn thảo</div>
+              <ul>
+                <li><strong>Rich Text:</strong> Format văn bản đa dạng</li>
+                <li><strong>Insert Media:</strong> Thêm hình ảnh, video, links</li>
+                <li><strong>Table Editor:</strong> Tạo và chỉnh sửa bảng</li>
+                <li><strong>Code View:</strong> Chỉnh sửa HTML trực tiếp</li>
+                <li><strong>Auto-save:</strong> Tự động lưu nháp</li>
+              </ul>
+            </div>
+
+            <h4>🖼️ Quản lý hình ảnh</h4>
+            <div class="help-step">
+              <strong>Upload và sử dụng ảnh:</strong>
+              <ol>
+                <li>Click "📷 Quản lý hình ảnh" để mở trình quản lý</li>
+                <li>Kéo thả hoặc click để upload ảnh mới</li>
+                <li>Click "Insert" để chèn ảnh vào nội dung</li>
+                <li>Click "Remove" để xóa ảnh khỏi thư viện</li>
+              </ol>
+            </div>
+
+            <h4>💾 Lưu bài viết</h4>
+            <ul>
+              <li><strong>Save Draft:</strong> Lưu nháp để chỉnh sửa sau</li>
+              <li><strong>Save & Publish:</strong> Xuất bản luôn lên website</li>
+              <li><strong>Auto Deploy:</strong> Tự động cập nhật website khi publish</li>
+            </ul>
+
+            <h4>🔒 Bảo vệ dữ liệu</h4>
+            <div class="help-feature">
+              <div class="help-feature-title">⚠️ Unsaved Changes Detection</div>
+              <p>Hệ thống tự động phát hiện thay đổi chưa lưu và cảnh báo khi:</p>
+              <ul>
+                <li>Rời khỏi trang (F5, đóng tab)</li>
+                <li>Click Dashboard hoặc Đăng xuất</li>
+                <li>Click Clear Form</li>
+              </ul>
+              <p>Modal sẽ hiện với 3 lựa chọn: <strong>Lưu và tiếp tục</strong>, <strong>Bỏ qua thay đổi</strong>,
+                <strong>Hủy bỏ</strong>
+              </p>
+            </div>
+          </div>
+
+          <!-- Users Section -->
+          <div id="help-users" class="help-section">
+            <h3>👥 Quản lý người đăng ký</h3>
+            <p>Theo dõi và quản lý danh sách khách hàng quan tâm đến dịch vụ bảo hiểm.</p>
+
+            <h4>📋 Thông tin người đăng ký</h4>
+            <div class="help-feature">
+              <div class="help-feature-title">📊 Dữ liệu thu thập</div>
+              <ul>
+                <li><strong>Họ tên:</strong> Thông tin cá nhân</li>
+                <li><strong>Email:</strong> Địa chỉ liên hệ</li>
+                <li><strong>Số điện thoại:</strong> Thông tin liên lạc</li>
+                <li><strong>Dịch vụ quan tâm:</strong> Loại bảo hiểm</li>
+                <li><strong>Thời gian đăng ký:</strong> Ngày gửi form</li>
+              </ul>
+            </div>
+
+            <h4>🔄 Tự động cập nhật</h4>
+            <ul>
+              <li>Dữ liệu đồng bộ realtime từ website</li>
+              <li>Thống kê tự động cập nhật trên Dashboard</li>
+              <li>Xuất dữ liệu để liên hệ khách hàng</li>
+            </ul>
+
+            <div class="help-warning">
+              <div class="help-warning-title">🔒 Bảo mật thông tin</div>
+              <p>Thông tin khách hàng được bảo mật theo chuẩn GDPR. Chỉ sử dụng cho mục đích tư vấn bảo hiểm.</p>
+            </div>
+          </div>
+
+          <!-- Analytics Section -->
+          <div id="help-analytics" class="help-section">
+            <h3>📊 User Analytics System</h3>
+            <p>Hệ thống theo dõi hành vi người dùng toàn diện với dashboard realtime và insights chuyên sâu.</p>
+
+            <h4>🔍 Dữ liệu được thu thập</h4>
+            <div class="help-feature">
+              <div class="help-feature-title">📈 Page Views & Traffic</div>
+              <ul>
+                <li><strong>Page Views:</strong> Số lượt xem từng trang</li>
+                <li><strong>Unique Visitors:</strong> Số người dùng duy nhất</li>
+                <li><strong>Traffic Sources:</strong> Google, Facebook, Direct, Referral</li>
+                <li><strong>Bounce Rate:</strong> Tỷ lệ thoát trang</li>
+                <li><strong>Session Duration:</strong> Thời gian ở lại website</li>
+              </ul>
+            </div>
+
+            <div class="help-feature">
+              <div class="help-feature-title">🎯 User Behavior</div>
+              <ul>
+                <li><strong>Time on Page:</strong> Thời gian đọc từng trang</li>
+                <li><strong>Scroll Depth:</strong> Mức độ scroll (25%, 50%, 75%, 100%)</li>
+                <li><strong>Click Tracking:</strong> Buttons và links được click</li>
+                <li><strong>Search Behavior:</strong> Keywords và search queries</li>
+                <li><strong>Page Flow:</strong> Hành trình người dùng qua các trang</li>
+              </ul>
+            </div>
+
+            <div class="help-feature">
+              <div class="help-feature-title">🔎 SEO & Content</div>
+              <ul>
+                <li><strong>Keywords:</strong> Từ khóa phổ biến được tìm</li>
+                <li><strong>Top Pages:</strong> Trang có lượt truy cập cao</li>
+                <li><strong>Content Performance:</strong> Bài viết nào được đọc nhiều</li>
+                <li><strong>Search Trends:</strong> Xu hướng tìm kiếm theo thời gian</li>
+              </ul>
+            </div>
+
+            <h4>📊 Dashboard Features</h4>
+            <div class="help-step">
+              <strong>Realtime Analytics:</strong>
+              <ol>
+                <li><strong>Live Visitors:</strong> Số người đang online realtime</li>
+                <li><strong>Current Activity:</strong> Trang nào đang được xem</li>
+                <li><strong>Traffic Spike Alerts:</strong> Cảnh báo khi có traffic bất thường</li>
+                <li><strong>Performance Monitoring:</strong> Page load time và errors</li>
+              </ol>
+            </div>
+
+            <div class="help-step">
+              <strong>Historical Reports:</strong>
+              <ol>
+                <li><strong>Time Range:</strong> Xem data 7 ngày, 30 ngày, 90 ngày</li>
+                <li><strong>Comparison:</strong> So sánh với period trước</li>
+                <li><strong>Trend Analysis:</strong> Biểu đồ xu hướng tăng trường</li>
+                <li><strong>Export Data:</strong> Xuất report dạng CSV/PDF</li>
+              </ol>
+            </div>
+
+            <h4>🛠️ Cấu hình Analytics</h4>
+            <div class="help-warning">
+              <div class="help-warning-title">⚙️ Automatic Setup</div>
+              <p>Analytics system đã được cài đặt sẵn và hoạt động tự động. Không cần cấu hình thêm.</p>
+              <ul>
+                <li><strong>Privacy Compliant:</strong> Không thu thập PII</li>
+                <li><strong>GDPR Ready:</strong> Tuân thủ quy định bảo mật</li>
+                <li><strong>Performance Optimized:</strong> Không ảnh hưởng tốc độ website</li>
+                <li><strong>Real-time Processing:</strong> Dữ liệu cập nhật ngay lập tức</li>
+              </ul>
+            </div>
+
+            <h4>📈 Sử dụng Insights</h4>
+            <div class="help-feature">
+              <div class="help-feature-title">🎯 Content Optimization</div>
+              <ul>
+                <li><strong>Popular Content:</strong> Viết thêm bài về chủ đề được quan tâm</li>
+                <li><strong>Low Performing Pages:</strong> Cải thiện nội dung ít người xem</li>
+                <li><strong>User Journey:</strong> Tối ưu navigation và internal links</li>
+                <li><strong>SEO Opportunities:</strong> Keywords mới để target</li>
+              </ul>
+            </div>
+
+            <div class="help-feature">
+              <div class="help-feature-title">📱 Technical Insights</div>
+              <ul>
+                <li><strong>Page Speed:</strong> Identify slow loading pages</li>
+                <li><strong>Mobile Usage:</strong> Mobile vs Desktop traffic</li>
+                <li><strong>Browser Support:</strong> Browsers người dùng sử dụng</li>
+                <li><strong>Error Tracking:</strong> Pages có lỗi cần fix</li>
+              </ul>
+            </div>
+
+            <h4>🚀 Advanced Features</h4>
+            <div class="help-step">
+              <strong>Custom Events:</strong>
+              <ul>
+                <li><span class="help-shortcut">Form Submissions</span> Theo dõi đăng ký tư vấn</li>
+                <li><span class="help-shortcut">Download Tracking</span> PDF brochures, price lists</li>
+                <li><span class="help-shortcut">Video Engagement</span> Thời gian xem video</li>
+                <li><span class="help-shortcut">Search Queries</span> Từ khóa người dùng tìm</li>
+              </ul>
+            </div>
+
+            <div class="help-warning">
+              <div class="help-warning-title">🔐 Data Security</div>
+              <ul>
+                <li>Dữ liệu được mã hóa và bảo mật cao</li>
+                <li>Chỉ admin mới có quyền truy cập analytics</li>
+                <li>Tự động xóa data cũ sau 90 ngày</li>
+                <li>Comply với GDPR và privacy laws</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tips Section -->
+          <div id="help-tips" class="help-section">
+            <h3>💡 Mẹo và thủ thuật</h3>
+            <p>Những tips hữu ích để sử dụng Admin Panel hiệu quả nhất.</p>
+
+            <h4>⚡ Tăng tốc làm việc</h4>
+            <div class="help-step">
+              <strong>Keyboard Shortcuts:</strong>
+              <ul>
+                <li><span class="help-shortcut">Ctrl + S</span> Lưu nháp nhanh</li>
+                <li><span class="help-shortcut">Ctrl + Enter</span> Publish bài viết</li>
+                <li><span class="help-shortcut">Esc</span> Đóng modal</li>
+                <li><span class="help-shortcut">F5</span> Refresh page (có cảnh báo unsaved)</li>
+              </ul>
+            </div>
+
+            <h4>🎯 Best Practices</h4>
+            <div class="help-feature">
+              <div class="help-feature-title">📝 Viết bài hiệu quả</div>
+              <ul>
+                <li><strong>SEO Title:</strong> Tiêu đề 50-60 ký tự, có từ khóa</li>
+                <li><strong>Meta Description:</strong> Mô tả 150-160 ký tự</li>
+                <li><strong>Headings:</strong> Sử dụng H1, H2, H3 có cấu trúc</li>
+                <li><strong>Images:</strong> Alt text cho SEO và khuyết tật</li>
+                <li><strong>Internal Links:</strong> Liên kết nội bộ tăng SEO</li>
+              </ul>
+            </div>
+
+            <h4>🚀 Performance Tips</h4>
+            <ul>
+              <li><strong>Image Optimization:</strong> Compress ảnh trước khi upload</li>
+              <li><strong>Cache Usage:</strong> Để cache work, không refresh liên tục</li>
+              <li><strong>Batch Operations:</strong> Làm nhiều việc cùng lúc</li>
+              <li><strong>Regular Cleanup:</strong> Xóa ảnh không dùng trong Image Manager</li>
+            </ul>
+
+            <h4>🛡️ Bảo mật</h4>
+            <div class="help-warning">
+              <div class="help-warning-title">🔐 An toàn tài khoản</div>
+              <ul>
+                <li>Đăng xuất khi không sử dụng</li>
+                <li>Không chia sẻ thông tin đăng nhập</li>
+                <li>Phiên làm việc tự động hết hạn sau 30 phút</li>
+                <li>Kiểm tra URL luôn là domain chính thức</li>
+              </ul>
+            </div>
+
+            <h4>🆘 Xử lý sự cố</h4>
+            <div class="help-step">
+              <strong>Khi gặp lỗi:</strong>
+              <ol>
+                <li><strong>Refresh page:</strong> F5 để reload</li>
+                <li><strong>Clear cache:</strong> Ctrl + F5 hard refresh</li>
+                <li><strong>Check network:</strong> Kiểm tra kết nối mạng</li>
+                <li><strong>Relogin:</strong> Đăng xuất và đăng nhập lại</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Integration Script -->
+  <script>
+    // Integrated Admin Dashboard System
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize admin system with login integration
+      console.log('🚀 Initializing Admin Dashboard System...');
+
+      // Global admin system reference
+      window.adminDashboard = {
+        isReady: false,
+        keyManager: null,
+        analytics: null
+      };
+
+      // Initialize analytics with admin authentication
+      async function initializeAdminAnalytics() {
+        try {
+          if (!window.adminAuthManager || !window.adminAuthManager.isAuthenticated()) {
+            console.warn('⚠️ AdminAuthManager chưa sẵn sàng cho analytics');
+            return;
+          }
+
+          const headers = window.adminAuthManager.getAuthHeaders();
+          const analyticsToken = headers.Authorization ?
+            headers.Authorization.replace('Bearer ', '') : null;
+
+          if (analyticsToken && window.userAnalytics) {
+            window.userAnalytics.updateAuthKey(analyticsToken);
+            window.adminDashboard.analytics = window.userAnalytics;
+            console.log('📊 Admin analytics initialized');
+          }
+
+        } catch (error) {
+          console.warn('⚠️ Could not initialize admin analytics:', error);
+        }
+      }
+
+      // Show welcome message after login
+      function showWelcomeMessage(adminInfo) {
+        // Create welcome notification
+        const welcomeDiv = document.createElement('div');
+        welcomeDiv.className = 'admin-welcome-notification';
+        welcomeDiv.innerHTML = `
+          <div class="welcome-icon">👋</div>
+          <div class="welcome-content">
+            <h4>Welcome to Admin Dashboard!</h4>
+            <p>Logged in as: ${adminInfo.username || 'Admin'}</p>
+            <small>All systems initialized and ready</small>
+          </div>
+          <button onclick="this.parentElement.remove()" class="welcome-close">×</button>
+        `;
+
+        // Add styles for welcome notification
+        const welcomeStyles = document.createElement('style');
+        welcomeStyles.textContent = `
+          .admin-welcome-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 10000;
+            max-width: 350px;
+            animation: slideInRight 0.5s ease-out;
+          }
+
+          .welcome-icon {
+            font-size: 2rem;
+          }
+
+          .welcome-content h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+          }
+
+          .welcome-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+          }
+
+          .welcome-content small {
+            font-size: 0.8rem;
+            opacity: 0.8;
+          }
+
+          .welcome-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50%;
+            margin-left: auto;
+          }
+
+          .welcome-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+          }
+
+          @keyframes slideInRight {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+        `;
+
+        document.head.appendChild(welcomeStyles);
+        document.body.appendChild(welcomeDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+          if (welcomeDiv.parentElement) {
+            welcomeDiv.remove();
+            welcomeStyles.remove();
+          }
+        }, 5000);
+      }
+
+      // Helper function to get admin key for dashboard operations
+      window.getAdminKey = async function (keyType = 'access_token') {
+        if (!window.adminAuthManager || !window.adminAuthManager.isAuthenticated()) {
+          throw new Error('Admin auth system not ready');
+        }
+
+        const headers = window.adminAuthManager.getAuthHeaders();
+        const bearerToken = headers.Authorization ? headers.Authorization.replace('Bearer ', '') : null;
+
+        switch (keyType) {
+          case 'headers':
+            return headers;
+          case 'apikey':
+          case 'anon_key':
+            return headers.apikey;
+          case 'access_token':
+          case 'jwt':
+          default:
+            return bearerToken;
+        }
+      };
+
+      // Helper function to check if admin is logged in
+      window.isAdminLoggedIn = function () {
+        return !!(window.adminAuthManager && window.adminAuthManager.isAuthenticated());
+      };
+
+      console.log('🎯 Admin dashboard system initialized, waiting for login...');
+    });
+
+    // Handle logout
+    document.addEventListener('admin-logout', function () {
+      console.log('👋 Admin logout detected, cleaning up...');
+
+      // Reset admin dashboard state
+      window.adminDashboard.isReady = false;
+      window.adminDashboard.keyManager = null;
+      window.adminDashboard.analytics = null;
+
+      // Clear any admin-specific data
+      // This will be handled by the reload in AdminLoginSystem
+      resetAnalyticsState();
+      clearAnalyticsRefreshTimers();
+    });
+
+    // === Supabase Authentication Integration ===
+
+    // Update user profile in sidebar
+    function updateUserProfile(user) {
+      // Update user name
+      const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+      document.querySelectorAll('.user-name').forEach(el => {
+        el.textContent = userName;
+      });
+
+      // Update user email
+      document.querySelectorAll('.user-email').forEach(el => {
+        el.textContent = user.email;
+      });
+
+      // Update user role
+      const userRole = user.user_metadata?.role || 'admin';
+      document.querySelectorAll('.user-role').forEach(el => {
+        el.textContent = userRole;
+      });
+
+      // Update user initials
+      const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.querySelectorAll('.user-initials').forEach(el => {
+        el.textContent = initials;
+      });
+
+      console.log('👤 User profile updated:', userName);
+    }
+
+    // Clear user profile
+    function clearUserProfile() {
+      document.querySelectorAll('.user-name').forEach(el => {
+        el.textContent = 'Loading...';
+      });
+
+      document.querySelectorAll('.user-email').forEach(el => {
+        el.textContent = 'user@domain.com';
+      });
+
+      document.querySelectorAll('.user-role').forEach(el => {
+        el.textContent = 'admin';
+      });
+
+      document.querySelectorAll('.user-initials').forEach(el => {
+        el.textContent = 'AD';
+      });
+    }
+
+    // Supabase authentication functions
+    function showSupabaseAuth() {
+      if (adminAuth) {
+        adminAuth.showLoginModal();
+      } else if (window.adminAuthManager) {
+        window.adminAuthManager.showLoginModal();
+      } else {
+        console.error('Admin Authentication Manager not available');
+      }
+    }
+
+    async function handleSupabaseLogout() {
+      if (!adminAuth) {
+        console.warn('⚠️ AdminAuthManager chưa sẵn sàng');
+        return;
+      }
+
+      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+        try {
+          await adminAuth.logout();
+          console.log('✅ Admin logout successful');
+        } catch (error) {
+          console.error('❌ Logout failed:', error);
+        }
+      }
+    }
+
+    function showUserProfile() {
+      if (!adminAuth || !adminAuth.isAuthenticated()) {
+        console.warn('⚠️ Chưa đăng nhập');
+        return;
+      }
+
+      const user = adminAuth.getCurrentUser();
+      alert(`User Profile:\n\nName: ${user.user_metadata?.full_name || 'N/A'}\nEmail: ${user.email}\nRole: ${user.user_metadata?.role || 'admin'}\nLast Sign In: ${new Date(user.last_sign_in_at).toLocaleString()}`);
+    }
+
+    // Admin Authentication & API Managers
+    let adminAuth = null;
+    let adminAPI = null;
+    let isAdminMode = false;
+
+    // Initialize Admin Authentication & API
+    async function initializeAdminAuth() {
+      try {
+        // Initialize Auth Manager
+        adminAuth = new AdminAuthManager();
+        await adminAuth.initialize();
+
+        // Lưu trữ global để tái sử dụng
+        window.adminAuthManager = adminAuth;
+        supabase = adminAuth.getSupabaseClient();
+
+        // Initialize API Manager
+        adminAPI = new AdminAPIManager();
+        await adminAPI.initialize(adminAuth);
+
+        // Check current session
+        const isAuthenticated = await adminAuth.checkCurrentSession();
+        updateAuthButton(isAuthenticated);
+
+        if (isAuthenticated) {
+          isAdminMode = true;
+          const currentUser = adminAuth.getCurrentUser();
+          console.log('✅ Admin đã đăng nhập:', currentUser.email);
+          updateUserProfile(currentUser);
+          await adminAPI.logAdminAction('dashboard_access', { ip: 'auto' });
+          await handleAuthenticatedState();
+        } else {
+          console.log('ℹ️ Chưa đăng nhập - yêu cầu đăng nhập Admin');
+          isAdminMode = false;
+          lockDashboardForGuest();
+          adminAuth.showLoginModal();
+        }
+
+      } catch (error) {
+        console.error('❌ Lỗi khởi tạo Admin system:', error);
+        isAdminMode = false;
+      }
+    }
+
+    async function handleAuthenticatedState() {
+      try {
+        toggleAuthSections(true);
+        supabase = adminAuth.getSupabaseClient();
+        updateUserProfile(adminAuth.getCurrentUser());
+        resetAnalyticsState();
+        await refreshDashboardWithAuth();
+      } catch (error) {
+        console.error('❌ Lỗi xử lý sau khi đăng nhập:', error);
+      }
+    }
+
+    function lockDashboardForGuest() {
+      toggleAuthSections(false);
+      clearUserProfile();
+      resetAnalyticsState();
+      document.querySelectorAll('.admin-feature').forEach(element => {
+        element.classList.add('disabled');
+        element.setAttribute('disabled', 'disabled');
+      });
+    }
+
+    function toggleAuthSections(isAuthenticated) {
+      const profileSection = document.querySelector('.user-profile');
+      const signInSection = document.querySelector('.auth-signin');
+
+      if (profileSection) {
+        profileSection.style.display = isAuthenticated ? 'flex' : 'none';
+      }
+
+      if (signInSection) {
+        signInSection.classList.toggle('auth-hidden', !!isAuthenticated);
+      }
+    }
+
+    // Handle Auth Button Click
+    function handleAuthAction() {
+      if (adminAuth && adminAuth.isAuthenticated()) {
+        // Đăng xuất
+        if (confirm('Bạn có chắc muốn đăng xuất?')) {
+          adminAuth.logout();
+        }
+      } else {
+        // Đăng nhập
+        adminAuth.showLoginModal();
+      }
+    }
+
+    // Update Auth Button
+    function updateAuthButton(isAuthenticated) {
+      const authBtn = document.getElementById('adminAuthBtn');
+      const authBtnText = document.getElementById('authBtnText');
+
+      if (isAuthenticated) {
+        authBtn.classList.add('logout');
+        authBtnText.textContent = '🚪 Đăng xuất';
+      } else {
+        authBtn.classList.remove('logout');
+        authBtnText.textContent = '🔐 Đăng nhập';
+      }
+
+      toggleAuthSections(isAuthenticated);
+    }
+
+    // Refresh Dashboard with Authentication
+    async function refreshDashboardWithAuth(forceRefresh = true) {
+      if (!adminAuth || !adminAuth.isAuthenticated()) {
+        console.warn('⚠️ Không thể refresh khi chưa đăng nhập');
+        return;
+      }
+
+      supabase = adminAuth.getSupabaseClient();
+      console.log('🔄 Refresh dashboard với admin auth...');
+
+      await Promise.allSettled([
+        loadDashboardData(),
+        loadOverviewStats(forceRefresh),
+        loadArticles(currentArticlesPage),
+        loadUsers()
+      ]);
+
+      if (typeof initAnalytics === 'function' && !analyticsInitialized) {
+        setTimeout(() => {
+          initAnalytics().catch(error => console.error('Analytics init failed:', error));
+        }, 500);
+      }
+    }
+
+    // Load Dashboard Data với Authentication
+    async function loadDashboardData() {
+      if (!adminAPI || !adminAuth || !adminAuth.isAuthenticated()) {
+        console.warn('⚠️ Admin API Manager chưa sẵn sàng hoặc chưa đăng nhập');
+        return;
+      }
+
+      try {
+        console.log('🔄 Loading dashboard data - Admin mode');
+
+        // Get dashboard stats
+        const stats = await adminAPI.getDashboardStats();
+        console.log('📊 Dashboard stats:', stats);
+
+        // Update UI based on mode
+        updateDashboardMode(stats);
+
+      } catch (error) {
+        console.error('❌ Load dashboard data failed:', error);
+      }
+    }
+
+    // Load Admin specific data
+    async function loadAdminData() {
+      try {
+        const [analytics, users] = await Promise.all([
+          adminAPI.getAnalyticsData(),
+          adminAPI.getUserData()
+        ]);
+
+        console.log('🔐 Admin data loaded:', { analytics: analytics.length, users: users.length });
+
+        // Update charts and tables with admin data
+        updateDashboardCharts(analytics);
+        updateUserTable(users);
+
+      } catch (error) {
+        console.error('❌ Load admin data failed:', error);
+      }
+    }
+
+    // Update dashboard mode indicator
+    function updateDashboardMode(stats) {
+      // Add visual indicators
+      const modeIndicator = document.querySelector('.mode-indicator');
+      if (modeIndicator) {
+        const modeText = stats && stats.mode === 'admin' ? '🔐 Admin Mode' : '🔒 Cần đăng nhập';
+        modeIndicator.textContent = modeText;
+      }
+    }
+
+    // Placeholder functions for chart updates
+    function updateDashboardCharts(data) {
+      console.log('📈 Updating charts with data:', data.length, 'records');
+      // Implement your chart update logic here
+    }
+
+    function updateUserTable(users) {
+      console.log('👥 Updating user table:', users.length, 'users');
+      // Implement your user table update logic here
+    }
+
+    // Handle Logout
+    function handleLogout() {
+      isAdminMode = false;
+      updateAuthButton(false);
+      clearAnalyticsRefreshTimers();
+      resetAnalyticsState();
+      lockDashboardForGuest();
+      console.log('✅ Đăng xuất thành công - yêu cầu đăng nhập lại');
+      showSupabaseAuth();
+    }
+
+    // API Call Helper - Tự động chọn auth method
+    async function makeAPICall(url, options = {}) {
+      try {
+        if (!adminAuth || !adminAuth.isAuthenticated()) {
+          throw new Error('Yêu cầu đăng nhập Admin để gọi API');
+        }
+
+        const authHeaders = adminAuth.getAuthHeaders();
+        const headers = {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+          ...options.headers
+        };
+
+        console.log('🔐 API call với Admin token');
+
+        const response = await fetch(url, {
+          ...options,
+          headers
+        });
+
+        return response;
+      } catch (error) {
+        console.error('❌ API call failed:', error);
+        throw error;
+      }
+    }
+
+    // Event Listeners for Auth
+    window.addEventListener('adminLoginSuccess', (event) => {
+      isAdminMode = true;
+      updateAuthButton(true);
+      if (event.detail?.user) {
+        updateUserProfile(event.detail.user);
+      }
+      refreshDashboardWithAuth();
+      console.log('✅ Admin login success event received');
+    });
+
+    window.addEventListener('adminLogout', () => {
+      handleLogout();
+    });
+
+    // Initialize on page load - removed duplicate initialization
+
+    // Legacy support functions
+    function logout() {
+      if (adminAuth) {
+        adminAuth.logout();
+      } else {
+        handleSupabaseLogout();
+      }
+    }
+
+    // Expose global functions
+    window.refreshDashboard = refreshDashboardWithAuth;
+    window.handleLogout = handleLogout;
+    window.makeAPICall = makeAPICall;
   </script>
 </body>
 
