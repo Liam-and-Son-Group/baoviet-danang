@@ -45,7 +45,7 @@ jobs:
       - name: 🏗️ Generate Article HTML
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           node .github/scripts/generate-article.js "${{ github.event.client_payload.article_id || github.event.inputs.article_id }}" "${{ github.event.client_payload.article_filename || github.event.inputs.article_filename }}"
 
