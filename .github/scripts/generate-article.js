@@ -22,14 +22,14 @@ const path = require("path");
 // Khởi tạo Supabase client
 // Priority: GitHub Secrets > .env file > undefined
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 console.log("🔍 Environment check:");
 console.log(
   `  - Running in: ${process.env.GITHUB_ACTIONS ? "GitHub Actions" : "Local"}`
 );
 console.log(`  - SUPABASE_URL: ${supabaseUrl ? "✅ Set" : "❌ Missing"}`);
-console.log(`  - SUPABASE_ANON_KEY: ${supabaseKey ? "✅ Set" : "❌ Missing"}`);
+console.log(`  - SUPABASE_KEY: ${supabaseKey ? "✅ Set" : "❌ Missing"}`);
 
 if (!supabaseUrl || !supabaseKey) {
   console.error("❌ Missing Supabase credentials in environment variables");

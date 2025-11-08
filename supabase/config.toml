@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "get-anon-key": {
+      "verify_jwt": false
+    }
+  }
+}
