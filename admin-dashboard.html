@@ -2284,131 +2284,6 @@
           </div>
         </div>
 
-        <!-- User Analytics Section -->
-        <div class="analytics-section">
-          <div class="section-header">
-            <h2>📊 User Analytics Dashboard</h2>
-            <p>Theo dõi hành vi người dùng realtime với insights chuyên sâu</p>
-          </div>
-
-          <div class="analytics-grid">
-            <!-- Realtime Stats -->
-            <div class="analytics-card realtime-card">
-              <div class="card-header">
-                <h3>🔴 Realtime</h3>
-                <div class="live-indicator">LIVE</div>
-              </div>
-              <div class="analytics-content">
-                <div class="realtime-stat">
-                  <span class="stat-number" id="liveVisitors">-</span>
-                  <span class="stat-label">Người dù tương trực tuyến</span>
-                </div>
-                <div class="realtime-pages">
-                  <h4>Trang đang được xem:</h4>
-                  <div id="livePages" class="live-pages-list">
-                    <div class="loading">Đang tải...</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Page Views Chart -->
-            <div class="analytics-card chart-card">
-              <div class="card-header">
-                <h3>📈 Page Views</h3>
-                <select id="pageViewsPeriod" class="period-selector">
-                  <option value="7">7 ngày</option>
-                  <option value="30">30 ngày</option>
-                  <option value="90">90 ngày</option>
-                </select>
-              </div>
-              <div class="analytics-content">
-                <canvas id="pageViewsChart" width="400" height="200"></canvas>
-              </div>
-            </div>
-
-            <!-- Top Pages -->
-            <div class="analytics-card table-card">
-              <div class="card-header">
-                <h3>🔝 Top Pages</h3>
-                <span class="period-badge">30 ngày</span>
-              </div>
-              <div class="analytics-content">
-                <div id="topPagesTable" class="analytics-table">
-                  <div class="loading">Đang tải...</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Traffic Sources -->
-            <div class="analytics-card pie-card">
-              <div class="card-header">
-                <h3>🌐 Traffic Sources</h3>
-                <span class="period-badge">30 ngày</span>
-              </div>
-              <div class="analytics-content">
-                <canvas id="trafficSourcesChart" width="300" height="300"></canvas>
-                <div id="trafficSourcesList" class="traffic-sources-list">
-                  <div class="loading">Đang tải...</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Keywords -->
-            <div class="analytics-card keywords-card">
-              <div class="card-header">
-                <h3>🔍 Popular Keywords</h3>
-                <span class="period-badge">30 ngày</span>
-              </div>
-              <div class="analytics-content">
-                <div id="keywordsCloud" class="keywords-cloud">
-                  <div class="loading">Đang tải...</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Summary Stats -->
-            <div class="analytics-card summary-card">
-              <div class="card-header">
-                <h3>📊 Tổng quan</h3>
-                <span class="period-badge">30 ngày</span>
-              </div>
-              <div class="analytics-content">
-                <div class="summary-stats">
-                  <div class="summary-stat">
-                    <span class="stat-value" id="totalViews">-</span>
-                    <span class="stat-label">Total Views</span>
-                  </div>
-                  <div class="summary-stat">
-                    <span class="stat-value" id="uniqueVisitors">-</span>
-                    <span class="stat-label">Unique Visitors</span>
-                  </div>
-                  <div class="summary-stat">
-                    <span class="stat-value" id="avgTimeOnSite">-</span>
-                    <span class="stat-label">Avg. Time on Site</span>
-                  </div>
-                  <div class="summary-stat">
-                    <span class="stat-value" id="bounceRate">-</span>
-                    <span class="stat-label">Bounce Rate</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="analytics-actions">
-            <button class="btn btn-outline" onclick="refreshAnalytics()">
-              🔄 Refresh Data
-            </button>
-            <button class="btn btn-outline" onclick="exportAnalytics()">
-              📊 Export Report
-            </button>
-            <button class="btn btn-outline" onclick="showAnalyticsDetails()">
-              🔍 View Details
-            </button>
-          </div>
-        </div>
-
         <div class="quick-actions">
           <a href="#" class="btn btn-primary" onclick="switchSection('compose')">
             ✍️ Đăng bài mới
@@ -4763,7 +4638,7 @@
         <div class="help-nav-item" onclick="showHelpSection('articles')">📝 Quản lý bài viết</div>
         <div class="help-nav-item" onclick="showHelpSection('compose')">✍️ Viết bài</div>
         <div class="help-nav-item" onclick="showHelpSection('users')">👥 Người dùng</div>
-        <div class="help-nav-item" onclick="showHelpSection('analytics')">📊 Analytics</div>
+        <div class="help-nav-item" onclick="showHelpSection('search-console')">🔍 Google Search Console</div>
         <div class="help-nav-item" onclick="showHelpSection('tips')">💡 Mẹo hay</div>
       </div>
 
@@ -4919,116 +4794,72 @@
             </div>
           </div>
 
-          <!-- Analytics Section -->
-          <div id="help-analytics" class="help-section">
-            <h3>📊 User Analytics System</h3>
-            <p>Hệ thống theo dõi hành vi người dùng toàn diện với dashboard realtime và insights chuyên sâu.</p>
+          <!-- Search Console Section -->
+          <div id="help-search-console" class="help-section">
+            <h3>🔍 Google Search Console</h3>
+            <p>Google Search Console (GSC) giúp bạn hiểu website xuất hiện như thế nào trên kết quả tìm kiếm của Google
+              và phát hiện các vấn đề SEO sớm.</p>
 
-            <h4>🔍 Dữ liệu được thu thập</h4>
+            <h4>📘 Các chỉ số cốt lõi</h4>
             <div class="help-feature">
-              <div class="help-feature-title">📈 Page Views & Traffic</div>
+              <div class="help-feature-title">📈 Hiệu suất tìm kiếm</div>
               <ul>
-                <li><strong>Page Views:</strong> Số lượt xem từng trang</li>
-                <li><strong>Unique Visitors:</strong> Số người dùng duy nhất</li>
-                <li><strong>Traffic Sources:</strong> Google, Facebook, Direct, Referral</li>
-                <li><strong>Bounce Rate:</strong> Tỷ lệ thoát trang</li>
-                <li><strong>Session Duration:</strong> Thời gian ở lại website</li>
+                <li><strong>Click:</strong> Số lần người dùng nhấp vào kết quả của bạn.</li>
+                <li><strong>Impression:</strong> Số lần trang của bạn được hiển thị trong kết quả tìm kiếm.</li>
+                <li><strong>CTR trung bình:</strong> Tỷ lệ = Click ÷ Impression. CTR cao chứng tỏ tiêu đề/mô tả hấp dẫn.
+                </li>
+                <li><strong>Vị trí trung bình:</strong> Thứ hạng trung bình của trang hoặc từ khóa trên Google.</li>
               </ul>
             </div>
 
             <div class="help-feature">
-              <div class="help-feature-title">🎯 User Behavior</div>
+              <div class="help-feature-title">🧭 Bộ lọc quan trọng</div>
               <ul>
-                <li><strong>Time on Page:</strong> Thời gian đọc từng trang</li>
-                <li><strong>Scroll Depth:</strong> Mức độ scroll (25%, 50%, 75%, 100%)</li>
-                <li><strong>Click Tracking:</strong> Buttons và links được click</li>
-                <li><strong>Search Behavior:</strong> Keywords và search queries</li>
-                <li><strong>Page Flow:</strong> Hành trình người dùng qua các trang</li>
+                <li><strong>Truy vấn (Queries):</strong> Từ khóa người dùng tìm kiếm trước khi vào website.</li>
+                <li><strong>Trang (Pages):</strong> Những URL đang thu hút traffic tự nhiên.</li>
+                <li><strong>Quốc gia & Thiết bị:</strong> So sánh hiệu suất theo từng thị trường và loại thiết bị.</li>
+                <li><strong>Search Appearance:</strong> Kiểm tra các định dạng hiển thị đặc biệt (FAQ, Breadcrumb,
+                  v.v.).</li>
               </ul>
             </div>
 
-            <div class="help-feature">
-              <div class="help-feature-title">🔎 SEO & Content</div>
-              <ul>
-                <li><strong>Keywords:</strong> Từ khóa phổ biến được tìm</li>
-                <li><strong>Top Pages:</strong> Trang có lượt truy cập cao</li>
-                <li><strong>Content Performance:</strong> Bài viết nào được đọc nhiều</li>
-                <li><strong>Search Trends:</strong> Xu hướng tìm kiếm theo thời gian</li>
-              </ul>
-            </div>
-
-            <h4>📊 Dashboard Features</h4>
+            <h4>🛠 Báo cáo Tính năng & Bao phủ</h4>
             <div class="help-step">
-              <strong>Realtime Analytics:</strong>
+              <strong>Báo cáo Bao phủ (Coverage):</strong>
               <ol>
-                <li><strong>Live Visitors:</strong> Số người đang online realtime</li>
-                <li><strong>Current Activity:</strong> Trang nào đang được xem</li>
-                <li><strong>Traffic Spike Alerts:</strong> Cảnh báo khi có traffic bất thường</li>
-                <li><strong>Performance Monitoring:</strong> Page load time và errors</li>
+                <li><strong>Valid:</strong> Trang đã được Google index bình thường.</li>
+                <li><strong>Warning:</strong> Trang index nhưng có vấn đề cần tối ưu.</li>
+                <li><strong>Error:</strong> Trang không được index – cần kiểm tra mô tả lỗi cụ thể.</li>
+                <li><strong>Excluded:</strong> Trang bị loại khỏi chỉ mục (noindex, trùng lặp, redirect...).</li>
               </ol>
             </div>
 
+            <div class="help-feature">
+              <div class="help-feature-title">✨ Enhancements</div>
+              <ul>
+                <li><strong>Core Web Vitals:</strong> Theo dõi tốc độ tải và trải nghiệm người dùng.</li>
+                <li><strong>Sơ đồ trang (Sitemaps):</strong> Đảm bảo Google biết đầy đủ cấu trúc website.</li>
+                <li><strong>Breadcrumb / FAQ:</strong> Kiểm tra việc triển khai schema cải thiện hiển thị kết quả tìm
+                  kiếm.</li>
+              </ul>
+            </div>
+
+            <h4>🚀 Cách sử dụng nhanh</h4>
             <div class="help-step">
-              <strong>Historical Reports:</strong>
+              <strong>3 bước mỗi tuần:</strong>
               <ol>
-                <li><strong>Time Range:</strong> Xem data 7 ngày, 30 ngày, 90 ngày</li>
-                <li><strong>Comparison:</strong> So sánh với period trước</li>
-                <li><strong>Trend Analysis:</strong> Biểu đồ xu hướng tăng trường</li>
-                <li><strong>Export Data:</strong> Xuất report dạng CSV/PDF</li>
+                <li>Mở báo cáo Hiệu suất & lọc theo 7 ngày gần nhất.</li>
+                <li>Xem truy vấn/từ khóa có xu hướng tăng hoặc giảm mạnh.</li>
+                <li>Nhấp vào từng trang để tối ưu tiêu đề, nội dung và internal link.</li>
               </ol>
             </div>
 
-            <h4>🛠️ Cấu hình Analytics</h4>
             <div class="help-warning">
-              <div class="help-warning-title">⚙️ Automatic Setup</div>
-              <p>Analytics system đã được cài đặt sẵn và hoạt động tự động. Không cần cấu hình thêm.</p>
+              <div class="help-warning-title">🔔 Gợi ý theo dõi</div>
               <ul>
-                <li><strong>Privacy Compliant:</strong> Không thu thập PII</li>
-                <li><strong>GDPR Ready:</strong> Tuân thủ quy định bảo mật</li>
-                <li><strong>Performance Optimized:</strong> Không ảnh hưởng tốc độ website</li>
-                <li><strong>Real-time Processing:</strong> Dữ liệu cập nhật ngay lập tức</li>
-              </ul>
-            </div>
-
-            <h4>📈 Sử dụng Insights</h4>
-            <div class="help-feature">
-              <div class="help-feature-title">🎯 Content Optimization</div>
-              <ul>
-                <li><strong>Popular Content:</strong> Viết thêm bài về chủ đề được quan tâm</li>
-                <li><strong>Low Performing Pages:</strong> Cải thiện nội dung ít người xem</li>
-                <li><strong>User Journey:</strong> Tối ưu navigation và internal links</li>
-                <li><strong>SEO Opportunities:</strong> Keywords mới để target</li>
-              </ul>
-            </div>
-
-            <div class="help-feature">
-              <div class="help-feature-title">📱 Technical Insights</div>
-              <ul>
-                <li><strong>Page Speed:</strong> Identify slow loading pages</li>
-                <li><strong>Mobile Usage:</strong> Mobile vs Desktop traffic</li>
-                <li><strong>Browser Support:</strong> Browsers người dùng sử dụng</li>
-                <li><strong>Error Tracking:</strong> Pages có lỗi cần fix</li>
-              </ul>
-            </div>
-
-            <h4>🚀 Advanced Features</h4>
-            <div class="help-step">
-              <strong>Custom Events:</strong>
-              <ul>
-                <li><span class="help-shortcut">Form Submissions</span> Theo dõi đăng ký tư vấn</li>
-                <li><span class="help-shortcut">Download Tracking</span> PDF brochures, price lists</li>
-                <li><span class="help-shortcut">Video Engagement</span> Thời gian xem video</li>
-                <li><span class="help-shortcut">Search Queries</span> Từ khóa người dùng tìm</li>
-              </ul>
-            </div>
-
-            <div class="help-warning">
-              <div class="help-warning-title">🔐 Data Security</div>
-              <ul>
-                <li>Dữ liệu được mã hóa và bảo mật cao</li>
-                <li>Chỉ admin mới có quyền truy cập analytics</li>
-                <li>Tự động xóa data cũ sau 90 ngày</li>
-                <li>Comply với GDPR và privacy laws</li>
+                <li>Thiết lập email thông báo trong GSC để nhận cảnh báo lỗi mới.</li>
+                <li>Tái gửi sitemap sau khi thêm nhiều bài viết mới.</li>
+                <li>Kiểm tra mục Manual Actions nếu traffic giảm bất thường.</li>
               </ul>
             </div>
           </div>
