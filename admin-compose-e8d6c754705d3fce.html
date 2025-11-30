@@ -886,7 +886,12 @@
 <body>
   <header class="admin-header">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h1>📝 Soạn thảo bài viết</h1>
+      <div>
+        <h1>📝 Soạn thảo bài viết</h1>
+        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-top: 0.25rem;">
+          v1.0.0 • Supabase Storage
+        </div>
+      </div>
       <div style="display: flex; gap: 1rem; align-items: center;">
         <a href="admin-dashboard.html"
           style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 6px;">
@@ -1074,6 +1079,11 @@
   </div>
 
   <script>
+    // Application Version
+    const APP_VERSION = '1.0.0';
+    const APP_BUILD_DATE = new Date().toISOString().split('T')[0];
+    const APP_FEATURES = 'Supabase Storage';
+
     /*
     ====================================================================
     🔧 HƯỚNG DẪN SETUP SUPABASE STORAGE
