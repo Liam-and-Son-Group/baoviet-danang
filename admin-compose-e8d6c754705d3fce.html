@@ -463,6 +463,29 @@
       background: #ebf8ff;
     }
 
+    .feature-image-dropzone.loading {
+      opacity: 0.6;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .feature-image-dropzone.loading::after {
+      content: attr(data-loading-message);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 600;
+      color: #064278;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      letter-spacing: 0.3px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
     .feature-image-preview {
       text-align: center;
       padding: 1rem;
@@ -1408,217 +1431,103 @@
           // Image upload settings - Supabase Storage mode
           images_upload_handler: async function (blobInfo, success, failure, progress) {
             try {
-              console.log('🖼️ TinyMCE image upload started (Supabase mode):', blobInfo.filename());
-              console.log('🔍 Callback functions available:', {
-                success: typeof success,
-                failure: typeof failure,
-                progress: typeof progress
-              });
-
-              // Show initial progress
               if (progress && typeof progress === 'function') {
                 progress(0);
               }
 
-              // Initialize Supabase if not already done
               const client = await initializeSupabase();
-
-              if (!client || !window.supabase) {
-                console.warn('⚠️ Supabase not available, falling back to base64');
-                showStatus('⚠️ Supabase không khả dụng - sử dụng base64 fallback', 'warning');
-
-                // Fallback to base64 if Supabase not available
-                const reader = new FileReader();
-                reader.onload = function () {
-                  if (typeof success === 'function') {
-                    const base64Url = reader.result;
-                    console.log('🔄 Fallback base64 URL:', base64Url.substring(0, 50) + '...');
-                    success(base64Url);
-                    showStatus('📱 Đã lưu ảnh dạng base64 (fallback)', 'info');
-                  }
-                };
-                reader.onerror = function () {
-                  if (typeof failure === 'function') {
-                    failure('Lỗi đọc file ảnh');
-                  }
-                };
-                reader.readAsDataURL(blobInfo.blob());
+              if (!client) {
+                const errorMessage = 'Supabase client chưa sẵn sàng. Không thể upload ảnh.';
+                showStatus('❌ ' + errorMessage, 'error');
+                if (typeof failure === 'function') {
+                  failure(errorMessage);
+                }
                 return;
               }
 
-              const file = blobInfo.blob();
-              const fileName = Date.now() + '-tinymce-' + blobInfo.filename().replace(/[^a-zA-Z0-9.-]/g, '_');
-              const filePath = 'editor/' + fileName;
+              const originalName = blobInfo.filename();
+              const sanitizedName = Date.now() + '-tinymce-' + originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
+              const blob = blobInfo.blob();
+              let file;
 
-              // Show progress
+              try {
+                file = new File([blob], sanitizedName, { type: blob.type || 'image/png' });
+              } catch (error) {
+                console.warn('File constructor unavailable, falling back to Blob name shim:', error);
+                file = blob;
+                file.name = sanitizedName;
+              }
+
               if (progress && typeof progress === 'function') {
                 progress(25);
               }
 
-              console.log('☁️ Uploading to Supabase Storage:', filePath);
-              showStatus('☁️ Đang upload ảnh lên Supabase Storage: ' + blobInfo.filename(), 'info');
+              showStatus('☁️ Đang upload ảnh lên Supabase Storage: ' + originalName, 'info');
 
-              // Upload to Supabase Storage with timeout
-              const uploadPromise = client.storage
-                .from('images')
-                .upload(filePath, file);
-
-              const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error('Upload timeout after 15 seconds')), 15000);
-              });
-
-              const { data: uploadData, error: uploadError } = await Promise.race([
-                uploadPromise,
-                timeoutPromise
-              ]);
-
-              if (uploadError) {
-                console.error('TinyMCE Supabase upload error:', uploadError);
-
-                // Auto-fallback to base64 for any upload errors
-                console.warn('🔄 Upload failed, falling back to base64');
-                showStatus('⚠️ Lỗi upload Supabase - chuyển sang base64 fallback', 'warning');
-
-                const reader = new FileReader();
-                reader.onload = function () {
-                  if (typeof success === 'function') {
-                    const base64Url = reader.result;
-                    console.log('🔄 Upload error fallback base64 URL:', base64Url.substring(0, 50) + '...');
-                    success(base64Url);
-                    showStatus('📱 Đã lưu ảnh dạng base64 (fallback)', 'info');
-                  }
-                };
-                reader.onerror = function () {
-                  if (typeof failure === 'function') {
-                    failure('Lỗi xử lý ảnh fallback');
-                  }
-                };
-                reader.readAsDataURL(blobInfo.blob());
+              let uploadResult;
+              try {
+                uploadResult = await uploadFileToSupabaseStorage(file, {
+                  client,
+                  folder: 'editor-images',
+                  originalName,
+                  source: 'tinymce-upload'
+                });
+              } catch (uploadErr) {
+                console.error('❌ Upload to Supabase failed:', uploadErr);
+                showStatus('❌ Lỗi upload ảnh: ' + (uploadErr.message || uploadErr), 'error');
+                if (typeof failure === 'function') {
+                  failure(uploadErr.message || 'Upload failed');
+                }
                 return;
               }
 
-              // Show progress
-              if (progress && typeof progress === 'function') {
-                progress(75);
-              }
-
-              // Get public URL
-              const { data: { publicUrl } } = client.storage
-                .from('images')
-                .getPublicUrl(filePath);
-
-              console.log('✅ Supabase public URL generated:', publicUrl);
-              console.log('🔍 Public URL type:', typeof publicUrl);
-              console.log('🔍 Public URL length:', publicUrl ? publicUrl.length : 'null/undefined');
-
-              // Validate public URL
-              if (!publicUrl || publicUrl.trim() === '') {
-                console.error('❌ Invalid public URL generated:', publicUrl);
-                throw new Error('Public URL is empty or invalid');
-              }
-
-              // Save image metadata to database (optional - skip if RLS blocks)
-              try {
-                await client
-                  .from('article_images')
-                  .insert({
-                    article_id: null, // Will be linked later when article is saved
-                    filename: fileName,
-                    original_name: blobInfo.filename(),
-                    storage_path: filePath,
-                    file_size: file.size,
-                    file_type: file.type
-                  });
-                console.log('✅ Image metadata saved to database');
-              } catch (dbError) {
-                console.warn('⚠️ Could not save image metadata:', dbError);
-
-                // Check if it's RLS error
-                if (dbError.message && dbError.message.includes('row-level security')) {
-                  console.warn('🔒 RLS policy blocks image metadata insert - continuing without DB tracking');
-                  showStatus('⚠️ Không thể lưu thông tin ảnh vào DB (RLS) - ảnh vẫn upload thành công', 'warning');
-                } else if (dbError.statusCode === '403' || dbError.error === 'Unauthorized') {
-                  console.warn('🔒 Database access denied - continuing without DB tracking');
-                  showStatus('⚠️ Không có quyền truy cập DB - ảnh vẫn upload thành công', 'warning');
-                } else {
-                  console.warn('⚠️ Unexpected database error:', dbError);
-                  showStatus('⚠️ Lỗi DB không xác định - ảnh vẫn upload thành công', 'warning');
-                }
-
-                // Continue anyway - we have the image uploaded to Storage successfully
-                // The image URL will still work even without DB metadata
-              }
-
-              // Complete progress
               if (progress && typeof progress === 'function') {
                 progress(100);
               }
 
-              console.log('✅ TinyMCE image uploaded successfully to Supabase:', publicUrl);
-              showStatus('✅ Đã upload ảnh lên Supabase: ' + blobInfo.filename(), 'success');
-
-              // Return Supabase public URL to TinyMCE
-              // TinyMCE will use this as the src attribute of the img tag
-              if (typeof success === 'function') {
-                // Ensure the URL is valid and properly formatted
-                const finalUrl = publicUrl.trim();
-                console.log('🎯 Final URL being passed to TinyMCE:', finalUrl);
-
-                // TinyMCE expects just the URL string, not an object
-                console.log('✅ Success callback executed successfully');
-                return finalUrl;
-              } else {
-                console.error('❌ Success callback not available or not a function');
-                console.log('🔍 Success callback type:', typeof success);
-              }
-
-            } catch (error) {
-              console.error('TinyMCE upload error:', error);
-
-              // Check if it's a network/timeout/connection error
-              const isNetworkError = error.message.includes('timeout') ||
-                error.message.includes('fetch') ||
-                error.message.includes('network') ||
-                error.message.includes('connection') ||
-                error.message.includes('ERR_CONNECTION_TIMED_OUT') ||
-                error.name === 'StorageUnknownError';
-
-              if (isNetworkError) {
-                console.warn('🔄 Network/timeout error detected, auto-fallback to base64');
-                showStatus('⚠️ Timeout kết nối Supabase - tự động chuyển sang base64', 'warning');
-              } else {
-                console.error('❌ Unexpected upload error:', error);
-                showStatus('❌ Lỗi upload không xác định: ' + error.message, 'error');
-              }
-
-              // Fallback to base64 on any error
-              try {
-                const reader = new FileReader();
-                reader.onload = function () {
-                  if (typeof success === 'function') {
-                    const base64Url = reader.result;
-                    console.log('🔄 Final fallback base64 URL:', base64Url.substring(0, 50) + '...');
-                    success(base64Url);
-                    showStatus('📱 Đã lưu ảnh dạng base64 (fallback)', 'info');
-                  }
-                };
-                reader.onerror = function () {
-                  if (typeof failure === 'function') {
-                    failure('Lỗi xử lý ảnh: ' + error.message);
-                  } else {
-                    console.error('TinyMCE failure callback not available:', error.message);
-                    showStatus('❌ Lỗi upload ảnh: ' + error.message, 'error');
-                  }
-                };
-                reader.readAsDataURL(blobInfo.blob());
-              } catch (fallbackError) {
-                console.error('Fallback error:', fallbackError);
+              if (!uploadResult || !uploadResult.publicUrl) {
+                const noUrlError = 'Upload thành công nhưng không có URL!';
+                console.error(noUrlError);
                 if (typeof failure === 'function') {
-                  failure('Lỗi xử lý ảnh: ' + fallbackError.message);
-                } else {
-                  console.error('TinyMCE failure callback not available:', fallbackError.message);
-                  showStatus('❌ Lỗi xử lý ảnh: ' + fallbackError.message, 'error');
+                  failure(noUrlError);
                 }
+                return;
+              }
+
+              const finalUrl = uploadResult.publicUrl;
+              showStatus('✅ Đã upload ảnh lên Supabase: ' + originalName, 'success');
+
+              if (!finalUrl || typeof finalUrl !== 'string') {
+                console.error('❌ finalUrl is invalid!');
+                if (typeof failure === 'function') {
+                  failure('Invalid URL: ' + finalUrl);
+                }
+                return;
+              }
+
+              if (typeof success === 'function') {
+                // TinyMCE v6+ images_upload_handler expects: { location: string }
+                try {
+                  // Pass object with location property - this is what TinyMCE expects
+                  success({ src: { value: finalUrl } });
+                  return finalUrl;
+                } catch (callErr) {
+                  console.error('❌ Error calling success():', callErr);
+                  if (typeof failure === 'function') {
+                    failure('Callback error: ' + callErr.message);
+                  }
+                }
+              } else {
+                console.error('❌ Success callback is NOT a function!');
+                if (typeof failure === 'function') {
+                  failure('Success callback is not a function');
+                }
+              }
+            } catch (error) {
+              console.error('❌ TinyMCE upload handler error:', error);
+              showStatus('❌ Lỗi upload ảnh: ' + error.message, 'error');
+              if (typeof failure === 'function') {
+                failure(error.message || 'Upload failed');
               }
             }
           },
@@ -1637,7 +1546,6 @@
 
           // Success callback
           init_instance_callback: function (editor) {
-            console.log('✅ TinyMCE editor initialized successfully');
             updateEditorStatus('✅ Editor đã sẵn sàng!', 'success');
             editor.on('change', function () {
               editor.save();
@@ -1660,7 +1568,6 @@
         // Handle initialization result safely - only call then() if it's a Promise
         if (initResult && typeof initResult.then === 'function') {
           initResult.then(function (editors) {
-            console.log('✅ TinyMCE initialization Promise resolved');
             updateEditorStatus('✅ Editor đã sẵn sàng!', 'success');
           }).catch(function (error) {
             console.error('❌ TinyMCE initialization Promise rejected:', error);
@@ -1668,7 +1575,6 @@
           });
         } else {
           // TinyMCE initialized synchronously
-          console.log('✅ TinyMCE initialized synchronously');
           setTimeout(() => {
             updateEditorStatus('✅ Editor đã sẵn sàng!', 'success');
           }, 1000);
@@ -1890,9 +1796,206 @@
       featureImageDropzone.classList.remove('dragover');
     }
 
+    let featureImageUploadInProgress = false;
+
+    function setFeatureImageUploading(isUploading, message = '☁️ Đang tải ảnh lên Supabase...') {
+      featureImageUploadInProgress = isUploading;
+      if (!featureImageDropzone) return;
+
+      if (isUploading) {
+        featureImageDropzone.classList.add('loading');
+        featureImageDropzone.setAttribute('data-loading-message', message);
+      } else {
+        featureImageDropzone.classList.remove('loading');
+        featureImageDropzone.removeAttribute('data-loading-message');
+      }
+    }
+
+    function sanitizeStorageFileName(name) {
+      if (!name) return 'feature-image';
+      return name
+        .toLowerCase()
+        .replace(/[^a-z0-9.]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        || 'feature-image';
+    }
+
+    function guessFileNameFromUrl(url) {
+      if (!url) return 'feature-image';
+      try {
+        const parsed = new URL(url);
+        return sanitizeStorageFileName(parsed.pathname.split('/').pop() || 'feature-image');
+      } catch (_error) {
+        const fallback = url.split('/').pop();
+        return sanitizeStorageFileName(fallback || 'feature-image');
+      }
+    }
+
+    function isHttpUrl(value) {
+      return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+    }
+
+    function isDataUrl(value) {
+      return typeof value === 'string' && /^data:image\/[a-z0-9.+-]+;base64,/i.test(value.trim());
+    }
+
+    function deriveStorageFileName(originalName = 'feature-image', mimeType = 'image/png') {
+      const baseName = sanitizeStorageFileName((originalName || 'feature-image').replace(/\.[^.]+$/, '')) || 'feature-image';
+      const extension = (mimeType.split('/')[1] || 'png').replace(/[^a-z0-9]/gi, '');
+      return `${baseName}.${extension || 'png'}`;
+    }
+
+    function dataUrlToFile(dataUrl, originalName = 'image.png') {
+      if (!isDataUrl(dataUrl)) {
+        throw new Error('Dữ liệu ảnh không phải định dạng base64 hợp lệ.');
+      }
+
+      const matches = dataUrl.match(/^data:([^;]+);base64,(.*)$/i);
+      if (!matches) {
+        throw new Error('Không thể phân tích dữ liệu ảnh base64.');
+      }
+
+      const mimeType = matches[1];
+      const base64Content = matches[2];
+      const binaryString = atob(base64Content);
+      const length = binaryString.length;
+      const bytes = new Uint8Array(length);
+
+      for (let i = 0; i < length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const filename = deriveStorageFileName(originalName, mimeType);
+
+      try {
+        return new File([bytes], filename, { type: mimeType });
+      } catch (error) {
+        console.warn('File constructor failed, fallback to Blob:', error);
+        const blob = new Blob([bytes], { type: mimeType });
+        blob.name = filename;
+        return blob;
+      }
+    }
+
+    async function uploadFileToSupabaseStorage(file, options = {}) {
+      const {
+        client: providedClient = null,
+        bucket = 'images',
+        folder = 'feature-images',
+        originalName = null,
+        articleId = null,
+        source = 'upload',
+        metadata = {}
+      } = options;
+
+      const client = providedClient || await initializeSupabase();
+      if (!client) {
+        throw new Error('Supabase client chưa sẵn sàng');
+      }
+
+      const baseName = deriveStorageFileName(originalName || file.name || 'image', file.type || 'image/png');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const storageFileName = `${timestamp}-${baseName}`;
+      const storagePath = `${folder}/${storageFileName}`;
+
+      const { error: uploadError } = await client.storage
+        .from(bucket)
+        .upload(storagePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type || 'image/png'
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // getPublicUrl() returns { data: { publicUrl: string } }
+      const urlResult = client.storage
+        .from(bucket)
+        .getPublicUrl(storagePath);
+
+      console.log('🔗 getPublicUrl result:', urlResult);
+
+      let publicUrl;
+      if (urlResult && urlResult.data && urlResult.data.publicUrl) {
+        publicUrl = urlResult.data.publicUrl;
+      } else if (urlResult && urlResult.publicUrl) {
+        publicUrl = urlResult.publicUrl;
+      }
+
+      if (!publicUrl || typeof publicUrl !== 'string') {
+        throw new Error('Không thể lấy URL công khai cho ảnh. Result: ' + JSON.stringify(urlResult));
+      }
+
+      // No need to save metadata to article_images table
+      // URLs are stored in Supabase Storage and referenced via feature_image_url or embedded in content
+
+      return {
+        publicUrl: publicUrl.trim(),
+        storagePath,
+        storageFileName,
+        fileSize: file.size ?? null,
+        fileType: file.type ?? null
+      };
+    }
+
+    async function uploadDataUrlToSupabase(dataUrl, originalName, options = {}) {
+      const file = dataUrlToFile(dataUrl, originalName);
+      return uploadFileToSupabaseStorage(file, {
+        ...options,
+        originalName: originalName || file.name
+      });
+    }
+
+    function hideFeatureImagePreview() {
+      if (!featureImagePreview || !featureImageDropzone || !featureImageImg) return;
+      featureImageImg.removeAttribute('src');
+      featureImagePreview.style.display = 'none';
+      featureImageDropzone.style.display = 'block';
+    }
+
+    function showFeatureImagePreview(imageUrl, imageName = 'Feature Image Preview') {
+      if (!featureImagePreview || !featureImageDropzone || !featureImageImg) return;
+
+      if (!imageUrl) {
+        hideFeatureImagePreview();
+        return;
+      }
+
+      featureImageImg.src = imageUrl;
+      featureImageImg.alt = imageName || 'Feature Image Preview';
+      featureImagePreview.style.display = 'block';
+      featureImageDropzone.style.display = 'none';
+    }
+
+    function setFeatureImage(imageData, options = {}) {
+      featureImage = imageData ? { ...imageData } : null;
+
+      if (featureImage && featureImage.url) {
+        showFeatureImagePreview(featureImage.url, featureImage.name);
+      } else {
+        hideFeatureImagePreview();
+      }
+
+      if (!options.silent && typeof markAsChanged === 'function') {
+        markAsChanged();
+      }
+
+      return featureImage;
+    }
+
+    setFeatureImage.__handlesChangeTracking = true;
+    window.setFeatureImage = setFeatureImage;
+
     function handleFeatureImageDrop(e) {
       e.preventDefault();
       featureImageDropzone.classList.remove('dragover');
+      if (featureImageUploadInProgress) {
+        showStatus('⚠️ Đang upload ảnh đại diện khác. Vui lòng đợi hoàn tất trước khi chọn ảnh mới.', 'warning');
+        return;
+      }
       const files = Array.from(e.dataTransfer.files);
       if (files.length > 0) {
         processFeatureImage(files[0]); // Only take the first file
@@ -1901,6 +2004,10 @@
 
     function handleFeatureImageSelect(e) {
       const files = Array.from(e.target.files);
+      if (featureImageUploadInProgress) {
+        showStatus('⚠️ Đang upload ảnh đại diện khác. Vui lòng đợi hoàn tất trước khi chọn ảnh mới.', 'warning');
+        return;
+      }
       if (files.length > 0) {
         processFeatureImage(files[0]);
       }
@@ -1917,55 +2024,71 @@
         return;
       }
 
-      uploadFeatureImageToBase64(file);
+      return uploadFeatureImage(file);
     }
 
-    function uploadFeatureImageToBase64(file) {
+    async function uploadFeatureImage(file) {
+      setFeatureImageUploading(true);
+
       try {
-        showStatus('🌟 Đang chuyển đổi ảnh đại diện sang base64: ' + file.name + '...', 'info');
+        showStatus('☁️ Đang upload ảnh đại diện lên Supabase Storage...', 'info');
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          try {
-            const base64Data = e.target.result;
+        const client = await initializeSupabase();
+        if (!client) {
+          throw new Error('Supabase client chưa sẵn sàng');
+        }
 
-            // Store feature image data as base64
-            featureImage = {
-              id: Date.now() + Math.random(),
-              name: file.name,
-              url: base64Data, // Store base64 data directly
-              file: file,
-              base64: true // Flag to indicate this is base64 data
-            };
+        const sanitizedFileName = sanitizeStorageFileName(file.name);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filePath = `feature-images/${timestamp}-${sanitizedFileName}`;
 
-            // Show preview
-            showFeatureImagePreview(base64Data);
-            showStatus('✅ Đã chuyển đổi ảnh đại diện sang base64: ' + file.name, 'success');
+        const { error: uploadError } = await client.storage
+          .from('images')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
-          } catch (previewError) {
-            console.error('Feature image preview error:', previewError);
-            showStatus('❌ Lỗi hiển thị preview: ' + previewError.message, 'error');
-          }
-        };
+        if (uploadError) {
+          throw uploadError;
+        }
 
-        reader.onerror = function (error) {
-          console.error('Feature image FileReader error:', error);
-          showStatus('❌ Lỗi đọc file ảnh: ' + file.name, 'error');
-        };
+        const { data: publicData, error: publicUrlError } = client.storage
+          .from('images')
+          .getPublicUrl(filePath);
 
-        // Convert to base64
-        reader.readAsDataURL(file);
+        if (publicUrlError) {
+          throw publicUrlError;
+        }
+
+        const publicUrl = publicData?.publicUrl || publicData?.public_url;
+        if (!publicUrl) {
+          throw new Error('Không thể lấy URL công khai cho ảnh đại diện');
+        }
+
+        setFeatureImage({
+          id: `supabase-${Date.now()}`,
+          name: file.name,
+          url: publicUrl,
+          storage_path: filePath,
+          supabase: true,
+          file_size: file.size,
+          file_type: file.type
+        });
+
+        showStatus('✅ Đã upload ảnh đại diện lên Supabase Storage', 'success');
+        // No need to save to article_images - URL is stored in feature_image_url field
 
       } catch (error) {
-        console.error('Feature image base64 conversion error:', error);
-        showStatus('❌ Lỗi chuyển đổi ảnh: ' + file.name + ': ' + error.message, 'error');
+        console.error('Feature image upload error:', error);
+        setFeatureImage(null, { silent: true });
+        showStatus('❌ Không thể upload ảnh đại diện lên Supabase: ' + (error.message || error), 'error');
+      } finally {
+        setFeatureImageUploading(false);
+        if (featureImageInput) {
+          featureImageInput.value = '';
+        }
       }
-    }
-
-    function showFeatureImagePreview(imageUrl) {
-      featureImageImg.src = imageUrl;
-      featureImagePreview.style.display = 'block';
-      featureImageDropzone.style.display = 'none';
     }
 
     function removeFeatureImage() {
@@ -1974,9 +2097,7 @@
         'Bạn có chắc chắn muốn xóa ảnh đại diện hiện tại?',
         () => {
           // Yes action - remove feature image
-          featureImage = null;
-          featureImagePreview.style.display = 'none';
-          featureImageDropzone.style.display = 'block';
+          setFeatureImage(null);
           featureImageInput.value = '';
           showSuccessModal('🗑️ Đã xóa ảnh đại diện', 'Ảnh đại diện đã được xóa thành công!');
         },
@@ -2215,205 +2336,8 @@
       });
     }
 
-    // Function to link orphaned TinyMCE images with the article
-    async function linkEditorImages(articleId, htmlContent) {
-      try {
-        const client = await initializeSupabase();
-        if (!client) return;
-
-        // Get all unlinked TinyMCE images (article_id is null)
-        const { data: orphanedImages, error } = await client
-          .from('article_images')
-          .select('*')
-          .is('article_id', null);
-
-        if (error) {
-          if (error.message && error.message.includes('row-level security')) {
-            console.warn('🔒 RLS policy blocks reading article_images - skipping image linking');
-            return;
-          }
-          console.warn('⚠️ Error reading orphaned images:', error);
-          return;
-        }
-
-        if (!orphanedImages || orphanedImages.length === 0) return;
-
-        // Find images that are used in this article's content
-        const usedImages = orphanedImages.filter(img => {
-          // Get public URL for comparison
-          const { data: { publicUrl } } = client.storage
-            .from('images')
-            .getPublicUrl(img.storage_path);
-          return htmlContent.includes(publicUrl);
-        });
-
-        // Link these images to the article
-        for (const img of usedImages) {
-          try {
-            await client
-              .from('article_images')
-              .update({ article_id: articleId })
-              .eq('id', img.id);
-          } catch (updateError) {
-            if (updateError.message && updateError.message.includes('row-level security')) {
-              console.warn(`🔒 RLS policy blocks updating image ${img.filename} - skipping`);
-            } else {
-              console.warn(`⚠️ Error linking image ${img.filename}:`, updateError);
-            }
-          }
-        }
-
-        if (usedImages.length > 0) {
-          console.log(`✅ Linked ${usedImages.length} TinyMCE images to article ${articleId}`);
-          showStatus(`✅ Đã liên kết ${usedImages.length} ảnh TinyMCE với bài viết`, 'success');
-        }
-
-      } catch (error) {
-        console.error('Error linking editor images:', error);
-      }
-    }
-
-    // Function to cleanup orphaned images (images not linked to any article after 24 hours)
-    async function cleanupOrphanedImages() {
-      try {
-        const client = await initializeSupabase();
-        if (!client) return;
-
-        // Get images that are orphaned for more than 24 hours
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-        const { data: orphanedImages, error } = await client
-          .from('article_images')
-          .select('*')
-          .is('article_id', null)
-          .lt('created_at', twentyFourHoursAgo);
-
-        if (error) {
-          if (error.message && error.message.includes('row-level security')) {
-            console.warn('🔒 RLS policy blocks reading article_images - skipping orphaned cleanup');
-            return;
-          }
-          console.warn('⚠️ Error reading orphaned images:', error);
-          return;
-        }
-
-        if (!orphanedImages || orphanedImages.length === 0) return;
-
-        console.log(`🧹 Found ${orphanedImages.length} orphaned images to cleanup`);
-
-        // Delete orphaned images
-        for (const img of orphanedImages) {
-          try {
-            // Delete from storage
-            await client.storage
-              .from('images')
-              .remove([img.storage_path]);
-
-            // Delete from database
-            try {
-              await client
-                .from('article_images')
-                .delete()
-                .eq('id', img.id);
-            } catch (deleteError) {
-              if (deleteError.message && deleteError.message.includes('row-level security')) {
-                console.warn(`🔒 RLS policy blocks deleting image ${img.filename} from DB - storage file removed`);
-              } else {
-                console.warn(`⚠️ Failed to delete image ${img.filename} from DB:`, deleteError);
-              }
-            }
-
-            console.log(`🗑️ Deleted orphaned image: ${img.filename}`);
-          } catch (delError) {
-            if (delError.message && delError.message.includes('row-level security')) {
-              console.warn(`🔒 RLS policy blocks deleting orphaned image ${img.filename}`);
-            } else {
-              console.warn(`⚠️ Failed to delete orphaned image ${img.filename}:`, delError);
-            }
-          }
-        }
-
-        if (orphanedImages.length > 0) {
-          showStatus(`🧹 Đã dọn dẹp ${orphanedImages.length} ảnh rác`, 'info');
-        }
-
-      } catch (error) {
-        console.error('Error cleaning up orphaned images:', error);
-      }
-    }
-
-    // Function to cleanup unused editor images
-    async function cleanupEditorImages(articleId, htmlContent) {
-      try {
-        const client = await initializeSupabase();
-        if (!client) return;
-
-        // Get all images associated with this article from TinyMCE
-        const { data: editorImages, error } = await client
-          .from('article_images')
-          .select('*')
-          .eq('article_id', articleId);
-
-        if (error) {
-          if (error.message && error.message.includes('row-level security')) {
-            console.warn('🔒 RLS policy blocks reading article_images - skipping cleanup');
-            return;
-          }
-          console.warn('⚠️ Error reading editor images:', error);
-          return;
-        }
-
-        if (!editorImages || editorImages.length === 0) return;
-
-        // Check which images are still used in the HTML content
-        const unusedImages = editorImages.filter(img => {
-          // Get public URL for comparison
-          const { data: { publicUrl } } = client.storage
-            .from('images')
-            .getPublicUrl(img.storage_path);
-          return !htmlContent.includes(publicUrl);
-        });
-
-        // Delete unused images
-        for (const img of unusedImages) {
-          try {
-            // Delete from storage
-            await client.storage
-              .from('images')
-              .remove([img.storage_path]);
-
-            // Delete from database
-            try {
-              await client
-                .from('article_images')
-                .delete()
-                .eq('id', img.id);
-            } catch (deleteError) {
-              if (deleteError.message && deleteError.message.includes('row-level security')) {
-                console.warn(`🔒 RLS policy blocks deleting image ${img.filename} from DB - storage file removed`);
-              } else {
-                console.warn(`⚠️ Failed to delete image ${img.filename} from DB:`, deleteError);
-              }
-            }
-
-            console.log('🗑️ Cleaned up unused editor image:', img.filename);
-          } catch (cleanupError) {
-            if (cleanupError.message && cleanupError.message.includes('row-level security')) {
-              console.warn(`🔒 RLS policy blocks cleanup for image ${img.filename}`);
-            } else {
-              console.warn('Could not cleanup image:', img.filename, cleanupError);
-            }
-          }
-        }
-
-        if (unusedImages.length > 0) {
-          showStatus(`🧹 Đã dọn dẹp ${unusedImages.length} ảnh không sử dụng`, 'success');
-        }
-
-      } catch (error) {
-        console.warn('Editor image cleanup failed:', error);
-      }
-    }
+    // Cleanup functions removed - no longer needed since article_images is not used
+    // Images are stored directly in Supabase Storage with URLs embedded in content or stored in feature_image_url
 
     function generateFilename(title) {
       if (!title) return '';
@@ -2624,9 +2548,7 @@
           renderUploadedImages();
 
           // Reset feature image
-          featureImage = null;
-          featureImagePreview.style.display = 'none';
-          featureImageDropzone.style.display = 'block';
+          setFeatureImage(null, { silent: true });
           featureImageInput.value = '';
 
           closePreview();
@@ -2757,6 +2679,10 @@
         }
 
         if (formData.featureImage && formData.featureImage.url) {
+          const featureImageUrl = formData.featureImage.url;
+          if (!/^https?:\/\//i.test(featureImageUrl)) {
+            throw new Error('Ảnh đại diện chưa được upload lên Supabase Storage. Vui lòng thử lại.');
+          }
           articleData.feature_image_url = formData.featureImage.url;
         }
 
@@ -2796,33 +2722,10 @@
           showStatus('✅ Đã tạo bài viết mới thành công!', 'success');
         }
 
-        // Associate uploaded Supabase images with this article
-        const supabaseImages = uploadedImages.filter(img => !img.local && img.supabase_id);
-        if (supabaseImages.length > 0) {
-          for (const img of supabaseImages) {
-            await client
-              .from('article_images')
-              .update({ article_id: savedArticle.id })
-              .eq('id', img.supabase_id);
-          }
-          showStatus('✅ Đã liên kết ' + supabaseImages.length + ' ảnh với bài viết', 'success');
-        }
-
         console.log('Article saved with status:', status, savedArticle);
 
-        // Link TinyMCE images with this article
-        try {
-          await linkEditorImages(savedArticle.id, formData.content);
-        } catch (linkError) {
-          console.warn('TinyMCE image linking failed:', linkError);
-        }
-
-        // Cleanup unused editor images
-        try {
-          await cleanupEditorImages(savedArticle.id, formData.content);
-        } catch (cleanupError) {
-          console.warn('Editor image cleanup failed:', cleanupError);
-        }
+        // No need to update article_images - URLs are stored directly in articles table
+        // (feature_image_url for feature images, content HTML for editor images)
 
         // Deploy logic - only deploy if requested and status is published
         if (shouldDeploy && status === 'published') {
@@ -3061,10 +2964,7 @@
         // Initialize Supabase in background (non-blocking)
         initializeSupabase().then(() => {
           console.log('✅ Supabase initialized');
-          // Run cleanup orphaned images after Supabase is ready
-          cleanupOrphanedImages().catch(error => {
-            console.warn('⚠️ Orphaned image cleanup failed:', error);
-          });
+          // No need to cleanup orphaned images - article_images table is not used
         }).catch(error => {
           console.log('Supabase initialization failed, using local mode:', error);
         });
@@ -3436,14 +3336,27 @@
 
           // Load feature image if exists
           if (data.feature_image_url) {
-            featureImage = {
-              id: 'existing-' + Date.now(),
-              name: 'Existing Feature Image',
-              url: data.feature_image_url,
-              supabase: true
-            };
-            showFeatureImagePreview(data.feature_image_url);
-            console.log('✅ Feature image loaded:', data.feature_image_url);
+            if (/^https?:\/\//i.test(data.feature_image_url)) {
+              setFeatureImage(
+                {
+                  id: 'existing-' + Date.now(),
+                  name: guessFileNameFromUrl(data.feature_image_url),
+                  url: data.feature_image_url,
+                  supabase: true,
+                  storage_path: data.feature_image_storage_path || null,
+                },
+                { silent: true }
+              );
+              console.log('✅ Feature image loaded:', data.feature_image_url);
+            } else {
+              setFeatureImage(null, { silent: true });
+              showStatus(
+                '⚠️ Ảnh đại diện cũ không nằm trên Supabase. Vui lòng tải lại ảnh để tiếp tục.',
+                'warning'
+              );
+            }
+          } else {
+            setFeatureImage(null, { silent: true });
           }
         } catch (optionalError) {
           console.warn('⚠️ Error filling optional fields:', optionalError);
@@ -3972,12 +3885,14 @@
 
         // Track feature image changes
         const originalSetFeatureImage = window.setFeatureImage;
-        if (originalSetFeatureImage) {
-          window.setFeatureImage = function (...args) {
+        if (originalSetFeatureImage && !originalSetFeatureImage.__handlesChangeTracking) {
+          const wrappedSetFeatureImage = function (...args) {
             const result = originalSetFeatureImage.apply(this, args);
             markAsChanged();
             return result;
           };
+          wrappedSetFeatureImage.__handlesChangeTracking = true;
+          window.setFeatureImage = wrappedSetFeatureImage;
         }
       }
 
