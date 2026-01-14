@@ -52,20 +52,31 @@ document.addEventListener("DOMContentLoaded", () => {
       // 👇 Render banner
       if (bannerText) {
         const banner = document.createElement("div");
-        banner.innerHTML = `
-          <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
-            ${bannerText}
-            <button id="close-env-banner" style="
-              background: transparent;
-              border: 1px solid ${textColor};
-              color: ${textColor};
-              padding: 4px 10px;
-              border-radius: 4px;
-              cursor: pointer;
-              transition: background 0.2s ease;
-            ">Đóng</button>
-          </div>
+        
+        // Create container div
+        const container = document.createElement("div");
+        container.style.cssText = "display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;";
+        
+        // Safely add text content (prevents XSS)
+        const textNode = document.createTextNode(bannerText);
+        container.appendChild(textNode);
+        
+        // Create close button
+        const closeBtn = document.createElement("button");
+        closeBtn.id = "close-env-banner";
+        closeBtn.textContent = "Đóng";
+        closeBtn.style.cssText = `
+          background: transparent;
+          border: 1px solid ${textColor};
+          color: ${textColor};
+          padding: 4px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background 0.2s ease;
         `;
+        
+        container.appendChild(closeBtn);
+        banner.appendChild(container);
 
         Object.assign(banner.style, {
           position: "fixed",

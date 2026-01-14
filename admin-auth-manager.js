@@ -56,7 +56,12 @@ class AdminAuthManager {
       console.log("✅ Admin Auth Manager initialized");
     } catch (error) {
       console.error("❌ Admin Auth initialization failed:", error);
-      throw error;
+      // Even if initialization fails, create modal so user can try to login
+      if (!this.loginModal) {
+        this.createLoginModal();
+      }
+      // Don't throw - allow modal to show for user to attempt login
+      console.warn("⚠️ Continuing with limited functionality - login modal available");
     }
   }
 
@@ -318,9 +323,21 @@ class AdminAuthManager {
    * Hiển thị modal đăng nhập
    */
   showLoginModal() {
+    // Ensure modal exists
+    if (!this.loginModal) {
+      console.warn("⚠️ Login modal not created, creating now...");
+      this.createLoginModal();
+    }
+    
     if (this.loginModal) {
       this.loginModal.style.display = "flex";
-      document.getElementById("adminEmail").focus();
+      const emailInput = document.getElementById("adminEmail");
+      if (emailInput) {
+        emailInput.focus();
+      }
+      console.log("🔐 Login modal displayed");
+    } else {
+      console.error("❌ Failed to create login modal");
     }
   }
 
