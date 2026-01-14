@@ -1143,8 +1143,14 @@
     };
 
     // Initialize Supabase client
-    let supabase = null;
+    // Using different name to avoid conflict with Supabase CDN global
+    let supabaseClient = null;
     let supabaseInitialized = false;
+    
+    // Helper function to get supabase client (backward compatibility)
+    function getSupabase() {
+      return supabaseClient || window.supabaseClient || null;
+    }
     let composeAppInitialized = false;
     let composeKeyManager = null;
     let adminEventsBound = false;
@@ -1174,7 +1180,8 @@
             composeSupabaseConfig.anonKey = sanitizedKey;
           }
 
-          supabase = null;
+          supabaseClient = null;
+          window.supabaseClient = null;
           supabaseInitialized = false;
 
           showStatus('✅ Đã cập nhật Supabase configuration!', 'success');
@@ -1192,7 +1199,8 @@
             composeSupabaseConfig.anonKey = null;
           }
 
-          supabase = null;
+          supabaseClient = null;
+          window.supabaseClient = null;
           supabaseInitialized = false;
           showStatus('🗑️ Đã xóa Supabase Anon Key', 'info');
         }
@@ -1254,8 +1262,8 @@
     }
 
     async function initializeSupabase() {
-      if (supabaseInitialized && supabase) {
-        return supabase;
+      if (supabaseInitialized && supabaseClient) {
+        return getSupabase();
       }
 
       try {
@@ -1295,8 +1303,13 @@
           }
         }
 
-        supabase = composeAdminAuth.getSupabaseClient();
+        const client = composeAdminAuth.getSupabaseClient();
+        if (client) {
+          supabaseClient = client;
+          window.supabaseClient = client;
+        }
 
+        const supabase = getSupabase();
         if (!supabase) {
           throw new Error('Không thể truy cập Supabase client từ phiên quản trị');
         }
@@ -3106,15 +3119,28 @@
         message: 'Vui lòng chờ trong giây lát...'
       });
 
-      await initializeSupabase();
-      await initializeApp();
-      hideAuthGuard();
+      try {
+        await initializeSupabase();
+        await initializeApp();
+        hideAuthGuard();
+      } catch (error) {
+        console.error('❌ Lỗi khởi tạo compose page:', error);
+        showAuthGuard({
+          state: 'error',
+          icon: '⚠️',
+          title: 'Lỗi khởi tạo',
+          message: error.message || 'Vui lòng thử lại sau.',
+          actionLabel: 'Thử lại',
+          actionHandler: handleComposeAdminAuthenticated
+        });
+      }
     }
 
     function handleComposeAdminLogout() {
       composeAppInitialized = false;
       supabaseInitialized = false;
-      supabase = null;
+      supabaseClient = null;
+      window.supabaseClient = null;
 
       showAuthGuard({
         state: 'prompt',

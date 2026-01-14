@@ -3,6 +3,18 @@
  * Theo dõi hành vi người dùng: pageviews, time spent, keywords, traffic sources
  */
 
+/**
+ * Sanitize string to prevent XSS in analytics data
+ */
+function sanitizeAnalyticsString(str, maxLength = 500) {
+  if (typeof str !== "string") return "";
+  // Use textContent approach to strip HTML
+  const div = document.createElement("div");
+  div.textContent = str;
+  const sanitized = div.textContent || div.innerText || "";
+  return sanitized.substring(0, maxLength);
+}
+
 class UserAnalytics {
   constructor(options = {}) {
     this.baseUrl =
@@ -24,6 +36,7 @@ class UserAnalytics {
       idleTimeout: 5 * 60 * 1000, // 5 minutes
       batchSize: 10, // Send data in batches
       maxRetries: 3,
+      maxBufferSize: 100, // Maximum events in buffer to prevent memory leak
       ...options,
     };
 
@@ -55,7 +68,10 @@ class UserAnalytics {
    */
   generateSessionId() {
     return (
-      "session_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9)
+      "session_" +
+      Date.now() +
+      "_" +
+      Math.random().toString(36).substring(2, 11)
     );
   }
 
@@ -66,7 +82,10 @@ class UserAnalytics {
     let userId = localStorage.getItem("analytics_user_id");
     if (!userId) {
       userId =
-        "user_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+        "user_" +
+        Date.now() +
+        "_" +
+        Math.random().toString(36).substring(2, 11);
       localStorage.setItem("analytics_user_id", userId);
     }
     return userId;
@@ -137,10 +156,10 @@ class UserAnalytics {
     const url = new URL(window.location.href);
 
     return {
-      page: window.location.pathname,
-      title: document.title,
-      url: window.location.href,
-      referrer: document.referrer,
+      page: sanitizeAnalyticsString(window.location.pathname, 200),
+      title: sanitizeAnalyticsString(document.title, 200),
+      url: sanitizeAnalyticsString(window.location.href, 500),
+      referrer: sanitizeAnalyticsString(document.referrer, 500),
       timestamp: new Date().toISOString(),
       viewport: {
         width: window.innerWidth,
@@ -152,7 +171,7 @@ class UserAnalytics {
       },
       device: this.getDeviceInfo(),
       keywords: this.extractKeywords(),
-      category: this.getPageCategory(),
+      category: sanitizeAnalyticsString(this.getPageCategory(), 100),
       traffic_source: this.getTrafficSource(),
     };
   }
@@ -405,7 +424,7 @@ class UserAnalytics {
           scrollPercent > (this.lastScrollMilestone || 0)
         ) {
           this.sendEvent("scroll_milestone", {
-            page: window.location.pathname,
+            page: sanitizeAnalyticsString(window.location.pathname, 200),
             scroll_percent: scrollPercent,
           });
           this.lastScrollMilestone = scrollPercent;
@@ -424,11 +443,20 @@ class UserAnalytics {
       (event) => {
         const element = event.target;
         const clickData = {
-          page: window.location.pathname,
-          element_type: element.tagName.toLowerCase(),
-          element_id: element.id || null,
-          element_class: element.className || null,
-          element_text: element.textContent?.trim().substring(0, 100) || null,
+          page: sanitizeAnalyticsString(window.location.pathname, 200),
+          element_type: sanitizeAnalyticsString(
+            element.tagName.toLowerCase(),
+            50
+          ),
+          element_id: element.id
+            ? sanitizeAnalyticsString(element.id, 100)
+            : null,
+          element_class: element.className
+            ? sanitizeAnalyticsString(String(element.className), 200)
+            : null,
+          element_text: element.textContent
+            ? sanitizeAnalyticsString(element.textContent, 100)
+            : null,
           position: {
             x: event.clientX,
             y: event.clientY,
@@ -465,10 +493,13 @@ class UserAnalytics {
       );
 
       if (searchInput) {
-        const searchTerm = searchInput.value.trim();
+        const searchTerm = sanitizeAnalyticsString(
+          searchInput.value.trim(),
+          200
+        );
         if (searchTerm) {
           this.sendEvent("search", {
-            page: window.location.pathname,
+            page: sanitizeAnalyticsString(window.location.pathname, 200),
             search_term: searchTerm,
             search_type: "form_submission",
           });
@@ -484,8 +515,8 @@ class UserAnalytics {
       const value = urlParams.get(param);
       if (value) {
         this.sendEvent("search", {
-          page: window.location.pathname,
-          search_term: value,
+          page: sanitizeAnalyticsString(window.location.pathname, 200),
+          search_term: sanitizeAnalyticsString(value, 200),
           search_type: "url_parameter",
         });
       }
@@ -519,7 +550,7 @@ class UserAnalytics {
 
         // Send heartbeat
         this.sendEvent("heartbeat", {
-          page: window.location.pathname,
+          page: sanitizeAnalyticsString(window.location.pathname, 200),
           time_spent: this.currentPage.timeSpent,
           scroll_depth: this.currentPage.scrollDepth,
           clicks: this.currentPage.clicks,
@@ -611,6 +642,17 @@ class UserAnalytics {
       this.eventBuffer = [];
     }
 
+    // Prevent memory leak: limit buffer size
+    const MAX_BUFFER_SIZE = this.config.maxBufferSize || 100;
+    if (this.eventBuffer.length >= MAX_BUFFER_SIZE) {
+      // Drop oldest events to prevent unbounded growth
+      const dropped = this.eventBuffer.shift();
+      console.warn(
+        "⚠️ Event buffer full, dropping oldest event:",
+        dropped?.event_type
+      );
+    }
+
     this.eventBuffer.push(event);
 
     // Send batch when buffer is full
@@ -619,12 +661,14 @@ class UserAnalytics {
     }
 
     // Also send batch periodically
-    if (!this.batchTimeout) {
-      this.batchTimeout = setTimeout(() => {
-        this.sendBufferedEvents();
-        this.batchTimeout = null;
-      }, 10000); // Send every 10 seconds
+    // Clear existing timeout to prevent race condition
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout);
     }
+    this.batchTimeout = setTimeout(() => {
+      this.sendBufferedEvents();
+      this.batchTimeout = null;
+    }, 10000); // Send every 10 seconds
   }
 
   /**
@@ -695,7 +739,8 @@ class UserAnalytics {
     try {
       // Try to use the global key manager if available
       if (typeof window !== "undefined" && window.SupabaseKeyManager) {
-        return await window.SupabaseKeyManager.getAnonKey();
+        const keyManager = new window.SupabaseKeyManager();
+        return await keyManager.getAnonKey();
       }
 
       // Fallback: direct fetch

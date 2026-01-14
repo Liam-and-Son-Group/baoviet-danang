@@ -2396,7 +2396,30 @@
 
   <script>
     // Initialize variables
-    let supabase = null;
+    // Helper function to get supabase client
+    function getSupabaseClient() {
+      if (window.supabaseClient) {
+        return window.supabaseClient;
+      }
+      if (adminAuth && typeof adminAuth.getSupabaseClient === 'function') {
+        const client = adminAuth.getSupabaseClient();
+        if (client) {
+          window.supabaseClient = client;
+          return client;
+        }
+      }
+      return null;
+    }
+
+    // Supabase client variable (will be set when auth is ready)
+    // Using different name to avoid conflict with Supabase CDN global
+    let supabaseClient = null;
+
+    // Helper to get supabase client (backward compatibility)
+    function getSupabase() {
+      return supabaseClient || window.supabaseClient || getSupabaseClient();
+    }
+
     let currentSection = 'overview';
 
     // Pagination variables for articles
@@ -2565,6 +2588,7 @@
 
     // Overview stats
     async function loadOverviewStats(forceRefresh = false) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       // Check cache first
@@ -2662,6 +2686,7 @@
     let prefetchTimeout = null;
 
     async function loadArticles(page = 1) {
+      const supabase = getSupabase();
       if (!supabase) {
         showStatus('Chưa kết nối Supabase', 'error');
         return;
@@ -2750,6 +2775,7 @@
     }
 
     async function prefetchArticlesPage(page) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       const cacheKey = `page_${page}_size_${articlesPerPage}`;
@@ -3094,6 +3120,7 @@
 
     // Users management
     async function loadUsers() {
+      const supabase = getSupabase();
       if (!supabase) {
         showStatus('Chưa kết nối Supabase', 'error');
         return;
@@ -3452,6 +3479,7 @@
 
     // Chart Functions
     async function loadChart(period = 15, forceRefresh = false) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       // Check cache first
@@ -3812,6 +3840,7 @@
 
     // Registration Chart Functions
     async function loadRegistrationChart(period = 30, forceRefresh = false) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       // Check cache first
@@ -4264,23 +4293,34 @@
         const response = await fetchSupabaseFunction(`track-user-behavior?type=summary&days=${days}`);
         const data = await response.json();
 
-        // Update summary stats
-        document.getElementById('totalViews').textContent =
-          data.summary.reduce((sum, day) => sum + (day.total_views || 0), 0).toLocaleString();
+        // Update summary stats - check if elements exist before setting
+        const totalViewsEl = document.getElementById('totalViews');
+        if (totalViewsEl) {
+          totalViewsEl.textContent = data.summary.reduce((sum, day) => sum + (day.total_views || 0), 0).toLocaleString();
+        }
 
-        document.getElementById('uniqueVisitors').textContent =
-          data.summary.reduce((sum, day) => sum + (day.unique_visitors || 0), 0).toLocaleString();
+        const uniqueVisitorsEl = document.getElementById('uniqueVisitors');
+        if (uniqueVisitorsEl) {
+          uniqueVisitorsEl.textContent = data.summary.reduce((sum, day) => sum + (day.unique_visitors || 0), 0).toLocaleString();
+        }
 
-        const avgTime = data.summary.reduce((sum, day) => sum + (day.avg_session_duration || 0), 0) / data.summary.length;
-        document.getElementById('avgTimeOnSite').textContent =
-          formatDuration(avgTime);
+        const avgTimeOnSiteEl = document.getElementById('avgTimeOnSite');
+        if (avgTimeOnSiteEl && data.summary.length > 0) {
+          const avgTime = data.summary.reduce((sum, day) => sum + (day.avg_session_duration || 0), 0) / data.summary.length;
+          avgTimeOnSiteEl.textContent = formatDuration(avgTime);
+        }
 
-        const avgBounce = data.summary.reduce((sum, day) => sum + (day.bounce_rate || 0), 0) / data.summary.length;
-        document.getElementById('bounceRate').textContent =
-          avgBounce.toFixed(1) + '%';
+        const bounceRateEl = document.getElementById('bounceRate');
+        if (bounceRateEl && data.summary.length > 0) {
+          const avgBounce = data.summary.reduce((sum, day) => sum + (day.bounce_rate || 0), 0) / data.summary.length;
+          bounceRateEl.textContent = avgBounce.toFixed(1) + '%';
+        }
 
         // Update realtime stats
-        document.getElementById('liveVisitors').textContent = data.active_users || 0;
+        const liveVisitorsEl = document.getElementById('liveVisitors');
+        if (liveVisitorsEl) {
+          liveVisitorsEl.textContent = data.active_users || 0;
+        }
 
       } catch (error) {
         console.error('Error loading analytics summary:', error);
@@ -4295,25 +4335,35 @@
         if (response.ok) {
           const data = await response.json();
 
-          // Update live visitor count
-          document.getElementById('liveVisitors').textContent = data.active_users || 0;
+          // Update live visitor count - check if element exists
+          const liveVisitorsEl = document.getElementById('liveVisitors');
+          if (liveVisitorsEl) {
+            liveVisitorsEl.textContent = data.active_users || 0;
+          }
 
-          // Update live pages (mock data for now)
+          // Update live pages (mock data for now) - check if element exists
           const livePagesContainer = document.getElementById('livePages');
-          livePagesContainer.innerHTML = `
+          if (livePagesContainer) {
+            // Sanitize HTML to prevent XSS
+            const page1Count = Math.floor(Math.random() * 5) + 1;
+            const page2Count = Math.floor(Math.random() * 3) + 1;
+            const page3Count = Math.floor(Math.random() * 4) + 1;
+
+            livePagesContainer.innerHTML = `
             <div class="live-page-item">
               <span class="live-page-title">Bảo hiểm ô tô</span>
-              <span class="live-page-count">${Math.floor(Math.random() * 5) + 1}</span>
+              <span class="live-page-count">${page1Count}</span>
             </div>
             <div class="live-page-item">
               <span class="live-page-title">Bảo hiểm sức khỏe</span>
-              <span class="live-page-count">${Math.floor(Math.random() * 3) + 1}</span>
+              <span class="live-page-count">${page2Count}</span>
             </div>
             <div class="live-page-item">
               <span class="live-page-title">Trang chủ</span>
-              <span class="live-page-count">${Math.floor(Math.random() * 8) + 2}</span>
+              <span class="live-page-count">${page3Count}</span>
             </div>
           `;
+          }
         }
       } catch (error) {
         console.error('Error loading realtime stats:', error);
@@ -5205,11 +5255,25 @@
 
         // Lưu trữ global để tái sử dụng
         window.adminAuthManager = adminAuth;
-        supabase = adminAuth.getSupabaseClient();
 
-        // Initialize API Manager
-        adminAPI = new AdminAPIManager();
-        await adminAPI.initialize(adminAuth);
+        // Get supabase client if available (may be null if initialization had issues)
+        try {
+          const client = adminAuth.getSupabaseClient();
+          if (client) {
+            supabaseClient = client; // Update local variable
+            window.supabaseClient = client; // Also set global
+          }
+        } catch (e) {
+          console.warn('⚠️ Supabase client not available yet:', e.message);
+        }
+
+        // Initialize API Manager (only if auth is working)
+        try {
+          adminAPI = new AdminAPIManager();
+          await adminAPI.initialize(adminAuth);
+        } catch (apiError) {
+          console.warn('⚠️ API Manager initialization failed:', apiError.message);
+        }
 
         // Check current session
         const isAuthenticated = await adminAuth.checkCurrentSession();
@@ -5220,25 +5284,42 @@
           const currentUser = adminAuth.getCurrentUser();
           console.log('✅ Admin đã đăng nhập:', currentUser.email);
           updateUserProfile(currentUser);
-          await adminAPI.logAdminAction('dashboard_access', { ip: 'auto' });
+          try {
+            await adminAPI.logAdminAction('dashboard_access', { ip: 'auto' });
+          } catch (e) {
+            console.warn('⚠️ Could not log admin action:', e.message);
+          }
           await handleAuthenticatedState();
         } else {
           console.log('ℹ️ Chưa đăng nhập - yêu cầu đăng nhập Admin');
           isAdminMode = false;
           lockDashboardForGuest();
-          adminAuth.showLoginModal();
+          // Ensure modal shows even if there were initialization issues
+          setTimeout(() => {
+            if (adminAuth && typeof adminAuth.showLoginModal === 'function') {
+              adminAuth.showLoginModal();
+            }
+          }, 100);
         }
 
       } catch (error) {
         console.error('❌ Lỗi khởi tạo Admin system:', error);
         isAdminMode = false;
+        // Still try to show login modal even on error
+        if (adminAuth && typeof adminAuth.showLoginModal === 'function') {
+          setTimeout(() => adminAuth.showLoginModal(), 200);
+        }
       }
     }
 
     async function handleAuthenticatedState() {
       try {
         toggleAuthSections(true);
-        supabase = adminAuth.getSupabaseClient();
+        const client = adminAuth.getSupabaseClient();
+        if (client) {
+          supabaseClient = client; // Update local variable
+          window.supabaseClient = client; // Also set global
+        }
         updateUserProfile(adminAuth.getCurrentUser());
         resetAnalyticsState();
         await refreshDashboardWithAuth();
@@ -5306,7 +5387,11 @@
         return;
       }
 
-      supabase = adminAuth.getSupabaseClient();
+      const supabaseClient = adminAuth.getSupabaseClient();
+      if (supabaseClient) {
+        window.supabaseClient = supabaseClient;
+        supabase = supabaseClient; // Update legacy variable
+      }
       console.log('🔄 Refresh dashboard với admin auth...');
 
       await Promise.allSettled([

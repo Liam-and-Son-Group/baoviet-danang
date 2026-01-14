@@ -163,18 +163,9 @@
           const errorText = await response.text();
           console.log('Error response:', errorText);
 
-          // Try with bootstrap key
-          console.log('🔄 Trying with bootstrap key...');
-          const bootstrapKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpYXhyc2l5Y3N3cnd1Y3RoaWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDA2NDY3NjQsImV4cCI6MjAxNjIyMjc2NH0.bJhkUrUvKhQmNabgp8rqYYNKqglLpykUJ5wOhJHyqhE';
-
-          response = await fetch(`${BASE_URL}/functions/v1/get-anon-key`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${bootstrapKey}`,
-              'apikey': bootstrapKey
-            }
-          });
+          // Don't use hardcoded bootstrap key for security
+          console.error('❌ Edge function authentication failed. Please configure edge function properly.');
+          throw new Error('Edge function authentication failed');
         }
 
         if (response.ok) {
