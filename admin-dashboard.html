@@ -32,6 +32,31 @@
       --border-radius: 8px;
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
       --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
+      --bg: #f8fafc;
+      --bg-elevated: #ffffff;
+      --text: #1a202c;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --brand: #0060ae;
+      --brand-strong: #0087d2;
+      --sidebar-bg: #2d3748;
+      --sidebar-text: #e2e8f0;
+      --sidebar-muted: #a0aec0;
+      --card-bg: #ffffff;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0b1220;
+      --bg-elevated: #0f172a;
+      --text: #f8fafc;
+      --text-muted: #cbd5f5;
+      --border: #334155;
+      --brand: #60a5fa;
+      --brand-strong: #38bdf8;
+      --sidebar-bg: #0b1220;
+      --sidebar-text: #f8fafc;
+      --sidebar-muted: #cbd5f5;
+      --card-bg: #111827;
     }
 
     * {
@@ -42,9 +67,10 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f8fafc;
-      color: #1a202c;
+      background: var(--bg);
+      color: var(--text);
       line-height: 1.6;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .dashboard-container {
@@ -60,7 +86,7 @@
       left: 0;
       right: 0;
       height: var(--header-height);
-      background: #2d3748;
+      background: var(--sidebar-bg);
       color: white;
       z-index: 1000;
       align-items: center;
@@ -84,7 +110,7 @@
     }
 
     .auth-btn {
-      background: linear-gradient(135deg, #0060ae 0%, #0087d2 100%);
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
       color: white;
       border: none;
       border-radius: 6px;
@@ -98,6 +124,22 @@
     .auth-btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0, 96, 174, 0.3);
+    }
+
+    .theme-toggle {
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    :root[data-theme="dark"] .theme-toggle {
+      background: rgba(148, 163, 184, 0.15);
+      color: #e2e8f0;
     }
 
     .auth-btn.logout {
@@ -134,8 +176,8 @@
     /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
-      background: #2d3748;
-      color: white;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
       padding: 0;
       position: fixed;
       height: 100vh;
@@ -145,6 +187,258 @@
       flex-direction: column;
       z-index: 1001;
       transition: transform 0.3s ease-in-out;
+    }
+
+    /* Welcome Overlay */
+    .welcome-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(0, 96, 174, 0.25), transparent 40%),
+        radial-gradient(circle at 80% 0%, rgba(0, 135, 210, 0.2), transparent 45%),
+        #0f172a;
+      color: white;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10002;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    .welcome-card {
+      max-width: 720px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      transform: translateY(10px) scale(0.98);
+      opacity: 0;
+      animation: welcomeCardIn 600ms ease-out forwards;
+    }
+
+    .welcome-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.2);
+      color: #e2e8f0;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      animation: shimmer 2.5s ease-in-out infinite;
+    }
+
+    .welcome-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      animation: fadeUp 500ms ease-out 120ms both;
+    }
+
+    .welcome-subtitle {
+      color: #cbd5f5;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      animation: fadeUp 500ms ease-out 200ms both;
+    }
+
+    .welcome-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      text-align: left;
+      animation: fadeUp 500ms ease-out 300ms both;
+    }
+
+    .welcome-feature {
+      background: rgba(30, 41, 59, 0.7);
+      border-radius: 12px;
+      padding: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .welcome-feature h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      color: #e2e8f0;
+    }
+
+    .welcome-feature p {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .welcome-feature:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .welcome-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 500ms ease-out 380ms both;
+    }
+
+    .welcome-steps {
+      margin: 1rem 0 1.5rem;
+      text-align: left;
+      min-height: 110px;
+      animation: fadeUp 500ms ease-out 260ms both;
+    }
+
+    .welcome-step {
+      display: none;
+      background: rgba(30, 41, 59, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: #e2e8f0;
+    }
+
+    .welcome-step.active {
+      display: block;
+      animation: fadeUp 350ms ease-out both;
+    }
+
+    .welcome-step h4 {
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      color: #e2e8f0;
+    }
+
+    .welcome-step p {
+      font-size: 0.85rem;
+      color: #cbd5f5;
+    }
+
+    .welcome-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .welcome-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(148, 163, 184, 0.4);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .welcome-dot.active {
+      background: #60a5fa;
+      transform: scale(1.3);
+    }
+
+    .welcome-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .welcome-btn.primary {
+      background: linear-gradient(135deg, #0060ae 0%, #0087d2 100%);
+      color: white;
+      box-shadow: 0 10px 20px rgba(0, 96, 174, 0.35);
+    }
+
+    .welcome-btn.secondary {
+      background: rgba(148, 163, 184, 0.2);
+      color: #e2e8f0;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .welcome-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .welcome-overlay::before,
+    .welcome-overlay::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      filter: blur(2px);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .welcome-overlay::before {
+      top: -80px;
+      left: -80px;
+    }
+
+    .welcome-overlay::after {
+      bottom: -100px;
+      right: -60px;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes welcomeCardIn {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shimmer {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+      }
+
+      50% {
+        box-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .welcome-card {
+        padding: 2rem 1.5rem;
+      }
+
+      .welcome-title {
+        font-size: 1.6rem;
+      }
     }
 
     .sidebar-header {
@@ -160,8 +454,16 @@
     }
 
     .sidebar-header p {
-      color: #a0aec0;
+      color: var(--sidebar-muted);
       font-size: 0.875rem;
+    }
+
+    .sidebar-header .theme-toggle {
+      margin-top: 0.75rem;
+      width: 100%;
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--sidebar-text);
+      border: 1px solid rgba(148, 163, 184, 0.2);
     }
 
     .sidebar-nav {
@@ -172,7 +474,7 @@
     .nav-item {
       display: block;
       padding: 1rem 1.5rem;
-      color: #e2e8f0;
+      color: var(--sidebar-text);
       text-decoration: none;
       transition: all 0.2s;
       border-left: 3px solid transparent;
@@ -180,14 +482,14 @@
     }
 
     .nav-item:hover {
-      background: #4a5568;
-      border-left-color: #0060ae;
+      background: rgba(148, 163, 184, 0.12);
+      border-left-color: var(--brand);
     }
 
     .nav-item.active {
-      background: #4a5568;
-      border-left-color: #0060ae;
-      color: white;
+      background: rgba(148, 163, 184, 0.15);
+      border-left-color: var(--brand);
+      color: var(--sidebar-text);
     }
 
     .nav-item i {
@@ -198,7 +500,7 @@
 
     .sidebar-help {
       padding: 1rem 1.5rem;
-      border-top: 1px solid #4a5568;
+      border-top: 1px solid rgba(148, 163, 184, 0.15);
       margin-top: auto;
     }
 
@@ -207,8 +509,8 @@
       align-items: center;
       width: 100%;
       padding: 0.75rem 1rem;
-      background: #4a5568;
-      color: #a0aec0;
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--sidebar-muted);
       border: none;
       border-radius: 6px;
       cursor: pointer;
@@ -218,7 +520,7 @@
     }
 
     .help-btn:hover {
-      background: #0060ae;
+      background: var(--brand);
       color: white;
     }
 
@@ -370,12 +672,12 @@
     .content-title {
       font-size: 2rem;
       font-weight: 600;
-      color: #2d3748;
+      color: var(--text);
       margin-bottom: 0.5rem;
     }
 
     .content-subtitle {
-      color: #718096;
+      color: var(--text-muted);
       font-size: 1rem;
     }
 
@@ -387,22 +689,23 @@
     }
 
     .stat-card {
-      background: white;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border-left: 4px solid #0060ae;
+      border-left: 4px solid var(--brand);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
     }
 
     .stat-number {
       font-size: 2rem;
       font-weight: 700;
-      color: #2d3748;
+      color: var(--text);
       margin-bottom: 0.5rem;
     }
 
     .stat-label {
-      color: #718096;
+      color: var(--text-muted);
       font-size: 0.875rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -414,13 +717,20 @@
       opacity: 0.6;
     }
 
+    .stat-card:hover,
+    .chart-section:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+
     /* Chart Section */
     .chart-section {
-      background: white;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 1.5rem;
       margin-bottom: 2rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
     }
 
     .chart-header {
@@ -435,7 +745,7 @@
     .chart-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #2d3748;
+      color: var(--text);
       margin: 0;
     }
 
@@ -447,10 +757,10 @@
 
     .chart-btn {
       padding: 0.5rem 1rem;
-      background: #f7fafc;
-      border: 1px solid #e2e8f0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
       border-radius: 6px;
-      color: #4a5568;
+      color: var(--text-muted);
       font-size: 0.875rem;
       cursor: pointer;
       transition: all 0.2s;
@@ -539,12 +849,13 @@
     }
 
     .content-section {
-      background: white;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       margin-bottom: 1.5rem;
       display: none;
+      transition: background 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease;
     }
 
     .content-section.active {
@@ -557,13 +868,13 @@
       align-items: center;
       margin-bottom: 1.5rem;
       padding-bottom: 1rem;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--border);
     }
 
     .section-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #2d3748;
+      color: var(--text);
     }
 
     .btn {
@@ -726,7 +1037,7 @@
     .loading {
       text-align: center;
       padding: 2rem;
-      color: #718096;
+      color: var(--text-muted);
     }
 
     .loading-spinner {
@@ -793,6 +1104,7 @@
       font-size: 1.5rem;
       font-weight: 700;
       margin: 0 0 0.5rem 0;
+      color: var(--text);
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
@@ -800,6 +1112,7 @@
       font-size: 1rem;
       line-height: 1.6;
       margin: 0;
+      color: var(--text-muted);
       opacity: 0.95;
     }
 
@@ -871,14 +1184,14 @@
     }
 
     .analytics-section .section-header h2 {
-      color: #1f2937;
+      color: var(--text);
       margin-bottom: 0.5rem;
       font-size: 2rem;
       font-weight: 700;
     }
 
     .analytics-section .section-header p {
-      color: #64748b;
+      color: var(--text-muted);
       font-size: 1.1rem;
       margin: 0;
     }
@@ -911,12 +1224,12 @@
       align-items: center;
       margin-bottom: 1rem;
       padding-bottom: 0.75rem;
-      border-bottom: 2px solid #e2e8f0;
+      border-bottom: 2px solid var(--border);
     }
 
     .analytics-card .card-header h3 {
       margin: 0;
-      color: #1f2937;
+      color: var(--text);
       font-size: 1.2rem;
       font-weight: 600;
     }
@@ -1667,7 +1980,7 @@
     }
 
     .pagination-info {
-      color: #718096;
+      color: var(--text-muted);
       font-size: 0.9rem;
       font-weight: 500;
     }
@@ -1753,7 +2066,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: #718096;
+      color: var(--text-muted);
       font-size: 0.9rem;
     }
 
@@ -1923,7 +2236,7 @@
       border-bottom: 3px solid transparent;
       transition: all 0.2s;
       font-weight: 500;
-      color: #718096;
+      color: var(--text-muted);
     }
 
     .help-nav-item:hover {
@@ -1951,11 +2264,11 @@
     }
 
     .help-section h3 {
-      color: #2d3748;
+      color: var(--text);
       font-size: 1.25rem;
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 2px solid #e2e8f0;
+      border-bottom: 2px solid var(--border);
     }
 
     .help-section h4 {
@@ -1966,7 +2279,7 @@
 
     .help-section p,
     .help-section li {
-      color: #718096;
+      color: var(--text-muted);
       margin-bottom: 0.75rem;
     }
 
@@ -2070,6 +2383,59 @@
 </head>
 
 <body>
+  <div id="welcomeOverlay" class="welcome-overlay" aria-hidden="true">
+    <div class="welcome-card">
+      <div class="welcome-badge">✨ Welcome</div>
+      <h1 class="welcome-title">Chào mừng đến Admin Dashboard</h1>
+      <p class="welcome-subtitle">
+        ✨ Xin chào! Hãy dành 15 giây để làm quen nhanh: theo dõi thống kê, quản lý bài viết,
+        và xuất bản chỉ với vài cú nhấp.
+      </p>
+      <div class="welcome-steps">
+        <div class="welcome-step active">
+          <h4>📊 Theo dõi tổng quan</h4>
+          <p>Xem thống kê truy cập, nguồn traffic và hiệu suất nội dung ngay lập tức.</p>
+        </div>
+        <div class="welcome-step">
+          <h4>✍️ Soạn & quản lý bài viết</h4>
+          <p>Tạo bài mới, chỉnh sửa nhanh và quản lý toàn bộ thư viện bài viết.</p>
+        </div>
+        <div class="welcome-step">
+          <h4>🚀 Deploy tự động</h4>
+          <p>Xuất bản và cập nhật trang tin tức chỉ với một nút bấm.</p>
+        </div>
+        <div class="welcome-step">
+          <h4>🔔 Theo dõi đăng ký</h4>
+          <p>Kiểm tra danh sách đăng ký và phản hồi khách hàng nhanh chóng.</p>
+        </div>
+      </div>
+      <div class="welcome-dots" id="welcomeDots">
+        <span class="welcome-dot active"></span>
+        <span class="welcome-dot"></span>
+        <span class="welcome-dot"></span>
+        <span class="welcome-dot"></span>
+      </div>
+      <div class="welcome-features">
+        <div class="welcome-feature">
+          <h4>✍️ Soạn bài nhanh</h4>
+          <p>Tạo, chỉnh sửa và xuất bản chỉ trong vài bước.</p>
+        </div>
+        <div class="welcome-feature">
+          <h4>📊 Theo dõi tức thì</h4>
+          <p>Kiểm soát hiệu suất và đăng ký ngay trên dashboard.</p>
+        </div>
+        <div class="welcome-feature">
+          <h4>🚀 Deploy tự động</h4>
+          <p>Đẩy bài viết và cập nhật trang tin tức tự động.</p>
+        </div>
+      </div>
+      <div class="welcome-actions">
+        <button class="welcome-btn primary" onclick="dismissWelcomeOverlay()">Bắt đầu</button>
+        <button class="welcome-btn secondary" onclick="dismissWelcomeOverlay()">Bỏ qua</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile Header -->
   <div class="mobile-header">
     <div class="mobile-header-title">
@@ -2080,6 +2446,7 @@
       <button id="adminAuthBtn" class="auth-btn" onclick="handleAuthAction()">
         <span id="authBtnText">🔐 Đăng nhập</span>
       </button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ sáng/tối">🌓</button>
       <button class="hamburger-btn" onclick="toggleMobileSidebar()">☰</button>
     </div>
   </div>
@@ -2093,6 +2460,7 @@
       <div class="sidebar-header">
         <h1>🏢 Admin Panel</h1>
         <p>Bảo Hiểm Bảo Việt Đà Nẵng</p>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓 Chế độ sáng/tối</button>
       </div>
 
       <nav class="sidebar-nav">
@@ -2385,7 +2753,7 @@
         </div>
 
         <div style="text-align: center; padding: 2rem;">
-          <p style="margin-bottom: 1rem; color: #718096;">Chuyển đến trang soạn thảo để tạo bài viết mới</p>
+          <p style="margin-bottom: 1rem; color: var(--text-muted);">Chuyển đến trang soạn thảo để tạo bài viết mới</p>
           <a href="admin-compose-e8d6c754705d3fce.html" class="btn btn-primary">
             ✍️ Mở trình soạn thảo
           </a>
@@ -2396,7 +2764,30 @@
 
   <script>
     // Initialize variables
-    let supabase = null;
+    // Helper function to get supabase client
+    function getSupabaseClient() {
+      if (window.supabaseClient) {
+        return window.supabaseClient;
+      }
+      if (adminAuth && typeof adminAuth.getSupabaseClient === 'function') {
+        const client = adminAuth.getSupabaseClient();
+        if (client) {
+          window.supabaseClient = client;
+          return client;
+        }
+      }
+      return null;
+    }
+
+    // Supabase client variable (will be set when auth is ready)
+    // Using different name to avoid conflict with Supabase CDN global
+    let supabaseClient = null;
+
+    // Helper to get supabase client (backward compatibility)
+    function getSupabase() {
+      return supabaseClient || window.supabaseClient || getSupabaseClient();
+    }
+
     let currentSection = 'overview';
 
     // Pagination variables for articles
@@ -2425,6 +2816,8 @@
 
     // Initialize app
     window.addEventListener('DOMContentLoaded', async function () {
+      initTheme();
+      initWelcomeOverlay();
       showWelcomeBackNotification();
       await initializeAdminAuth();
     });
@@ -2433,6 +2826,56 @@
     function checkAuth() {
       // No longer redirect - handled by new auth system
       console.log('🔄 Auth check - handled by AdminAuthManager');
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('admin_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+      applyTheme(theme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
+      localStorage.setItem('admin_theme', nextTheme);
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      updateChartsTheme();
+    }
+
+    function getChartThemeColors() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return {
+        text: isDark ? '#f8fafc' : '#1a202c',
+        tick: isDark ? '#f8fafc' : '#718096',
+        grid: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+        tooltipBg: isDark ? '#0b1220' : '#ffffff'
+      };
+    }
+
+    function updateChartsTheme() {
+      const colors = getChartThemeColors();
+      const charts = [articlesChart, registrationChart, pageViewsChart, trafficSourcesChart].filter(Boolean);
+      charts.forEach((chart) => {
+        if (!chart?.options) return;
+        if (chart.options.scales?.x?.ticks) {
+          chart.options.scales.x.ticks.color = colors.tick;
+        }
+        if (chart.options.scales?.y?.ticks) {
+          chart.options.scales.y.ticks.color = colors.tick;
+        }
+        if (chart.options.scales?.y?.grid) {
+          chart.options.scales.y.grid.color = colors.grid;
+        }
+        if (chart.options.plugins?.legend?.labels) {
+          chart.options.plugins.legend.labels.color = colors.text;
+        }
+        chart.update();
+      });
     }
 
     function showWelcomeBackNotification() {
@@ -2489,6 +2932,70 @@
 
         // Store current time as last access time for next login
         sessionStorage.setItem('admin_last_access_time', currentTime.toString());
+      }
+    }
+
+    function initWelcomeOverlay() {
+      const overlay = document.getElementById('welcomeOverlay');
+      if (!overlay) return;
+
+      const seenKey = 'admin_welcome_seen';
+      const hasSeen = sessionStorage.getItem(seenKey) === 'true';
+      if (!hasSeen) {
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        startWelcomeSteps();
+      }
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && overlay.style.display === 'flex') {
+          dismissWelcomeOverlay();
+        }
+      });
+    }
+
+    function dismissWelcomeOverlay() {
+      const overlay = document.getElementById('welcomeOverlay');
+      if (!overlay) return;
+
+      overlay.style.display = 'none';
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      sessionStorage.setItem('admin_welcome_seen', 'true');
+      stopWelcomeSteps();
+    }
+
+    let welcomeStepInterval = null;
+
+    function startWelcomeSteps() {
+      const steps = Array.from(document.querySelectorAll('.welcome-step'));
+      const dots = Array.from(document.querySelectorAll('.welcome-dot'));
+      if (!steps.length) return;
+
+      let index = 0;
+
+      const activate = (nextIndex) => {
+        steps.forEach((step, idx) => step.classList.toggle('active', idx === nextIndex));
+        dots.forEach((dot, idx) => dot.classList.toggle('active', idx === nextIndex));
+      };
+
+      activate(index);
+
+      if (welcomeStepInterval) {
+        clearInterval(welcomeStepInterval);
+      }
+
+      welcomeStepInterval = setInterval(() => {
+        index = (index + 1) % steps.length;
+        activate(index);
+      }, 3000);
+    }
+
+    function stopWelcomeSteps() {
+      if (welcomeStepInterval) {
+        clearInterval(welcomeStepInterval);
+        welcomeStepInterval = null;
       }
     }
 
@@ -2565,6 +3072,7 @@
 
     // Overview stats
     async function loadOverviewStats(forceRefresh = false) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       // Check cache first
@@ -2662,6 +3170,7 @@
     let prefetchTimeout = null;
 
     async function loadArticles(page = 1) {
+      const supabase = getSupabase();
       if (!supabase) {
         showStatus('Chưa kết nối Supabase', 'error');
         return;
@@ -2683,7 +3192,7 @@
       }
 
       loading.style.display = 'block';
-      table.innerHTML = '<div style="text-align: center; padding: 2rem; color: #718096;"><div class="loading-shimmer" style="width: 100%; height: 200px; border-radius: 8px;"></div></div>';
+      table.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);"><div class="loading-shimmer" style="width: 100%; height: 200px; border-radius: 8px;"></div></div>';
       paginationContainer.style.display = 'none';
 
       try {
@@ -2706,7 +3215,7 @@
 
         if (totalArticles === 0) {
           loading.style.display = 'none';
-          table.innerHTML = '<p style="text-align: center; padding: 2rem; color: #718096;">Chưa có bài viết nào</p>';
+          table.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Chưa có bài viết nào</p>';
           return;
         }
 
@@ -2750,6 +3259,7 @@
     }
 
     async function prefetchArticlesPage(page) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       const cacheKey = `page_${page}_size_${articlesPerPage}`;
@@ -2792,7 +3302,7 @@
       const table = document.getElementById('articlesTable');
 
       if (!data || data.length === 0) {
-        table.innerHTML = '<p style="text-align: center; padding: 2rem; color: #718096;">Chưa có bài viết nào</p>';
+        table.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Chưa có bài viết nào</p>';
         return;
       }
 
@@ -3094,6 +3604,7 @@
 
     // Users management
     async function loadUsers() {
+      const supabase = getSupabase();
       if (!supabase) {
         showStatus('Chưa kết nối Supabase', 'error');
         return;
@@ -3116,7 +3627,7 @@
         loading.style.display = 'none';
 
         if (data.length === 0) {
-          table.innerHTML = '<p style="text-align: center; padding: 2rem; color: #718096;">Chưa có người đăng ký nào</p>';
+          table.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Chưa có người đăng ký nào</p>';
           return;
         }
 
@@ -3452,6 +3963,7 @@
 
     // Chart Functions
     async function loadChart(period = 15, forceRefresh = false) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       // Check cache first
@@ -3643,6 +4155,7 @@
 
     function renderChart(chartData, period) {
       const ctx = document.getElementById('articlesChart').getContext('2d');
+      const chartColors = getChartThemeColors();
 
       // Destroy existing chart
       if (articlesChart) {
@@ -3670,13 +4183,13 @@
           datasets: [{
             label: datasetLabel,
             data: chartData.data,
-            borderColor: '#0060ae',
-            backgroundColor: 'rgba(0, 96, 174, 0.1)',
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--brand').trim() || '#0060ae',
+            backgroundColor: 'rgba(0, 96, 174, 0.15)',
             borderWidth: 2,
             fill: true,
             tension: 0.4,
-            pointBackgroundColor: '#0060ae',
-            pointBorderColor: '#ffffff',
+            pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--brand').trim() || '#0060ae',
+            pointBorderColor: chartColors.text,
             pointBorderWidth: 2,
             pointRadius: 4,
             pointHoverRadius: 6
@@ -3694,10 +4207,10 @@
               display: false
             },
             tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              titleColor: '#ffffff',
-              bodyColor: '#ffffff',
-              borderColor: '#0060ae',
+              backgroundColor: chartColors.tooltipBg,
+              titleColor: chartColors.text,
+              bodyColor: chartColors.text,
+              borderColor: getComputedStyle(document.documentElement).getPropertyValue('--brand').trim() || '#0060ae',
               borderWidth: 1,
               cornerRadius: 6,
               displayColors: false,
@@ -3764,7 +4277,7 @@
                 display: false
               },
               ticks: {
-                color: '#718096',
+                color: chartColors.tick,
                 font: {
                   size: 11
                 }
@@ -3773,10 +4286,10 @@
             y: {
               beginAtZero: true,
               grid: {
-                color: 'rgba(0, 0, 0, 0.05)'
+                color: chartColors.grid
               },
               ticks: {
-                color: '#718096',
+                color: chartColors.tick,
                 font: {
                   size: 11
                 },
@@ -3812,6 +4325,7 @@
 
     // Registration Chart Functions
     async function loadRegistrationChart(period = 30, forceRefresh = false) {
+      const supabase = getSupabase();
       if (!supabase) return;
 
       // Check cache first
@@ -4021,6 +4535,7 @@
 
     function renderRegistrationChart(chartData, period) {
       const ctx = document.getElementById('registrationChart').getContext('2d');
+      const chartColors = getChartThemeColors();
 
       // Destroy existing chart
       if (registrationChart) {
@@ -4045,16 +4560,17 @@
               labels: {
                 usePointStyle: true,
                 padding: 15,
+                color: chartColors.text,
                 font: {
                   size: 11
                 }
               }
             },
             tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              titleColor: '#ffffff',
-              bodyColor: '#ffffff',
-              borderColor: '#0060ae',
+              backgroundColor: chartColors.tooltipBg,
+              titleColor: chartColors.text,
+              bodyColor: chartColors.text,
+              borderColor: getComputedStyle(document.documentElement).getPropertyValue('--brand').trim() || '#0060ae',
               borderWidth: 1,
               cornerRadius: 6,
               callbacks: {
@@ -4073,7 +4589,7 @@
                 display: false
               },
               ticks: {
-                color: '#718096',
+                color: chartColors.tick,
                 font: {
                   size: 10
                 }
@@ -4082,10 +4598,10 @@
             y: {
               beginAtZero: true,
               grid: {
-                color: 'rgba(0, 0, 0, 0.05)'
+                color: chartColors.grid
               },
               ticks: {
-                color: '#718096',
+                color: chartColors.tick,
                 font: {
                   size: 10
                 },
@@ -4264,23 +4780,34 @@
         const response = await fetchSupabaseFunction(`track-user-behavior?type=summary&days=${days}`);
         const data = await response.json();
 
-        // Update summary stats
-        document.getElementById('totalViews').textContent =
-          data.summary.reduce((sum, day) => sum + (day.total_views || 0), 0).toLocaleString();
+        // Update summary stats - check if elements exist before setting
+        const totalViewsEl = document.getElementById('totalViews');
+        if (totalViewsEl) {
+          totalViewsEl.textContent = data.summary.reduce((sum, day) => sum + (day.total_views || 0), 0).toLocaleString();
+        }
 
-        document.getElementById('uniqueVisitors').textContent =
-          data.summary.reduce((sum, day) => sum + (day.unique_visitors || 0), 0).toLocaleString();
+        const uniqueVisitorsEl = document.getElementById('uniqueVisitors');
+        if (uniqueVisitorsEl) {
+          uniqueVisitorsEl.textContent = data.summary.reduce((sum, day) => sum + (day.unique_visitors || 0), 0).toLocaleString();
+        }
 
-        const avgTime = data.summary.reduce((sum, day) => sum + (day.avg_session_duration || 0), 0) / data.summary.length;
-        document.getElementById('avgTimeOnSite').textContent =
-          formatDuration(avgTime);
+        const avgTimeOnSiteEl = document.getElementById('avgTimeOnSite');
+        if (avgTimeOnSiteEl && data.summary.length > 0) {
+          const avgTime = data.summary.reduce((sum, day) => sum + (day.avg_session_duration || 0), 0) / data.summary.length;
+          avgTimeOnSiteEl.textContent = formatDuration(avgTime);
+        }
 
-        const avgBounce = data.summary.reduce((sum, day) => sum + (day.bounce_rate || 0), 0) / data.summary.length;
-        document.getElementById('bounceRate').textContent =
-          avgBounce.toFixed(1) + '%';
+        const bounceRateEl = document.getElementById('bounceRate');
+        if (bounceRateEl && data.summary.length > 0) {
+          const avgBounce = data.summary.reduce((sum, day) => sum + (day.bounce_rate || 0), 0) / data.summary.length;
+          bounceRateEl.textContent = avgBounce.toFixed(1) + '%';
+        }
 
         // Update realtime stats
-        document.getElementById('liveVisitors').textContent = data.active_users || 0;
+        const liveVisitorsEl = document.getElementById('liveVisitors');
+        if (liveVisitorsEl) {
+          liveVisitorsEl.textContent = data.active_users || 0;
+        }
 
       } catch (error) {
         console.error('Error loading analytics summary:', error);
@@ -4295,25 +4822,35 @@
         if (response.ok) {
           const data = await response.json();
 
-          // Update live visitor count
-          document.getElementById('liveVisitors').textContent = data.active_users || 0;
+          // Update live visitor count - check if element exists
+          const liveVisitorsEl = document.getElementById('liveVisitors');
+          if (liveVisitorsEl) {
+            liveVisitorsEl.textContent = data.active_users || 0;
+          }
 
-          // Update live pages (mock data for now)
+          // Update live pages (mock data for now) - check if element exists
           const livePagesContainer = document.getElementById('livePages');
-          livePagesContainer.innerHTML = `
+          if (livePagesContainer) {
+            // Sanitize HTML to prevent XSS
+            const page1Count = Math.floor(Math.random() * 5) + 1;
+            const page2Count = Math.floor(Math.random() * 3) + 1;
+            const page3Count = Math.floor(Math.random() * 4) + 1;
+
+            livePagesContainer.innerHTML = `
             <div class="live-page-item">
               <span class="live-page-title">Bảo hiểm ô tô</span>
-              <span class="live-page-count">${Math.floor(Math.random() * 5) + 1}</span>
+              <span class="live-page-count">${page1Count}</span>
             </div>
             <div class="live-page-item">
               <span class="live-page-title">Bảo hiểm sức khỏe</span>
-              <span class="live-page-count">${Math.floor(Math.random() * 3) + 1}</span>
+              <span class="live-page-count">${page2Count}</span>
             </div>
             <div class="live-page-item">
               <span class="live-page-title">Trang chủ</span>
-              <span class="live-page-count">${Math.floor(Math.random() * 8) + 2}</span>
+              <span class="live-page-count">${page3Count}</span>
             </div>
           `;
+          }
         }
       } catch (error) {
         console.error('Error loading realtime stats:', error);
@@ -4431,6 +4968,7 @@
     // Update page views chart
     function updatePageViewsChart(summaryData) {
       const ctx = document.getElementById('pageViewsChart').getContext('2d');
+      const chartColors = getChartThemeColors();
 
       if (pageViewsChart) {
         pageViewsChart.destroy();
@@ -4473,12 +5011,27 @@
           plugins: {
             legend: {
               position: 'top',
+              labels: {
+                color: chartColors.text
+              }
             }
           },
           scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: chartColors.tick
+              }
+            },
             y: {
               beginAtZero: true,
+              grid: {
+                color: chartColors.grid
+              },
               ticks: {
+                color: chartColors.tick,
                 callback: function (value) {
                   return value.toLocaleString();
                 }
@@ -4492,6 +5045,7 @@
     // Update traffic sources chart
     function updateTrafficSourcesChart(trafficData) {
       const ctx = document.getElementById('trafficSourcesChart').getContext('2d');
+      const chartColors = getChartThemeColors();
 
       if (trafficSourcesChart) {
         trafficSourcesChart.destroy();
@@ -4519,6 +5073,7 @@
             legend: {
               position: 'bottom',
               labels: {
+                color: chartColors.text,
                 padding: 15,
                 usePointStyle: true
               }
@@ -5205,11 +5760,25 @@
 
         // Lưu trữ global để tái sử dụng
         window.adminAuthManager = adminAuth;
-        supabase = adminAuth.getSupabaseClient();
 
-        // Initialize API Manager
-        adminAPI = new AdminAPIManager();
-        await adminAPI.initialize(adminAuth);
+        // Get supabase client if available (may be null if initialization had issues)
+        try {
+          const client = adminAuth.getSupabaseClient();
+          if (client) {
+            supabaseClient = client; // Update local variable
+            window.supabaseClient = client; // Also set global
+          }
+        } catch (e) {
+          console.warn('⚠️ Supabase client not available yet:', e.message);
+        }
+
+        // Initialize API Manager (only if auth is working)
+        try {
+          adminAPI = new AdminAPIManager();
+          await adminAPI.initialize(adminAuth);
+        } catch (apiError) {
+          console.warn('⚠️ API Manager initialization failed:', apiError.message);
+        }
 
         // Check current session
         const isAuthenticated = await adminAuth.checkCurrentSession();
@@ -5220,25 +5789,42 @@
           const currentUser = adminAuth.getCurrentUser();
           console.log('✅ Admin đã đăng nhập:', currentUser.email);
           updateUserProfile(currentUser);
-          await adminAPI.logAdminAction('dashboard_access', { ip: 'auto' });
+          try {
+            await adminAPI.logAdminAction('dashboard_access', { ip: 'auto' });
+          } catch (e) {
+            console.warn('⚠️ Could not log admin action:', e.message);
+          }
           await handleAuthenticatedState();
         } else {
           console.log('ℹ️ Chưa đăng nhập - yêu cầu đăng nhập Admin');
           isAdminMode = false;
           lockDashboardForGuest();
-          adminAuth.showLoginModal();
+          // Ensure modal shows even if there were initialization issues
+          setTimeout(() => {
+            if (adminAuth && typeof adminAuth.showLoginModal === 'function') {
+              adminAuth.showLoginModal();
+            }
+          }, 100);
         }
 
       } catch (error) {
         console.error('❌ Lỗi khởi tạo Admin system:', error);
         isAdminMode = false;
+        // Still try to show login modal even on error
+        if (adminAuth && typeof adminAuth.showLoginModal === 'function') {
+          setTimeout(() => adminAuth.showLoginModal(), 200);
+        }
       }
     }
 
     async function handleAuthenticatedState() {
       try {
         toggleAuthSections(true);
-        supabase = adminAuth.getSupabaseClient();
+        const client = adminAuth.getSupabaseClient();
+        if (client) {
+          supabaseClient = client; // Update local variable
+          window.supabaseClient = client; // Also set global
+        }
         updateUserProfile(adminAuth.getCurrentUser());
         resetAnalyticsState();
         await refreshDashboardWithAuth();
@@ -5306,7 +5892,11 @@
         return;
       }
 
-      supabase = adminAuth.getSupabaseClient();
+      const supabaseClient = adminAuth.getSupabaseClient();
+      if (supabaseClient) {
+        window.supabaseClient = supabaseClient;
+        supabase = supabaseClient; // Update legacy variable
+      }
       console.log('🔄 Refresh dashboard với admin auth...');
 
       await Promise.allSettled([

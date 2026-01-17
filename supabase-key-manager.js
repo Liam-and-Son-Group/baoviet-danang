@@ -69,20 +69,14 @@ class SupabaseKeyManager {
         },
       });
 
-      // If 401, try with a basic anon key for bootstrapping
+      // If 401, log error and throw - don't use hardcoded fallback keys
       if (response.status === 401) {
-        console.log("🔄 Trying with bootstrap anon key...");
-        const bootstrapKey =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpYXhyc2l5Y3N3cnd1Y3RoaWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDA2NDY3NjQsImV4cCI6MjAxNjIyMjc2NH0.bJhkUrUvKhQmNabgp8rqYYNKqglLpykUJ5wOhJHyqhE";
-
-        response = await fetch(this.getFunctionUrl(), {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${bootstrapKey}`,
-            apikey: bootstrapKey,
-          },
-        });
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Edge function authentication failed: ${
+            errorData.error || response.statusText
+          }. Please configure edge function properly.`
+        );
       }
 
       if (!response.ok) {
