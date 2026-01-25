@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform",
 };
 
 interface Article {
@@ -43,7 +43,7 @@ serve(async (req) => {
       await req.json();
 
     console.log(
-      `📊 Received ${unique_count} unique articles from ${total_count} total articles`
+      `📊 Received ${unique_count} unique articles from ${total_count} total articles`,
     );
     console.log(`📍 Triggered from: ${trigger_source}`);
 
@@ -72,7 +72,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
-      }
+      },
     );
   } catch (error) {
     console.error("❌ Error in update-news-page:", error);
@@ -86,7 +86,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
-      }
+      },
     );
   }
 });
@@ -110,7 +110,7 @@ function generateNewsPageHTML(articles: Article[]): string {
 
       const displayCategory = categoryMap[article.category] || article.category;
       const publishDate = formatDate(
-        article.published_date || article.created_at
+        article.published_date || article.created_at,
       );
       // Use feature image if available, otherwise fallback to old logic
       const imagePath =
@@ -125,7 +125,7 @@ function generateNewsPageHTML(articles: Article[]): string {
             article.title
           }</h3>
           <p style="color: #666; line-height: 1.6; margin: 0 0 15px 0;">${truncateDescription(
-            article.description
+            article.description,
           )}</p>
           <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
             <span
@@ -153,8 +153,27 @@ function generateNewsPageHTML(articles: Article[]): string {
   <link rel="shortcut icon" href="https://baovietonline.com.vn/favicon.ico">
   <link rel="stylesheet" href="/style.css" />
 
-  <!-- Custom CSS for News Cards -->
+  <!-- Custom CSS for News Cards and Pagination -->
   <style>
+    /* Grid Layout for Desktop */
+    .news-list {
+      display: grid;
+      grid-template-columns: 1fr; /* Mobile default: 1 column */
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .news-list {
+        grid-template-columns: repeat(2, 1fr); /* Desktop: 2 columns */
+      }
+    }
+
+    .news-item {
+      display: flex;
+      flex-direction: column;
+      height: 100%; /* Ensure equal height */
+    }
+
     .news-item:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
@@ -166,10 +185,54 @@ function generateNewsPageHTML(articles: Article[]): string {
 
     .news-item img {
       transition: transform 0.3s ease;
+      width: 100%; 
+      height: 250px; /* Unify image height */
+      object-fit: cover; 
+      border-radius: 8px; 
+      margin-bottom: 15px;
     }
 
     .news-item:hover img {
       transform: scale(1.02);
+    }
+
+    /* Pagination Styles */
+    #pagination-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 30px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+      background: white;
+      border: 1px solid #e0e6ed;
+      color: #064278;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: #e6f7ff;
+      border-color: #0060ae;
+      color: #0060ae;
+    }
+
+    .pagination-btn.active {
+      background: #0060ae;
+      color: white;
+      border-color: #0060ae;
+    }
+
+    .pagination-btn:disabled {
+      color: #a0aec0;
+      cursor: not-allowed;
+      background: #f7fafc;
     }
 
     @media (max-width: 768px) {
@@ -271,13 +334,19 @@ function generateNewsPageHTML(articles: Article[]): string {
     <div class="meta-info" style=" border-bottom: 1px solid rgba(0, 0, 0, 0.219); padding-bottom: 20px;">
       <span class="category">TIN TỨC MỚI NHẤT</span>
       <span class="date">Cập nhật: ${formatDate(
-        new Date().toISOString()
+        new Date().toISOString(),
       )}</span>
     </div>
 
     <div style="max-width: 900px; margin: auto; margin-top: 20px;">
-      <div class="news-list" style="display: flex; flex-direction: column; gap: 20px;">
+      <!-- News List Container -->
+      <div id="articles-container" class="news-list">
 ${newsItemsHTML}
+      </div>
+      
+      <!-- Pagination Controls -->
+      <div id="pagination-controls">
+        <!-- Pagination will be generated here by JS -->
       </div>
     </div>
   </div>
@@ -327,33 +396,113 @@ ${newsItemsHTML}
 </footer>
 
 <script>
+  // Slider Logic
   let currentIndex = 0;
   const slides = document.querySelector(".slides");
   const totalSlides = document.querySelectorAll(".slide").length;
 
   function updateSlide() {
-    slides.style.transform = \`translateX(-\${currentIndex * 100}%)\`;
+    if (slides) {
+      slides.style.transform = \`translateX(-\${currentIndex * 100}%)\`;
+    }
   }
 
   function nextSlide() {
-    currentIndex = (currentIndex + 1) % totalSlides;
-    updateSlide();
+    if (totalSlides > 0) {
+      currentIndex = (currentIndex + 1) % totalSlides;
+      updateSlide();
+    }
   }
 
-  function prevSlide() {
-    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-    updateSlide();
+  // Auto slide every 3 seconds if slides exist
+  if (totalSlides > 0) {
+    setInterval(nextSlide, 3000);
   }
-
-  // Auto slide every 3 seconds
-  setInterval(nextSlide, 3000);
 </script>
 
 <script>
+  // Mobile Menu Logic
   function toggleMenu() {
     document.getElementById("menu").classList.toggle("active");
   }
 </script>
+
+<script>
+  // Pagination Logic
+  document.addEventListener('DOMContentLoaded', function() {
+    const articles = document.querySelectorAll('.news-item');
+    const itemsPerPage = 8; // Number of items per page
+    const totalItems = articles.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginationContainer = document.getElementById('pagination-controls');
+    let currentPage = 1;
+
+    // Function to display specific page
+    function showPage(page) {
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+
+      // Hide all items
+      articles.forEach((article, index) => {
+        article.style.display = 'none';
+      });
+
+      // Show items for current page
+      const start = (page - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      
+      for (let i = start; i < end && i < totalItems; i++) {
+        articles[i].style.display = 'flex'; // Use flex to maintain layout style
+      }
+
+      updatePaginationButtons();
+      
+      // Scroll to top of news list
+      const newsList = document.querySelector('.title-new');
+      if (newsList) {
+        newsList.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Generate pagination buttons
+    function updatePaginationButtons() {
+      paginationContainer.innerHTML = '';
+      
+      if (totalPages <= 1) return;
+
+      // Previous Button
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'pagination-btn';
+      prevBtn.innerText = '←';
+      prevBtn.onclick = () => showPage(currentPage - 1);
+      prevBtn.disabled = currentPage === 1;
+      paginationContainer.appendChild(prevBtn);
+
+      // Page Numbers
+      for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = \`pagination-btn \${i === currentPage ? 'active' : ''}\`;
+        pageBtn.innerText = i;
+        pageBtn.onclick = () => showPage(i);
+        paginationContainer.appendChild(pageBtn);
+      }
+
+      // Next Button
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'pagination-btn';
+      nextBtn.innerText = '→';
+      nextBtn.onclick = () => showPage(currentPage + 1);
+      nextBtn.disabled = currentPage === totalPages;
+      paginationContainer.appendChild(nextBtn);
+    }
+
+    // Initialize
+    if (totalItems > 0) {
+      showPage(1);
+    }
+  });
+</script>
+
 <script src="scripts/onshow-tap.js"></script>
 <script src="scripts/notification.js"></script>
 
@@ -371,7 +520,7 @@ function formatDate(dateString: string): string {
 
 function truncateDescription(
   description: string,
-  maxLength: number = 200
+  maxLength: number = 200,
 ): string {
   if (description.length <= maxLength) return description;
   return description.substring(0, maxLength).trim() + "...";
@@ -446,7 +595,7 @@ async function updateGitHubFile(htmlContent: string): Promise<any> {
     console.log("📄 File not found, will create new file");
   } else {
     throw new Error(
-      `Failed to get file info: ${getResponse.status} ${getResponse.statusText}`
+      `Failed to get file info: ${getResponse.status} ${getResponse.statusText}`,
     );
   }
 
@@ -474,7 +623,7 @@ async function updateGitHubFile(htmlContent: string): Promise<any> {
   if (!updateResponse.ok) {
     const errorData = await updateResponse.text();
     throw new Error(
-      `Failed to update GitHub file: ${updateResponse.status} ${updateResponse.statusText} - ${errorData}`
+      `Failed to update GitHub file: ${updateResponse.status} ${updateResponse.statusText} - ${errorData}`,
     );
   }
 

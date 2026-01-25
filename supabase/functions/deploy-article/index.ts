@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform",
 };
 
 serve(async (req) => {
@@ -25,7 +25,7 @@ serve(async (req) => {
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
-        }
+        },
       );
     }
 
@@ -39,7 +39,7 @@ serve(async (req) => {
     if (!githubToken) {
       console.error("❌ GITHUB_TOKEN not found in environment variables");
       console.error(
-        "Set it using: supabase secrets set GITHUB_TOKEN=your_token"
+        "Set it using: supabase secrets set GITHUB_TOKEN=your_token",
       );
       return new Response(
         JSON.stringify({
@@ -49,7 +49,7 @@ serve(async (req) => {
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 500,
-        }
+        },
       );
     }
 
@@ -69,7 +69,7 @@ serve(async (req) => {
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 404,
-        }
+        },
       );
     }
 
@@ -105,7 +105,7 @@ serve(async (req) => {
           "User-Agent": "Supabase-Edge-Function/1.0",
         },
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     const success = githubResponse.status === 204;
@@ -150,7 +150,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
-      }
+      },
     );
   }
 });
