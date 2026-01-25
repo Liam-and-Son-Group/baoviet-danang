@@ -3442,8 +3442,12 @@
       }
     }
 
-    // � UPDATE NEWS PAGE FUNCTION
+    //  UPDATE NEWS PAGE FUNCTION
     async function updateNewsPage() {
+      // Configuration
+      const MAX_NEWS_ITEMS = 30; // UPDATED: Set limit to 30 as requested
+      const FETCH_BUFFER = 5;    // Buffer to handle duplicates
+
       try {
         showStatus('📰 Đang cập nhật trang tin tức...', 'info');
 
@@ -3461,7 +3465,7 @@
           .eq('is_published', true)
           .order('updated_at', { ascending: false }) // Ưu tiên bài viết được cập nhật gần nhất
           .order('created_at', { ascending: false })  // Sau đó theo ngày tạo
-          .limit(20); // Lấy 20 bài để có dự phòng sau khi deduplicate
+          .limit(MAX_NEWS_ITEMS + FETCH_BUFFER); // Lấy số lượng bài + buffer
 
         if (error) {
           throw error;
@@ -3486,8 +3490,8 @@
           }
         }
 
-        // Chỉ lấy 15 bài sau khi deduplicate
-        const finalArticles = uniqueArticles.slice(0, 15);
+        // Chỉ lấy MAX_NEWS_ITEMS bài sau khi deduplicate
+        const finalArticles = uniqueArticles.slice(0, MAX_NEWS_ITEMS);
 
         showStatus(`📊 Đã lọc ${finalArticles.length} bài viết unique từ ${articles.length} bài trong database`, 'info');
 
