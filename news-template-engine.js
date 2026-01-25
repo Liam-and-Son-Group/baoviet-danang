@@ -76,7 +76,7 @@ class NewsTemplateEngine {
 
       if (!response.ok) {
         throw new Error(
-          `Failed to load template: ${response.status} - ${response.statusText}`
+          `Failed to load template: ${response.status} - ${response.statusText}`,
         );
       }
 
@@ -125,7 +125,7 @@ class NewsTemplateEngine {
               fullMatch,
               includeContent: `<!-- Include failed: ${includePath} -->`,
             };
-          })
+          }),
       );
     }
 
@@ -190,7 +190,7 @@ class NewsTemplateEngine {
         }
 
         return "";
-      }
+      },
     );
   }
 
@@ -259,7 +259,8 @@ class NewsTemplateEngine {
    */
   parseHelperArgs(argsString, data) {
     const args = [];
-    const parts = argsString.split(/\s+/);
+    // Match quoted strings (double or single) or non-whitespace sequences
+    const parts = argsString.match(/"[^"]*"|'[^']*'|\S+/g) || [];
 
     for (const part of parts) {
       if (part.startsWith('"') && part.endsWith('"')) {
@@ -395,6 +396,12 @@ class NewsTemplateEngine {
       // Generate canonical URL
       canonical: (filename, domain = "https://baohiembaovietdanang.vn") => {
         return `${domain}/${filename}`;
+      },
+
+      // JSON stringify (safe for JSON-LD)
+      json: (value) => {
+        if (value === undefined || value === null) return '""';
+        return JSON.stringify(value);
       },
     };
   }

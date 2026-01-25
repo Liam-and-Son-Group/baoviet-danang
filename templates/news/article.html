@@ -66,10 +66,10 @@
   {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "{{title}}",
-    "description": "{{meta.description}}",
+    "headline": {{json title}},
+    "description": {{json meta.description}},
     {{#if meta.image}}
-    "image": "{{meta.image}}",
+    "image": {{json meta.image}},
     {{/if}}
     "author": {
       "@type": "Organization",
